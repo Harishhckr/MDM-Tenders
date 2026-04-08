@@ -1,0 +1,153 @@
+2026-03-24 15:03:58 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:04:26 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:06:59 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:07:05 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:07:23 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:07:56 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:07:58 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:00 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:02 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:03 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:04 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:06 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:07 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:08:08 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:10:15 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:14:24 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:17:33 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:17:36 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:17:38 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:17:39 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:21:23 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:21:27 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:21:29 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:30:08 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:31:07 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:32:06 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:32:41 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:34:51 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:37:40 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 15:57:18 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 16:04:05 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-24 17:50:49 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 10:39:54 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 12:14:06 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 12:59:56 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 17:01:29 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 17:01:56 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 17:03:32 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 17:18:32 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 17:19:26 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 17:41:26 | INFO     | ai.routes | Chat | intent=search entities={}
+2026-03-25 18:15:02 | INFO     | ai.routes | Chat | session=e5b3f82c | message='hi'
+2026-03-25 18:15:26 | INFO     | ai.routes | Chat | session=e5b3f82c | message='speak with me'
+2026-03-25 18:15:26 | INFO     | ai.routes | Intent=search entities={}
+2026-03-25 18:20:28 | INFO     | ai.routes | Chat | session=e5b3f82c | message='hi'
+2026-03-26 10:14:08 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:14:49 | INFO     | ai.routes | Chat session=e5b3f82c msg='do you know football ?'
+2026-03-26 10:14:49 | INFO     | ai.routes | Intent=search entities={}
+2026-03-26 10:15:47 | INFO     | ai.routes | Chat session=e5b3f82c msg='vanakkam'
+2026-03-26 10:16:10 | INFO     | ai.routes | Chat session=e5b3f82c msg='football'
+2026-03-26 10:16:10 | INFO     | ai.routes | Intent=search entities={}
+2026-03-26 10:26:31 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:26:39 | INFO     | ai.routes | Chat session=e5b3f82c msg='hlo'
+2026-03-26 10:29:55 | INFO     | ai.routes | Chat session=e5b3f82c msg='hlo'
+2026-03-26 10:32:06 | INFO     | ai.routes | Chat session=e5b3f82c msg='hlo'
+2026-03-26 10:32:46 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:34:37 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:36:14 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:38:28 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:39:41 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:43:21 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:48:01 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:53:18 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:53:25 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 10:54:18 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:04:38 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:10:17 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:12:49 | INFO     | ai.routes | Chat session=abdb1caf msg='Who is Cristiano Ronaldo?'
+2026-03-26 11:13:02 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:13:16 | INFO     | ai.routes | Chat session=63a26e83 msg='Hello'
+2026-03-26 11:14:28 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:24:48 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:25:25 | INFO     | ai.routes | Chat session=e5b3f82c msg='hloo'
+2026-03-26 11:25:29 | INFO     | ai.routes | Chat session=e5b3f82c msg='sdc'
+2026-03-26 11:25:30 | INFO     | ai.routes | Chat session=e5b3f82c msg='ds'
+2026-03-26 11:29:08 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:31:38 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:32:09 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:36:06 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:37:59 | INFO     | ai.routes | Chat session=d19002dd msg='Who won the world cup in 2022?'
+2026-03-26 11:38:28 | INFO     | ai.routes | Chat session=2d41707e msg='Hello'
+2026-03-26 11:39:17 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:42:37 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:42:48 | INFO     | ai.routes | Chat session=e5b3f82c msg='hello'
+2026-03-26 11:42:50 | INFO     | ai.routes | Chat session=e5b3f82c msg='hii'
+2026-03-26 11:43:38 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:49:05 | INFO     | ai.routes | Chat session=f0670dce msg='Who is Cristiano Ronaldo?'
+2026-03-26 11:51:04 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:55:29 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:57:07 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:58:59 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:59:44 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 11:59:47 | INFO     | ai.routes | Chat session=e5b3f82c msg='j'
+2026-03-26 11:59:48 | INFO     | ai.routes | Chat session=e5b3f82c msg='mp'
+2026-03-26 11:59:49 | INFO     | ai.routes | Chat session=e5b3f82c msg='m'
+2026-03-26 12:00:44 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:02:01 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:02:56 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:05:42 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:09:22 | INFO     | ai.routes | Chat session=e5b3f82c msg='yeah do you know ipl ? dhoni ?'
+2026-03-26 12:13:49 | INFO     | ai.routes | Chat session=e5b3f82c msg='i asked about Dhoni , MS dhoni '
+2026-03-26 12:17:48 | INFO     | ai.routes | Chat session=e5b3f82c msg='tell me about your self '
+2026-03-26 12:28:59 | INFO     | ai.routes | Chat session=e5b3f82c msg='show me material codification tender detail'
+2026-03-26 12:34:03 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:34:39 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:34:44 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 12:54:21 | INFO     | ai.routes | Chat session=cbe56dc2 msg='hi'
+2026-03-26 12:54:50 | INFO     | ai.routes | Chat session=773ad760 msg='hi'
+2026-03-26 12:57:24 | INFO     | ai.routes | Chat session=236e5e5b msg='hi'
+2026-03-26 12:59:30 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 13:06:20 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 13:06:34 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 13:06:59 | INFO     | ai.routes | Chat session=e5b3f82c msg='Nanba ?'
+2026-03-26 13:30:30 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 13:37:01 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 13:41:46 | INFO     | ai.routes | Chat session=e5b3f82c msg='tell me about Rajinikanth'
+2026-03-26 13:49:26 | INFO     | ai.routes | Chat session=e5b3f82c msg='who is thalapathy in tamil cinema now ?'
+2026-03-26 13:57:16 | INFO     | ai.routes | Chat session=e5b3f82c msg='do you know thalapathi vijay ? tell about him '
+2026-03-26 14:06:02 | INFO     | ai.routes | Chat session=e5b3f82c msg='do you know thalapathi vijay ? tell about him'
+2026-03-28 15:11:38 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-27 15:31:55 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-27 15:32:32 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-27 15:33:37 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 16:05:54 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 16:48:11 | INFO     | ai.routes | Chat: e5b3f82c -> hi
+2026-03-26 16:48:21 | INFO     | ai.routes | Chat: e5b3f82c -> hi
+2026-03-26 16:48:25 | INFO     | ai.routes | Chat: e5b3f82c -> what
+2026-03-26 16:48:28 | INFO     | ai.routes | Chat: e5b3f82c -> no
+2026-03-26 16:48:35 | INFO     | ai.routes | Chat: e5b3f82c -> nothing
+2026-03-26 16:52:49 | INFO     | ai.routes | Chat: e5b3f82c -> hi
+2026-03-26 16:52:57 | INFO     | ai.routes | Chat: e5b3f82c -> hlo
+2026-03-26 16:53:00 | INFO     | ai.routes | Chat: e5b3f82c -> jsdkc
+2026-03-26 16:53:02 | INFO     | ai.routes | Chat: e5b3f82c -> asd
+2026-03-26 16:55:36 | INFO     | ai.routes | Chat: e5b3f82c -> hi
+2026-03-26 17:02:50 | INFO     | ai.routes | Chat: hi
+2026-03-26 17:02:50 | INFO     | ai.routes | Response time: 2ms
+2026-03-26 17:02:59 | INFO     | ai.routes | Chat: rajini
+2026-03-26 17:02:59 | INFO     | ai.routes | Response time: 0ms
+2026-03-26 17:03:08 | INFO     | ai.routes | Chat: fuck
+2026-03-26 17:03:08 | INFO     | ai.routes | Response time: 0ms
+2026-03-26 17:06:26 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 17:07:00 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 17:08:42 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-26 17:13:13 | INFO     | ai.routes | Chat session=e5b3f82c msg='material codification'
+2026-03-26 17:19:12 | INFO     | ai.routes | Chat session=e5b3f82c msg='do you know any related mdm material codification tender ongoing and check our t'
+2026-03-26 17:26:02 | INFO     | ai.routes | Chat session=e5b3f82c msg='give me tenderontime , one material codification tender detail .'
+2026-03-26 17:37:33 | INFO     | ai.routes | Chat session=e5b3f82c msg='do you know THALAPATHI VIJAY ?'
+2026-03-26 17:53:09 | INFO     | ai.routes | Chat session=e5b3f82c msg='nanba'
+2026-03-26 18:02:47 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-27 09:57:52 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-27 09:59:26 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-03-27 10:28:25 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'
+2026-04-06 10:14:39 | INFO     | ai.routes | Chat session=e5b3f82c msg='hi'

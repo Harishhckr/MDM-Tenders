@@ -1,0 +1,610 @@
+2026-03-23 11:58:39 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 11:58:39 | INFO     | main | Database tables ready
+2026-03-23 11:59:31 | ERROR    | main | Unhandled error: (psycopg2.errors.UndefinedColumn) column tenders.link does not exist
+LINE 2: ...start_date, tenders.end_date AS tenders_end_date, tenders.li...
+                                                             ^
+
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT tenders.id AS tenders_id, tenders.tender_id AS tenders_tender_id, tenders.source AS tenders_source, tenders.title AS tenders_title, tenders.description AS tenders_description, tenders.location AS tenders_location, tenders.start_date AS tenders_start_date, tenders.end_date AS tenders_end_date, tenders.link AS tenders_link, tenders.keyword AS tenders_keyword, tenders.created_at AS tenders_created_at 
+FROM tenders) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-03-23 11:59:37 | ERROR    | main | Unhandled error: (psycopg2.errors.UndefinedColumn) column tenders.link does not exist
+LINE 2: ...start_date, tenders.end_date AS tenders_end_date, tenders.li...
+                                                             ^
+
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT tenders.id AS tenders_id, tenders.tender_id AS tenders_tender_id, tenders.source AS tenders_source, tenders.title AS tenders_title, tenders.description AS tenders_description, tenders.location AS tenders_location, tenders.start_date AS tenders_start_date, tenders.end_date AS tenders_end_date, tenders.link AS tenders_link, tenders.keyword AS tenders_keyword, tenders.created_at AS tenders_created_at 
+FROM tenders) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-03-23 12:00:26 | INFO     | main | Shutting down
+2026-03-23 12:00:28 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 12:00:28 | INFO     | main | Database tables ready
+2026-03-23 12:02:15 | ERROR    | main | Unhandled error: (psycopg2.errors.UndefinedColumn) column tenders.link does not exist
+LINE 2: ...start_date, tenders.end_date AS tenders_end_date, tenders.li...
+                                                             ^
+
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT tenders.id AS tenders_id, tenders.tender_id AS tenders_tender_id, tenders.source AS tenders_source, tenders.title AS tenders_title, tenders.description AS tenders_description, tenders.location AS tenders_location, tenders.start_date AS tenders_start_date, tenders.end_date AS tenders_end_date, tenders.link AS tenders_link, tenders.keyword AS tenders_keyword, tenders.created_at AS tenders_created_at 
+FROM tenders) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-03-23 12:02:19 | ERROR    | main | Unhandled error: (psycopg2.errors.UndefinedColumn) column tenders.link does not exist
+LINE 2: ...start_date, tenders.end_date AS tenders_end_date, tenders.li...
+                                                             ^
+
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT tenders.id AS tenders_id, tenders.tender_id AS tenders_tender_id, tenders.source AS tenders_source, tenders.title AS tenders_title, tenders.description AS tenders_description, tenders.location AS tenders_location, tenders.start_date AS tenders_start_date, tenders.end_date AS tenders_end_date, tenders.link AS tenders_link, tenders.keyword AS tenders_keyword, tenders.created_at AS tenders_created_at 
+FROM tenders) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-03-23 12:05:48 | INFO     | main | Shutting down
+2026-03-23 12:05:50 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 12:05:50 | INFO     | main | Database tables ready
+2026-03-23 12:13:40 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 12:13:40 | INFO     | main | Database tables ready
+2026-03-23 12:14:25 | INFO     | main | Shutting down
+2026-03-23 12:14:25 | INFO     | main | Shutting down
+2026-03-23 12:14:42 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 12:14:42 | INFO     | main | Database tables ready
+2026-03-23 12:52:13 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 12:52:13 | INFO     | main | Database tables ready
+2026-03-23 13:11:00 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 13:11:00 | INFO     | main | Database tables ready
+2026-03-23 14:04:24 | INFO     | main | Shutting down
+2026-03-23 14:04:27 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 14:04:27 | INFO     | main | Database tables ready
+2026-03-23 14:04:29 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 14:04:29 | INFO     | main | Database tables ready
+2026-03-23 14:05:45 | INFO     | main | Shutting down
+2026-03-23 14:05:46 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 14:05:46 | INFO     | main | Database tables ready
+2026-03-23 14:12:13 | INFO     | main | Shutting down
+2026-03-23 14:12:15 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 14:12:15 | INFO     | main | Database tables ready
+2026-03-23 14:12:16 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 14:12:16 | INFO     | main | Database tables ready
+2026-03-23 14:23:27 | INFO     | main | Shutting down
+2026-03-23 15:13:14 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 15:13:14 | INFO     | main | Database tables ready
+2026-03-23 15:21:14 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 15:21:14 | INFO     | main | Database tables ready
+2026-03-23 15:25:37 | INFO     | main | Shutting down
+2026-03-23 15:25:39 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 15:25:39 | INFO     | main | Database tables ready
+2026-03-23 15:30:16 | INFO     | main | Shutting down
+2026-03-23 15:30:18 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 15:30:18 | INFO     | main | Database tables ready
+2026-03-23 15:43:30 | INFO     | main | Shutting down
+2026-03-23 15:52:13 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 15:52:13 | INFO     | main | Database tables ready
+2026-03-23 16:04:14 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:04:14 | INFO     | main | Database tables ready
+2026-03-23 16:13:39 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:13:39 | INFO     | main | Database tables ready
+2026-03-23 16:23:38 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:23:38 | INFO     | main | Database tables ready
+2026-03-23 16:25:41 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:25:41 | INFO     | main | Database tables ready
+2026-03-23 16:26:36 | INFO     | main | Shutting down
+2026-03-23 16:26:37 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:26:37 | INFO     | main | Database tables ready
+2026-03-23 16:27:54 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:27:54 | INFO     | main | Database tables ready
+2026-03-23 16:28:56 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:28:56 | INFO     | main | Database tables ready
+2026-03-23 16:31:06 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:31:07 | INFO     | main | Database tables ready
+2026-03-23 16:31:17 | INFO     | main | Shutting down
+2026-03-23 16:31:19 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:31:19 | INFO     | main | Database tables ready
+2026-03-23 16:32:09 | INFO     | main | Shutting down
+2026-03-23 16:32:11 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:32:11 | INFO     | main | Database tables ready
+2026-03-23 16:34:45 | INFO     | main | Shutting down
+2026-03-23 16:34:47 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:34:47 | INFO     | main | Database tables ready
+2026-03-23 16:35:17 | INFO     | main | Shutting down
+2026-03-23 16:35:18 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:35:19 | INFO     | main | Database tables ready
+2026-03-23 16:35:20 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:35:20 | INFO     | main | Database tables ready
+2026-03-23 16:42:12 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:42:12 | INFO     | main | Database tables ready
+2026-03-23 16:51:32 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 16:51:32 | INFO     | main | Database tables ready
+2026-03-23 17:08:01 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 17:08:02 | INFO     | main | Database tables ready
+2026-03-23 17:19:19 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 17:19:19 | INFO     | main | Database tables ready
+2026-03-23 17:39:14 | INFO     | main | Shutting down
+2026-03-23 17:39:21 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 17:39:21 | INFO     | main | Database tables ready
+2026-03-23 17:45:12 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 17:45:12 | INFO     | main | Database tables ready
+2026-03-23 17:53:41 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 17:53:42 | INFO     | main | Database tables ready
+2026-03-23 17:56:16 | INFO     | main | Shutting down
+2026-03-23 17:56:19 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 17:56:19 | INFO     | main | Database tables ready
+2026-03-23 18:01:17 | INFO     | main | Shutting down
+2026-03-23 18:01:19 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:01:19 | INFO     | main | Database tables ready
+2026-03-23 18:01:22 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:01:22 | INFO     | main | Database tables ready
+2026-03-23 18:01:48 | INFO     | main | Shutting down
+2026-03-23 18:01:50 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:01:50 | INFO     | main | Database tables ready
+2026-03-23 18:02:20 | INFO     | main | Shutting down
+2026-03-23 18:02:22 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:02:22 | INFO     | main | Database tables ready
+2026-03-23 18:02:24 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:02:24 | INFO     | main | Database tables ready
+2026-03-23 18:05:42 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:05:42 | INFO     | main | Database tables ready
+2026-03-23 18:08:11 | INFO     | main | Shutting down
+2026-03-23 18:08:14 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:08:14 | INFO     | main | Database tables ready
+2026-03-23 18:16:39 | INFO     | main | Shutting down
+2026-03-23 18:16:41 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:16:41 | INFO     | main | Database tables ready
+2026-03-23 18:16:43 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-23 18:16:44 | INFO     | main | Database tables ready
+2026-03-24 10:34:47 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 10:34:47 | INFO     | main | Database tables ready
+2026-03-24 10:47:06 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 10:47:06 | INFO     | main | Database tables ready
+2026-03-24 11:09:14 | INFO     | main | Shutting down
+2026-03-24 11:09:33 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 11:09:33 | INFO     | main | Database tables ready
+2026-03-24 11:09:35 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 11:09:35 | INFO     | main | Database tables ready
+2026-03-24 11:24:46 | INFO     | main | Shutting down
+2026-03-24 11:24:52 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 11:24:52 | INFO     | main | Database tables ready
+2026-03-24 11:34:31 | INFO     | main | Shutting down
+2026-03-24 11:34:37 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 11:34:37 | INFO     | main | Database tables ready
+2026-03-24 11:48:04 | INFO     | main | Shutting down
+2026-03-24 11:48:05 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 11:48:06 | INFO     | main | Database tables ready
+2026-03-24 11:57:35 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 11:57:35 | INFO     | main | Database tables ready
+2026-03-24 12:00:11 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 12:00:11 | INFO     | main | Database tables ready
+2026-03-24 12:04:31 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 12:04:31 | INFO     | main | Database tables ready
+2026-03-24 12:55:40 | INFO     | main | Shutting down
+2026-03-24 12:55:46 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 12:55:46 | INFO     | main | Database tables ready
+2026-03-24 13:06:34 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:06:35 | INFO     | main | Database tables ready
+2026-03-24 13:10:07 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:10:07 | INFO     | main | Database tables ready
+2026-03-24 13:12:31 | INFO     | main | Shutting down
+2026-03-24 13:12:34 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:12:34 | INFO     | main | Database tables ready
+2026-03-24 13:13:35 | INFO     | main | Shutting down
+2026-03-24 13:13:37 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:13:37 | INFO     | main | Database tables ready
+2026-03-24 13:13:39 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:13:39 | INFO     | main | Database tables ready
+2026-03-24 13:18:07 | INFO     | main | Shutting down
+2026-03-24 13:18:09 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:18:09 | INFO     | main | Database tables ready
+2026-03-24 13:18:22 | INFO     | main | Shutting down
+2026-03-24 13:18:25 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:18:25 | INFO     | main | Database tables ready
+2026-03-24 13:18:59 | INFO     | main | Shutting down
+2026-03-24 13:19:31 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:19:31 | INFO     | main | Database tables ready
+2026-03-24 13:54:55 | INFO     | main | Shutting down
+2026-03-24 13:55:00 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:55:00 | INFO     | main | Database tables ready
+2026-03-24 13:57:15 | INFO     | main | Shutting down
+2026-03-24 13:57:17 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 13:57:17 | INFO     | main | Database tables ready
+2026-03-24 14:01:17 | INFO     | main | Shutting down
+2026-03-24 14:01:58 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:01:58 | INFO     | main | Database tables ready
+2026-03-24 14:33:30 | INFO     | main | Shutting down
+2026-03-24 14:33:53 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:33:53 | INFO     | main | Database tables ready
+2026-03-24 14:33:55 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:33:55 | INFO     | main | Database tables ready
+2026-03-24 14:35:12 | INFO     | main | Shutting down
+2026-03-24 14:35:14 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:35:14 | INFO     | main | Database tables ready
+2026-03-24 14:35:15 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:35:15 | INFO     | main | Database tables ready
+2026-03-24 14:35:41 | INFO     | main | Shutting down
+2026-03-24 14:35:42 | WARNING  | main | AI Chat router failed to load: cannot import name 'get_intent_parser' from 'app.ai.services.intent_parser' (C:\Users\LEONEX\Desktop\UI\backend\app\ai\services\intent_parser.py)
+2026-03-24 14:35:42 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:35:42 | INFO     | main | Database tables ready
+2026-03-24 14:35:44 | WARNING  | main | AI Chat router failed to load: cannot import name 'get_intent_parser' from 'app.ai.services.intent_parser' (C:\Users\LEONEX\Desktop\UI\backend\app\ai\services\intent_parser.py)
+2026-03-24 14:35:44 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:35:44 | INFO     | main | Database tables ready
+2026-03-24 14:46:55 | INFO     | main | Shutting down
+2026-03-24 14:46:58 | WARNING  | main | AI Chat router failed to load: cannot import name 'get_intent_parser' from 'app.ai.services.intent_parser' (C:\Users\LEONEX\Desktop\UI\backend\app\ai\services\intent_parser.py)
+2026-03-24 14:46:58 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:46:58 | INFO     | main | Database tables ready
+2026-03-24 14:50:30 | INFO     | main | Shutting down
+2026-03-24 14:51:09 | WARNING  | main | AI Chat router failed to load: cannot import name 'get_intent_parser' from 'app.ai.services.intent_parser' (C:\Users\LEONEX\Desktop\UI\backend\app\ai\services\intent_parser.py)
+2026-03-24 14:51:09 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:51:09 | INFO     | main | Database tables ready
+2026-03-24 14:59:27 | INFO     | main | Shutting down
+2026-03-24 14:59:29 | WARNING  | main | AI Chat router failed to load: cannot import name 'get_intent_parser' from 'app.ai.services.intent_parser' (C:\Users\LEONEX\Desktop\UI\backend\app\ai\services\intent_parser.py)
+2026-03-24 14:59:29 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 14:59:29 | INFO     | main | Database tables ready
+2026-03-24 15:01:08 | INFO     | main | Shutting down
+2026-03-24 15:01:10 | INFO     | main | AI Chat router loaded
+2026-03-24 15:01:10 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 15:01:10 | INFO     | main | Database tables ready
+2026-03-24 15:01:11 | INFO     | main | AI Chat router loaded
+2026-03-24 15:01:11 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 15:01:11 | INFO     | main | Database tables ready
+2026-03-24 15:56:52 | INFO     | main | Shutting down
+2026-03-24 15:57:14 | INFO     | main | AI Chat router loaded
+2026-03-24 15:57:14 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 15:57:14 | INFO     | main | Database tables ready
+2026-03-24 15:57:16 | INFO     | main | AI Chat router loaded
+2026-03-24 15:57:16 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 15:57:16 | INFO     | main | Database tables ready
+2026-03-24 16:01:13 | INFO     | main | Shutting down
+2026-03-24 16:01:16 | INFO     | main | AI Chat router loaded
+2026-03-24 16:01:16 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-24 16:01:16 | INFO     | main | Database tables ready
+2026-03-25 09:50:34 | INFO     | main | AI Chat router loaded
+2026-03-25 09:50:34 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 09:50:34 | INFO     | main | Database tables ready
+2026-03-25 12:12:17 | INFO     | main | AI Chat router loaded
+2026-03-25 12:12:17 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 12:12:17 | INFO     | main | Database tables ready
+2026-03-25 15:51:34 | INFO     | main | Shutting down
+2026-03-25 15:52:07 | INFO     | main | AI Chat router loaded
+2026-03-25 15:52:07 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 15:52:07 | INFO     | main | Database tables ready
+2026-03-25 16:35:44 | INFO     | main | AI Chat router loaded
+2026-03-25 16:35:44 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 16:35:44 | INFO     | main | Database tables ready
+2026-03-25 18:13:10 | INFO     | main | Shutting down
+2026-03-25 18:13:16 | INFO     | main | AI Chat router loaded
+2026-03-25 18:13:16 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 18:13:17 | INFO     | main | Database tables ready
+2026-03-25 18:14:53 | INFO     | main | Shutting down
+2026-03-25 18:14:56 | INFO     | main | AI Chat router loaded
+2026-03-25 18:14:56 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 18:14:57 | INFO     | main | Database tables ready
+2026-03-25 18:24:54 | INFO     | main | Shutting down
+2026-03-25 18:24:58 | WARNING  | main | AI Chat router failed to load: unexpected indent (chat_routes.py, line 29)
+2026-03-25 18:24:58 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-25 18:24:58 | INFO     | main | Database tables ready
+2026-03-26 10:02:35 | WARNING  | main | AI Chat router failed to load: unexpected indent (chat_routes.py, line 29)
+2026-03-26 10:02:35 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 10:02:36 | INFO     | main | Database tables ready
+2026-03-26 10:13:21 | INFO     | main | Shutting down
+2026-03-26 10:14:06 | INFO     | main | AI Chat router loaded
+2026-03-26 10:14:06 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 10:14:06 | INFO     | main | Database tables ready
+2026-03-26 10:26:31 | INFO     | main | Shutting down
+2026-03-26 10:26:36 | INFO     | main | AI Chat router loaded
+2026-03-26 10:26:36 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 10:26:36 | INFO     | main | Database tables ready
+2026-03-26 10:38:21 | INFO     | main | Shutting down
+2026-03-26 10:38:28 | INFO     | main | AI Chat router loaded
+2026-03-26 10:38:28 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 10:38:28 | INFO     | main | Database tables ready
+2026-03-26 10:42:45 | INFO     | main | Shutting down
+2026-03-26 10:42:47 | INFO     | main | AI Chat router loaded
+2026-03-26 10:42:47 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 10:42:47 | INFO     | main | Database tables ready
+2026-03-26 10:46:12 | INFO     | main | AI Chat router loaded
+2026-03-26 10:46:12 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 10:46:12 | INFO     | main | Database tables ready
+2026-03-26 11:24:44 | INFO     | main | Shutting down
+2026-03-26 11:24:48 | INFO     | main | AI Chat router loaded
+2026-03-26 11:24:48 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 11:24:48 | INFO     | main | Database tables ready
+2026-03-26 11:41:46 | INFO     | main | Shutting down
+2026-03-26 11:42:26 | INFO     | main | AI Chat router loaded
+2026-03-26 11:42:26 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 11:42:26 | INFO     | main | Database tables ready
+2026-03-26 11:55:27 | INFO     | main | Shutting down
+2026-03-26 11:55:29 | INFO     | main | AI Chat router loaded
+2026-03-26 11:55:29 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 11:55:29 | INFO     | main | Database tables ready
+2026-03-26 12:01:59 | INFO     | main | Shutting down
+2026-03-26 12:02:00 | INFO     | main | AI Chat router loaded
+2026-03-26 12:02:00 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 12:02:00 | INFO     | main | Database tables ready
+2026-03-26 12:05:40 | INFO     | main | Shutting down
+2026-03-26 12:05:41 | INFO     | main | AI Chat router loaded
+2026-03-26 12:05:41 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 12:05:41 | INFO     | main | Database tables ready
+2026-03-26 12:33:59 | INFO     | main | Shutting down
+2026-03-26 12:34:01 | INFO     | main | AI Chat router loaded
+2026-03-26 12:34:01 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 12:34:01 | INFO     | main | Database tables ready
+2026-03-26 12:34:03 | INFO     | main | AI Chat router loaded
+2026-03-26 12:34:03 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 12:34:03 | INFO     | main | Database tables ready
+2026-03-26 13:36:49 | INFO     | main | AI Chat router loaded
+2026-03-26 13:36:49 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 13:36:49 | INFO     | main | Database tables ready
+2026-03-26 15:01:31 | INFO     | main | Shutting down
+2026-03-26 15:02:27 | INFO     | main | AI Chat router loaded
+2026-03-26 15:02:27 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 15:02:27 | INFO     | main | Database tables ready
+2026-03-26 16:45:16 | INFO     | main | Shutting down
+2026-03-26 16:45:53 | INFO     | main | AI Chat router loaded
+2026-03-26 16:45:53 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:45:53 | INFO     | main | Database tables ready
+2026-03-26 16:45:53 | ERROR    | main | Unhandled error: ConversationStore.format_history_for_prompt() got an unexpected keyword argument 'max_tokens'
+2026-03-26 16:46:23 | INFO     | main | Shutting down
+2026-03-26 16:46:25 | INFO     | main | AI Chat router loaded
+2026-03-26 16:46:25 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:46:25 | INFO     | main | Database tables ready
+2026-03-26 16:46:55 | INFO     | main | Shutting down
+2026-03-26 16:46:56 | INFO     | main | AI Chat router loaded
+2026-03-26 16:46:56 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:46:57 | INFO     | main | Database tables ready
+2026-03-26 16:47:25 | INFO     | main | Shutting down
+2026-03-26 16:47:27 | INFO     | main | AI Chat router loaded
+2026-03-26 16:47:27 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:47:27 | INFO     | main | Database tables ready
+2026-03-26 16:47:57 | INFO     | main | Shutting down
+2026-03-26 16:47:58 | INFO     | main | AI Chat router loaded
+2026-03-26 16:47:58 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:47:59 | INFO     | main | Database tables ready
+2026-03-26 16:52:47 | INFO     | main | Shutting down
+2026-03-26 16:52:49 | INFO     | main | AI Chat router loaded
+2026-03-26 16:52:49 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:52:49 | INFO     | main | Database tables ready
+2026-03-26 16:56:58 | INFO     | main | Shutting down
+2026-03-26 16:56:59 | WARNING  | main | AI Chat router failed to load: No module named 'httpx'
+2026-03-26 16:56:59 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:57:00 | INFO     | main | Database tables ready
+2026-03-26 16:57:02 | WARNING  | main | AI Chat router failed to load: No module named 'httpx'
+2026-03-26 16:57:02 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:57:02 | INFO     | main | Database tables ready
+2026-03-26 16:59:35 | INFO     | main | Shutting down
+2026-03-26 16:59:37 | WARNING  | main | AI Chat router failed to load: No module named 'httpx'
+2026-03-26 16:59:37 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 16:59:37 | INFO     | main | Database tables ready
+2026-03-26 17:02:45 | INFO     | main | Shutting down
+2026-03-26 17:02:48 | INFO     | main | AI Chat router loaded
+2026-03-26 17:02:48 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:02:48 | INFO     | main | Database tables ready
+2026-03-26 17:06:23 | INFO     | main | Shutting down
+2026-03-26 17:06:26 | INFO     | main | AI Chat router loaded
+2026-03-26 17:06:26 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:06:26 | INFO     | main | Database tables ready
+2026-03-26 17:06:56 | INFO     | main | Shutting down
+2026-03-26 17:06:58 | INFO     | main | AI Chat router loaded
+2026-03-26 17:06:58 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:06:58 | INFO     | main | Database tables ready
+2026-03-26 17:07:00 | INFO     | main | AI Chat router loaded
+2026-03-26 17:07:00 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:07:00 | INFO     | main | Database tables ready
+2026-03-26 17:07:26 | INFO     | main | Shutting down
+2026-03-26 17:07:28 | INFO     | main | AI Chat router loaded
+2026-03-26 17:07:28 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:07:28 | INFO     | main | Database tables ready
+2026-03-26 17:07:29 | INFO     | main | AI Chat router loaded
+2026-03-26 17:07:29 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:07:29 | INFO     | main | Database tables ready
+2026-03-26 17:08:38 | INFO     | main | Shutting down
+2026-03-26 17:08:40 | INFO     | main | AI Chat router loaded
+2026-03-26 17:08:40 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:08:40 | INFO     | main | Database tables ready
+2026-03-26 17:08:42 | INFO     | main | AI Chat router loaded
+2026-03-26 17:08:42 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-26 17:08:42 | INFO     | main | Database tables ready
+2026-03-27 09:57:25 | INFO     | main | AI Chat router loaded
+2026-03-27 09:57:25 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 09:57:25 | INFO     | main | Database tables ready
+2026-03-27 10:27:28 | INFO     | main | Shutting down
+2026-03-27 10:28:11 | INFO     | main | AI Chat router loaded
+2026-03-27 10:28:11 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 10:28:11 | INFO     | main | Database tables ready
+2026-03-27 10:41:15 | INFO     | main | Shutting down
+2026-03-27 10:41:19 | INFO     | main | AI Chat router loaded
+2026-03-27 10:41:19 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 10:41:19 | INFO     | main | Database tables ready
+2026-03-27 10:43:53 | INFO     | main | Shutting down
+2026-03-27 10:43:55 | INFO     | main | AI Chat router loaded
+2026-03-27 10:43:55 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 10:43:55 | INFO     | main | Database tables ready
+2026-03-27 10:49:38 | INFO     | main | AI Chat router loaded
+2026-03-27 10:49:38 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 10:49:39 | INFO     | main | Database tables ready
+2026-03-27 10:50:08 | INFO     | main | AI Chat router loaded
+2026-03-27 10:50:08 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 10:50:08 | INFO     | main | Database tables ready
+2026-03-27 17:00:21 | INFO     | main | AI Chat router loaded
+2026-03-27 17:00:21 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 17:00:21 | INFO     | main | Database tables ready
+2026-03-27 17:00:51 | INFO     | main | AI Chat router loaded
+2026-03-27 17:00:51 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-27 17:00:51 | INFO     | main | Database tables ready
+2026-03-31 11:55:08 | INFO     | main | AI Chat router loaded
+2026-03-31 11:55:08 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-31 11:55:08 | INFO     | main | Database tables ready
+2026-03-31 11:56:20 | INFO     | main | AI Chat router loaded
+2026-03-31 11:56:20 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-31 11:56:20 | INFO     | main | Database tables ready
+2026-03-31 12:35:54 | INFO     | main | AI Chat router loaded
+2026-03-31 12:35:54 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-03-31 12:35:54 | INFO     | main | Database tables ready
+2026-04-01 09:54:51 | INFO     | main | AI Chat router loaded
+2026-04-01 09:54:51 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-01 09:54:51 | INFO     | main | Database tables ready
+2026-04-02 10:11:16 | INFO     | main | AI Chat router loaded
+2026-04-02 10:11:16 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-02 10:11:16 | INFO     | main | Database tables ready
+2026-04-06 09:47:50 | INFO     | main | AI Chat router loaded
+2026-04-06 09:47:50 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 09:47:50 | INFO     | main | Database tables ready
+2026-04-06 14:57:13 | INFO     | main | Shutting down
+2026-04-06 14:57:45 | INFO     | main | AI Chat router loaded
+2026-04-06 14:57:45 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 14:57:45 | INFO     | main | Database tables ready
+2026-04-06 15:02:14 | INFO     | main | Shutting down
+2026-04-06 15:02:16 | INFO     | main | AI Chat router loaded
+2026-04-06 15:02:16 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:02:16 | INFO     | main | Database tables ready
+2026-04-06 15:02:17 | INFO     | main | AI Chat router loaded
+2026-04-06 15:02:17 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:02:17 | INFO     | main | Database tables ready
+2026-04-06 15:07:16 | INFO     | main | Shutting down
+2026-04-06 15:07:22 | INFO     | main | AI Chat router loaded
+2026-04-06 15:07:22 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:07:22 | INFO     | main | Database tables ready
+2026-04-06 15:07:47 | INFO     | main | Shutting down
+2026-04-06 15:07:49 | INFO     | main | Google router loaded
+2026-04-06 15:07:49 | INFO     | main | AI Chat router loaded
+2026-04-06 15:07:49 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:07:49 | INFO     | main | Database tables ready
+2026-04-06 15:20:11 | INFO     | main | Google router loaded
+2026-04-06 15:20:11 | INFO     | main | AI Chat router loaded
+2026-04-06 15:20:11 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:20:11 | INFO     | main | Database tables ready
+2026-04-06 15:20:13 | INFO     | main | Google router loaded
+2026-04-06 15:20:13 | INFO     | main | AI Chat router loaded
+2026-04-06 15:20:13 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:20:13 | INFO     | main | Database tables ready
+2026-04-06 15:21:37 | INFO     | main | Shutting down
+2026-04-06 15:21:39 | INFO     | main | Google router loaded
+2026-04-06 15:21:39 | INFO     | main | AI Chat router loaded
+2026-04-06 15:21:39 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:21:39 | INFO     | main | Database tables ready
+2026-04-06 15:28:13 | INFO     | main | Shutting down
+2026-04-06 15:28:15 | INFO     | main | Google router loaded
+2026-04-06 15:28:15 | INFO     | main | AI Chat router loaded
+2026-04-06 15:28:15 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:28:15 | INFO     | main | Database tables ready
+2026-04-06 15:39:19 | INFO     | main | Shutting down
+2026-04-06 15:39:22 | INFO     | main | Google router loaded
+2026-04-06 15:39:22 | INFO     | main | AI Chat router loaded
+2026-04-06 15:39:22 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:39:22 | INFO     | main | Database tables ready
+2026-04-06 15:45:21 | INFO     | main | Google router loaded
+2026-04-06 15:45:21 | INFO     | main | AI Chat router loaded
+2026-04-06 15:46:09 | INFO     | main | Google router loaded
+2026-04-06 15:46:09 | INFO     | main | AI Chat router loaded
+2026-04-06 15:46:09 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 15:46:09 | INFO     | main | Database tables ready
+2026-04-06 16:03:22 | INFO     | main | Google router loaded
+2026-04-06 16:03:22 | INFO     | main | AI Chat router loaded
+2026-04-06 16:03:22 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 16:03:23 | INFO     | main | Database tables ready
+2026-04-06 16:05:57 | INFO     | main | Shutting down
+2026-04-06 16:05:59 | INFO     | main | Google router loaded
+2026-04-06 16:05:59 | INFO     | main | AI Chat router loaded
+2026-04-06 16:05:59 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 16:05:59 | INFO     | main | Database tables ready
+2026-04-06 16:06:41 | INFO     | main | Shutting down
+2026-04-06 16:06:44 | INFO     | main | Google router loaded
+2026-04-06 16:06:44 | INFO     | main | AI Chat router loaded
+2026-04-06 16:06:44 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 16:06:44 | INFO     | main | Database tables ready
+2026-04-06 16:11:42 | INFO     | main | Shutting down
+2026-04-06 16:11:44 | INFO     | main | Google router loaded
+2026-04-06 16:11:44 | INFO     | main | AI Chat router loaded
+2026-04-06 16:11:44 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-06 16:11:44 | INFO     | main | Database tables ready
+2026-04-06 17:32:12 | ERROR    | main | Unhandled error: No module named 'xlsxwriter'
+2026-04-06 17:32:30 | ERROR    | main | Unhandled error: No module named 'xlsxwriter'
+2026-04-07 09:58:37 | INFO     | main | Google router loaded
+2026-04-07 09:58:37 | INFO     | main | AI Chat router loaded
+2026-04-07 09:58:37 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 09:58:38 | INFO     | main | Database tables ready
+2026-04-07 09:58:53 | INFO     | main | Google router loaded
+2026-04-07 09:58:53 | INFO     | main | AI Chat router loaded
+2026-04-07 09:58:53 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 09:58:53 | INFO     | main | Database tables ready
+2026-04-07 11:25:13 | INFO     | main | Shutting down
+2026-04-07 11:26:01 | INFO     | main | Google router loaded
+2026-04-07 11:26:01 | INFO     | main | AI Chat router loaded
+2026-04-07 11:26:01 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 11:26:01 | INFO     | main | Database tables ready
+2026-04-07 11:52:46 | INFO     | main | Shutting down
+2026-04-07 11:52:50 | INFO     | main | Google router loaded
+2026-04-07 11:52:50 | INFO     | main | AI Chat router loaded
+2026-04-07 11:52:50 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 11:52:51 | INFO     | main | Database tables ready
+2026-04-07 12:11:48 | INFO     | main | Shutting down
+2026-04-07 12:12:29 | INFO     | main | Google router loaded
+2026-04-07 12:12:29 | INFO     | main | AI Chat router loaded
+2026-04-07 12:12:29 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 12:12:29 | INFO     | main | Database tables ready
+2026-04-07 12:20:37 | INFO     | main | Shutting down
+2026-04-07 12:20:42 | INFO     | main | Google router loaded
+2026-04-07 12:20:42 | INFO     | main | AI Chat router loaded
+2026-04-07 12:20:42 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 12:20:42 | INFO     | main | Database tables ready
+2026-04-07 12:59:43 | INFO     | main | Shutting down
+2026-04-07 12:59:46 | INFO     | main | Google router loaded
+2026-04-07 12:59:46 | INFO     | main | AI Chat router loaded
+2026-04-07 12:59:46 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 12:59:46 | INFO     | main | Database tables ready
+2026-04-07 13:09:31 | INFO     | main | Google router loaded
+2026-04-07 13:09:31 | INFO     | main | AI Chat router loaded
+2026-04-07 13:09:31 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 13:09:31 | INFO     | main | Database tables ready
+2026-04-07 13:37:52 | INFO     | main | Shutting down
+2026-04-07 13:37:58 | INFO     | main | Google router loaded
+2026-04-07 13:37:58 | INFO     | main | AI Chat router loaded
+2026-04-07 13:37:58 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 13:37:58 | INFO     | main | Database tables ready
+2026-04-07 13:40:33 | INFO     | main | Shutting down
+2026-04-07 13:40:35 | INFO     | main | Google router loaded
+2026-04-07 13:40:35 | INFO     | main | AI Chat router loaded
+2026-04-07 13:40:35 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 13:40:35 | INFO     | main | Database tables ready
+2026-04-07 13:44:26 | INFO     | main | Shutting down
+2026-04-07 13:44:27 | INFO     | main | Google router loaded
+2026-04-07 13:44:27 | INFO     | main | AI Chat router loaded
+2026-04-07 13:44:27 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 13:44:28 | INFO     | main | Database tables ready
+2026-04-07 13:53:07 | INFO     | main | Google router loaded
+2026-04-07 13:53:07 | INFO     | main | AI Chat router loaded
+2026-04-07 13:53:07 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 13:53:07 | INFO     | main | Database tables ready
+2026-04-07 15:00:12 | INFO     | main | Shutting down
+2026-04-07 15:00:55 | INFO     | main | Google router loaded
+2026-04-07 15:00:55 | INFO     | main | AI Chat router loaded
+2026-04-07 15:00:55 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 15:00:55 | INFO     | main | Database tables ready
+2026-04-07 18:08:15 | INFO     | main | Shutting down
+2026-04-07 18:08:17 | INFO     | main | Google router loaded
+2026-04-07 18:08:17 | INFO     | main | AI Chat router loaded
+2026-04-07 18:08:17 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 18:08:17 | INFO     | main | Database tables ready
+2026-04-07 18:08:20 | INFO     | main | Google router loaded
+2026-04-07 18:08:20 | INFO     | main | AI Chat router loaded
+2026-04-07 18:08:20 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-07 18:08:20 | INFO     | main | Database tables ready
+2026-04-08 10:02:37 | INFO     | main | Google router loaded
+2026-04-08 10:02:37 | INFO     | main | AI Chat router loaded
+2026-04-08 10:02:37 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-08 10:02:37 | INFO     | main | Database tables ready
+2026-04-08 10:04:29 | INFO     | main | Google router loaded
+2026-04-08 10:04:29 | INFO     | main | AI Chat router loaded
+2026-04-08 10:04:29 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-08 10:04:29 | INFO     | main | Database tables ready
+2026-04-08 10:53:01 | INFO     | main | Shutting down
+2026-04-08 10:53:01 | INFO     | main | Shutting down
+2026-04-08 10:53:03 | INFO     | main | Google router loaded
+2026-04-08 10:53:03 | INFO     | main | AI Chat router loaded
+2026-04-08 10:53:03 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-08 10:53:03 | INFO     | main | Database tables ready
+2026-04-08 10:53:05 | INFO     | main | Google router loaded
+2026-04-08 10:53:05 | INFO     | main | AI Chat router loaded
+2026-04-08 10:53:05 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-08 10:53:05 | INFO     | main | Database tables ready
+2026-04-08 10:53:23 | INFO     | main | Google router loaded
+2026-04-08 10:53:23 | INFO     | main | AI Chat router loaded
+2026-04-08 10:53:23 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-08 10:53:23 | INFO     | main | Database tables ready
+2026-04-08 10:53:24 | INFO     | main | Google router loaded
+2026-04-08 10:53:24 | INFO     | main | AI Chat router loaded
+2026-04-08 10:53:24 | INFO     | main | Starting Tender Intelligence Platform v1.0.0
+2026-04-08 10:53:24 | INFO     | main | Database tables ready

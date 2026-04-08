@@ -1,0 +1,335 @@
+// ============================================
+// LEONEX TENDER — All Tenders Page
+// Fetches REAL data from FastAPI backend
+// ============================================
+
+import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
+
+const API_BASE = 'http://localhost:8000/api';
+
+export async function renderTenders(container) {
+    container.innerHTML = `
+        <div class="page-header anim-in">
+            <div class="page-header-text">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <h1>All Tenders</h1>
+                    <span id="total-tender-badge" class="count-badge">Calculating...</span>
+                </div>
+                <p>Browse and manage all tender opportunities across platforms</p>
+            </div>
+            <div class="page-header-actions">
+                <button class="btn-secondary" id="all-stop-btn" disabled style="gap:6px;opacity:0.5;">
+                    <i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop All
+                </button>
+                <button class="btn-primary" id="all-sync-btn" style="gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now</button>
+                <button class="btn-secondary" id="all-refresh-btn"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh</button>
+                <button class="btn-secondary" id="all-export-btn"><i data-lucide="download" style="width:14px;height:14px;"></i> Export</button>
+            </div>
+        </div>
+
+        <div class="table-card anim-in anim-d1" style="margin-top:24px;">
+            <div class="table-header-filters" style="gap:20px; display:flex; align-items:center;">
+                <div class="search-box" style="flex:2;">
+                    <i data-lucide="search" style="width:18px;height:18px;"></i>
+                    <input type="text" id="all-search" placeholder="Search across all tenders and sources..." style="padding:12px 16px 12px 42px; font-size:15px;">
+                </div>
+                <div class="advanced-filters" style="display:flex; gap:12px; flex-shrink:0;">
+                    <select id="filter-keyword" class="premium-select">
+                        <option value="ALL">All Keywords</option>
+                    </select>
+                    <select id="filter-source" class="premium-select">
+                        <option value="ALL">All Sources</option>
+                        <option value="GEM">GEM Portal</option>
+                        <option value="TENDERONTIME">TenderOnTime</option>
+                        <option value="TENDERDETAIL">TenderDetail</option>
+                        <option value="TENDER247">Tender247</option>
+                        <option value="BIDDETAIL">BidTenders</option>
+                    </select>
+                </div>
+            </div>
+            <div id="all-table-area">
+                <div style="text-align:center;padding:60px;color:var(--text-tertiary);">
+                    <i data-lucide="loader" style="width:32px;height:32px;animation:spin 1s linear infinite;"></i>
+                    <p style="margin-top:12px;font-size:14px;">Loading database...</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+
+    // Fetch data
+    let allTenders = [];
+    const badge = container.querySelector('#total-tender-badge');
+
+    try {
+        const res = await fetch(`${API_BASE}/tenders?limit=500`);
+        const data = await res.json();
+        allTenders = data.results || [];
+        if (badge) {
+            badge.textContent = (data.total !== undefined ? data.total : allTenders.length).toLocaleString();
+        }
+    } catch (err) {
+        console.error('API error:', err);
+        if (badge) badge.textContent = '—';
+    }
+
+    const renderTable = (dataToRender) => {
+        const area = container.querySelector('#all-table-area');
+        if (!area) return;
+
+        if (dataToRender.length === 0) {
+           area.innerHTML = `
+               <div style="text-align:center;padding:60px;color:var(--text-tertiary);">
+                   <i data-lucide="inbox" style="width:40px;height:40px;opacity:0.4;"></i>
+                   <p style="margin-top:12px;font-size:14px;">No tenders found. Sync sources to begin.</p>
+               </div>`;
+           if (window.lucide) window.lucide.createIcons();
+           return;
+        }
+
+        area.innerHTML = `
+            <div class="tender-cards-grid">
+                ${dataToRender.map(t => {
+                    const keyword = (t.keyword || t.matched_keyword || '—');
+                    const isActive = isBookmarked(t.tender_id) ? 'active' : '';
+                    return `
+                    <div class="tender-card">
+                        <div class="tender-card-top">
+                            <div class="tender-card-id">
+                                <span class="tc-id-label">Tender ID :</span>
+                                ${esc(t.tender_id || '—')}
+                            </div>
+                            <div class="tender-card-dates">
+                                <span class="tc-date"><i data-lucide="calendar" style="width:11px;height:11px;"></i> ${t.start_date || '—'}</span>
+                                <span class="tc-date-sep">→</span>
+                                <span class="tc-date end"><i data-lucide="clock" style="width:11px;height:11px;"></i> ${t.end_date || '—'}</span>
+                            </div>
+                        </div>
+
+                        <div class="tender-card-desc">
+                            ${esc(t.title || t.description || '—')}
+                        </div>
+
+                        <div class="tender-card-bottom">
+                            <div class="tender-card-tags">
+                                <span class="tc-tag keyword"><i data-lucide="tag" style="width:10px;height:10px;"></i> ${esc(keyword)}</span>
+                                <span class="tc-tag source">${esc((t.source||'').toUpperCase())}</span>
+                                <span class="tc-tag location"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> ${esc(t.location || '—')}</span>
+                            </div>
+                            <div class="tender-card-link" style="display:flex; gap:8px; align-items:center;">
+                                <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}'>
+                                    <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
+                                </button>
+                                <a href="#/tender-view?id=${t.id}" class="tc-link-btn secondary" style="background: rgba(255,255,255,0.05); color: var(--text-primary);">
+                                    <i data-lucide="info" style="width:13px;height:13px;"></i> Details
+                                </a>
+                                ${t.link
+                                    ? '<a href="' + t.link + '" target="_blank" rel="noopener" class="tc-link-btn"><i data-lucide="external-link" style="width:13px;height:13px;"></i> View</a>'
+                                    : '<span class="tc-no-link">—</span>'
+                                }
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+            <div class="pagination-area" style="padding:16px 0;">
+                <div class="pagination-info">Showing ${dataToRender.length} tenders</div>
+            </div>`;
+        if (window.lucide) window.lucide.createIcons();
+
+        // Bind bookmark buttons
+        const bmBtns = area.querySelectorAll('.bookmark-btn');
+        bmBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const b = e.currentTarget;
+                const tenderObj = JSON.parse(b.getAttribute('data-tender'));
+                const isNowSaved = toggleBookmark(tenderObj);
+                if (isNowSaved) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+        });
+    };
+
+    renderTable(allTenders);
+
+    const searchInput = container.querySelector('#all-search');
+    const filterSourceEl = container.querySelector('#filter-source');
+    
+    let currentKeyword = 'ALL';
+
+    function applyFilters() {
+        let filtered = [...allTenders];
+        
+        // 1. Filter by Keyword Pill
+        if (currentKeyword !== 'ALL') {
+            filtered = filtered.filter(t => {
+                const tk = (t.keyword || t.matched_keyword || '').toLowerCase().trim();
+                return tk === currentKeyword.toLowerCase();
+            });
+        }
+
+        // 2. Filter by Source
+        if (filterSourceEl && filterSourceEl.value !== 'ALL') {
+            const src = filterSourceEl.value.toLowerCase();
+            filtered = filtered.filter(t => (t.source || '').toLowerCase() === src);
+        }
+        
+        // 3. Filter by Search Text
+        if (searchInput && searchInput.value) {
+            const q = searchInput.value.toLowerCase();
+            filtered = filtered.filter(t => 
+                (t.title || '').toLowerCase().includes(q) ||
+                (t.description || '').toLowerCase().includes(q) ||
+                (t.tender_id || '').toLowerCase().includes(q) ||
+                (t.source || '').toLowerCase().includes(q) ||
+                (t.location || '').toLowerCase().includes(q)
+            );
+        }
+        
+        renderTable(filtered);
+        if (badge) badge.textContent = filtered.length.toLocaleString();
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (filterSourceEl) filterSourceEl.addEventListener('change', applyFilters);
+
+    // Dynamic Keyword Filters Dropdown
+    const keywordSelect = container.querySelector('#filter-keyword');
+    if (keywordSelect) {
+        // Extract unique valid keywords from the fetched data
+        const uniqueKWs = [...new Set(
+            allTenders
+                .map(t => t.keyword || t.matched_keyword)
+                .filter(k => k && k.trim() !== '')
+                .map(k => k.trim())
+        )].sort();
+
+        // Render ALL + the unique extracted keywords as <option>s
+        keywordSelect.innerHTML = `
+            <option value="ALL" selected>All Keywords</option>
+            ${uniqueKWs.map(kw => `<option value="${kw}">${kw}</option>`).join('')}
+        `;
+
+        keywordSelect.addEventListener('change', (e) => {
+            currentKeyword = e.target.value;
+            applyFilters();
+        });
+    }
+
+    const refreshBtn = container.querySelector('#all-refresh-btn');
+    if (refreshBtn) refreshBtn.addEventListener('click', () => { renderTenders(container); });
+
+    // Sync Now — triggers all 5 scrapers in parallel
+    const syncBtn = container.querySelector('#all-sync-btn');
+    const stopBtn = container.querySelector('#all-stop-btn');
+    let isPolling = false;
+    let pollInterval = null;
+
+    function _setSyncingUI() {
+        if (!syncBtn || !stopBtn) return;
+        syncBtn.disabled = true;
+        syncBtn.innerHTML = `<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Syncing...`;
+        stopBtn.disabled = false;
+        stopBtn.style.opacity = '1';
+        stopBtn.style.color = 'var(--accent-red, #ef4444)';
+        stopBtn.style.borderColor = 'var(--accent-red, #ef4444)';
+        stopBtn.innerHTML = `<i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop All`;
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function _resetSyncUI(successText = "Sync Now") {
+        if (!syncBtn || !stopBtn) return;
+        syncBtn.disabled = false;
+        if (successText !== "Sync Now") {
+            syncBtn.innerHTML = `<i data-lucide="check" style="width:14px;height:14px;"></i> ${successText}`;
+            syncBtn.style.background = 'var(--accent-green, #22c55e)';
+            setTimeout(() => {
+                syncBtn.innerHTML = `<i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now`;
+                syncBtn.style.background = '';
+                if (window.lucide) window.lucide.createIcons();
+            }, 3000);
+        } else {
+            syncBtn.innerHTML = `<i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now`;
+            syncBtn.style.background = '';
+            if (window.lucide) window.lucide.createIcons();
+        }
+        
+        stopBtn.disabled = true;
+        stopBtn.style.opacity = '0.5';
+        stopBtn.style.color = '';
+        stopBtn.style.borderColor = '';
+        stopBtn.innerHTML = `<i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop All`;
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function _startPolling() {
+        if (isPolling) return;
+        isPolling = true;
+        _setSyncingUI();
+        pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`${API_BASE}/sync-status?source=all`);
+                const data = await res.json();
+                if (!data.is_running) {
+                    clearInterval(pollInterval);
+                    isPolling = false;
+                    _resetSyncUI('Synced');
+                    renderTenders(container);
+                }
+            } catch (e) {}
+        }, 3000);
+    }
+
+    // Check initial state on page load in case it's ALREADY running
+    fetch(`${API_BASE}/sync-status?source=all`)
+        .then(r => r.json())
+        .then(d => { if (d.is_running) _startPolling(); })
+        .catch(() => {});
+
+    if (stopBtn) {
+        stopBtn.addEventListener('click', async () => {
+            stopBtn.disabled = true;
+            stopBtn.innerHTML = `<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Stopping...`;
+            if (window.lucide) window.lucide.createIcons();
+            try {
+                await fetch(`${API_BASE}/stop-sync?source=all`, { method: 'POST' });
+            } catch (e) {}
+        });
+    }
+
+    if (syncBtn) {
+        syncBtn.addEventListener('click', async () => {
+            _setSyncingUI();
+            const sources = ['gem', 'tender247', 'tenderdetail', 'tenderontime', 'biddetail'];
+            try {
+                // Fire all 5 scrapers simultaneously
+                const promises = sources.map(src =>
+                    fetch(`${API_BASE}/search?source=${src}`).then(r => r.json()).catch(e => null)
+                );
+                await Promise.all(promises);
+                setTimeout(() => _startPolling(), 1000);
+            } catch (err) {
+                _resetSyncUI();
+            }
+        });
+    }
+
+    const exportBtn = container.querySelector('#all-export-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = `${API_BASE}/export`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+    }
+}
+
+function esc(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
