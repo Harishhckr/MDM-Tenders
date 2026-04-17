@@ -14,7 +14,12 @@ export async function renderGoogle(container) {
                 <h1>Google Search</h1>
                 <p>MDM keyword results scraped from Google — all results &amp; filtered results</p>
             </div>
-            <div class="page-header-actions">
+            <div class="page-header-actions" style="display:flex; gap:12px; align-items:center;">
+                <div id="goog-captcha-container"></div>
+                <button class="goog-dl-btn" id="goog-launch-btn" style="background:var(--accent-blue, #3b82f6);color:#fff;border-color:var(--accent-blue, #3b82f6);">
+                    <i data-lucide="play" style="width:13px;height:13px;"></i>
+                    Launch Scraper
+                </button>
                 <button class="goog-dl-btn" id="goog-refresh-btn" style="background:#000;color:#fff;border-color:#000;">
                     <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>
                     Refresh Data
@@ -104,6 +109,30 @@ export async function renderGoogle(container) {
     if (window.lucide) window.lucide.createIcons();
 
     let state = { type: 'all', dateFrom: '', dateTo: '', search: '', keyword: '', sort: 'newest' };
+
+    // ── Launch Scraper ─────────────────────────────────────────────────────
+    document.getElementById('goog-launch-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('goog-launch-btn');
+        btn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;" class="goog-spin"></i> Launching…`;
+        if (window.lucide) window.lucide.createIcons();
+        
+        try {
+            const res = await fetch(`${API}/sync`, { method: 'POST' });
+            const d = await res.json();
+            if(d.status === 'already_running') {
+                alert("Scraper is already running in the background!");
+            } else {
+                alert("Scraper launched successfully! It is now running in the background.");
+            }
+            await loadStats(); // update the status panel
+        } catch (e) {
+            console.error(e);
+            alert("Failed to start scraper. Ensure backend is running.");
+        }
+        
+        btn.innerHTML = `<i data-lucide="play" style="width:13px;height:13px;"></i> Launch Scraper`;
+        if (window.lucide) window.lucide.createIcons();
+    });
 
     // ── Refresh Data ───────────────────────────────────────────────────────
     document.getElementById('goog-refresh-btn')?.addEventListener('click', async () => {
@@ -236,7 +265,31 @@ export async function renderGoogle(container) {
     document.getElementById('goog-dl-all')?.addEventListener('click', () => exportAsCsv('all'));
     document.getElementById('goog-dl-filtered')?.addEventListener('click', () => exportAsCsv('filtered'));
 
-    // ── Stats ──────────────────────────────────────────────────────────────
+    // ── Stats & Status Polling ─────────────────────────────────────────────
+    
+    // Create an audio player for the beep
+    let _audioContext = null;
+    function playBeep() {
+        if (!_audioContext) {
+            _audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (_audioContext.state === 'suspended') {
+            _audioContext.resume();
+        }
+        const osc = _audioContext.createOscillator();
+        const gainNode = _audioContext.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(_audioContext.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 800; // Hz
+        gainNode.gain.setValueAtTime(0.1, _audioContext.currentTime);
+        osc.start();
+        osc.stop(_audioContext.currentTime + 0.5);
+    }
+    
+    let isBeeping = false;
+    let captchaJustCleared = false;  // Guard: blocks re-beep immediately after user clicks cleared
+
     async function loadStats() {
         try {
             const res = await fetch(`${API}/stats`);
@@ -246,8 +299,97 @@ export async function renderGoogle(container) {
             setText('goog-s3', fmtNum(d.total_all));
             setText('goog-s4', fmtNum(d.total_filtered));
             setText('goog-s5', d.last_sync ? fmtDate(d.last_sync) : 'Never');
+            
+            checkCaptchaStatus(d.sync_status);
         } catch (e) { console.warn('Stats error', e); }
     }
+
+    async function pollStatusOnly() {
+        try {
+            const res = await fetch(`${API}/sync/status`);
+            const st = await res.json();
+            checkCaptchaStatus(st);
+        } catch (e) { /* ignore network error on fast poll */ }
+    }
+    
+    function stopBeep() {
+        isBeeping = false;
+        clearInterval(window._captchaInterval);
+        window._captchaInterval = null;
+        // Also stop AudioContext to kill any lingering sound immediately
+        if (_audioContext && _audioContext.state !== 'closed') {
+            try { _audioContext.suspend(); } catch(e) {}
+        }
+    }
+
+    function checkCaptchaStatus(syncStatus) {
+        if (!syncStatus) return;
+        const cContainer = document.getElementById('goog-captcha-container');
+        if (!cContainer) return;
+
+        // If user already clicked "cleared", ignore stale backend status for 10 seconds
+        if (captchaJustCleared) return;
+
+        if (syncStatus.captcha_detected) {
+            if (!isBeeping) {
+                isBeeping = true;
+                playBeep();
+                window._captchaInterval = setInterval(playBeep, 5000);
+            }
+            // Only render the button if it doesn't already exist (prevents duplicate listeners)
+            if (!document.getElementById('goog-clear-captcha-btn')) {
+                cContainer.innerHTML = `
+                    <button id="goog-clear-captcha-btn" class="goog-dl-btn anim-in" style="background:#ef4444; color:#fff; border-color:#dc2626; animation: pulse 2s infinite;">
+                        <i data-lucide="alert-triangle" style="width:13px;height:13px;"></i>
+                        Captcha Detected — Click Once Cleared
+                    </button>
+                `;
+                if (window.lucide) window.lucide.createIcons();
+                
+                document.getElementById('goog-clear-captcha-btn').addEventListener('click', async (e) => {
+                    const btn = e.currentTarget;
+                    btn.disabled = true;  // prevent double-clicks
+                    btn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;" class="goog-spin"></i> Resuming...`;
+                    if (window.lucide) window.lucide.createIcons();
+
+                    // Immediately stop sound and set guard — don't wait for API
+                    stopBeep();
+                    captchaJustCleared = true;
+                    cContainer.innerHTML = '';
+
+                    try {
+                        const res = await fetch(`${API}/clear-captcha`, { method: 'POST' });
+                        if (res.ok) {
+                            setTimeout(loadStats, 1500);
+                        }
+                    } catch(e) { console.error(e); }
+
+                    // Release guard after 10 seconds (enough time for backend to update)
+                    setTimeout(() => { captchaJustCleared = false; }, 10000);
+                });
+            }
+        } else {
+            // Backend confirmed no captcha — safe to fully reset
+            if (isBeeping) {
+                stopBeep();
+            }
+            captchaJustCleared = false;
+            cContainer.innerHTML = '';
+
+        }
+    }
+
+    // Fast poll loop every 3 seconds to catch scraper blockages
+    const statusPoller = setInterval(pollStatusOnly, 3000);
+    // Bind interval clearing to cleanup if component unmounts (requires wrapper framework, but we can tie to document node removal as a hack)
+    const observer = new MutationObserver((mutations) => {
+        if (!document.body.contains(container)) {
+            clearInterval(statusPoller);
+            clearInterval(window._captchaInterval);
+            observer.disconnect();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // ── Results ────────────────────────────────────────────────────────────
     async function loadResults() {
@@ -309,17 +451,59 @@ export async function renderGoogle(container) {
             
             if (window.lucide) window.lucide.createIcons();
 
-            // Bind Bookmark buttons for Google items
-            const bmBtns = area.querySelectorAll('.bookmark-btn');
-            bmBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault(); // Prevent wrapper link click if any
-                    const b = e.currentTarget;
-                    const obj = JSON.parse(b.getAttribute('data-google'));
-                    const isNowSaved = toggleBookmark(obj, 'google');
-                    b.classList.toggle('active', isNowSaved);
+            function bindActions() {
+                const area = document.getElementById('goog-results-area');
+                if (!area) return;
+
+                // Bookmarks
+                area.querySelectorAll('.bookmark-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const b = e.currentTarget;
+                        const obj = JSON.parse(b.getAttribute('data-google'));
+                        const saved = toggleBookmark(obj, 'google');
+                        saved ? b.classList.add('active') : b.classList.remove('active');
+                    });
                 });
-            });
+
+                // Deletes
+                area.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const b = e.currentTarget;
+                        const id = b.getAttribute('data-id');
+                        if(!confirm("Are you sure you want to permanently delete this Google result from the database?")) return;
+                        
+                        const card = b.closest('.goog-result-card');
+                        if (card) {
+                            card.style.opacity = '0.5';
+                            card.style.pointerEvents = 'none';
+                        }
+
+                        try {
+                            const res = await fetch(`${API}/results/${id}`, { method: 'DELETE' });
+                            if (res.ok) {
+                                if (card) card.remove();
+                                // Optional: Unbookmark if it was saved
+                                const relatedBmBtn = card.querySelector(`[data-google]`);
+                                if(relatedBmBtn) {
+                                    const objForStore = JSON.parse(relatedBmBtn.getAttribute('data-google'));
+                                    if (isBookmarked(objForStore.link)) {
+                                        toggleBookmark(objForStore, 'google');
+                                    }
+                                }
+                                loadStats(); // Reload stats behind scenes
+                            } else {
+                                alert("Failed to delete record.");
+                                if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                            }
+                        } catch(err) {
+                            console.error("Delete failed", err);
+                            alert("Delete failed.");
+                            if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                        }
+                    });
+                });
+            }
+            bindActions();
         } catch (e) {
             area.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-tertiary);font-size:13px;">Failed to load results.</div>`;
         }
@@ -362,19 +546,29 @@ function resultCard(r) {
                 </div>
                 <h3 class="goog-rc-title">${esc(r.title || 'Untitled Result')}</h3>
             </a>
-            <div class="goog-rc-desc" style="padding:0 24px;">
+            <div class="goog-rc-desc">
                 ${r.description ? esc(r.description) : esc(r.page_excerpt || 'No description available')}
             </div>
             
-            <div class="goog-rc-bottom" style="margin-top:auto; padding:16px 24px; display:flex; justify-content:space-between; align-items:center;">
+            <div class="goog-rc-bottom" style="margin-top:auto; display:flex; justify-content:space-between; align-items:center;">
                 <div class="goog-rc-tags">
                     ${r.search_query ? `<span class="goog-rc-tag query">${esc(r.search_query)}</span>` : ''}
                     ${kws.slice(0, 3).map(k => `<span class="goog-rc-tag">${esc(k)}</span>`).join('')}
                     ${r.is_pdf ? `<span class="goog-rc-badge">PDF</span>` : ''}
                 </div>
-                <button class="btn-icon bookmark-btn ${isActive}" data-google='${JSON.stringify(r).replace(/'/g, "&#39;")}' style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer; flex-shrink:0;">
-                    <i data-lucide="bookmark" style="width:16px;height:16px;"></i>
-                </button>
+                
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-icon view-btn" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer;" onclick="window.open('${esc(r.link)}', '_blank')">
+                        <i data-lucide="external-link" style="width:16px;height:16px;"></i>
+                    </button>
+                    <button class="btn-icon bookmark-btn ${isActive}" data-google='${JSON.stringify(r).replace(/'/g, "&#39;")}' style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer;" title="Bookmark">
+                        <i data-lucide="bookmark" style="width:16px;height:16px;"></i>
+                    </button>
+                    ${r.id ? `
+                    <button class="btn-icon delete-btn" data-id="${r.id}" title="Permanently Delete" style="background:rgba(255,50,50,0.1); color:var(--accent-red, #ef4444); cursor:pointer; width:36px;height:36px;border-radius:10px; border:none;">
+                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                    </button>` : ''}
+                </div>
             </div>
         </div>
     </div>`;

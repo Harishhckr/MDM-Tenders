@@ -59,13 +59,26 @@ def list_tenders(
     )
 
 
-# ── GET /tenders/{id} ─────────────────────────────────────────────────────────
+# ── GET /tenders/{tender_uuid} ─────────────────────────────────────────────────────────
 @router.get("/tenders/{tender_uuid}", response_model=TenderResponse)
 def get_tender(tender_uuid: uuid.UUID, db: Session = Depends(get_db)):
     row = db.query(Tender).filter(Tender.id == tender_uuid).first()
     if not row:
         raise HTTPException(status_code=404, detail="Tender not found")
     return row
+
+
+# ── DELETE /tenders/{tender_uuid} ─────────────────────────────────────────────────────
+@router.delete("/tenders/{tender_uuid}")
+def delete_tender(tender_uuid: uuid.UUID, db: Session = Depends(get_db)):
+    row = db.query(Tender).filter(Tender.id == tender_uuid).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Tender not found")
+    db.delete(row)
+    db.commit()
+    invalidate_cache()
+    return {"message": "Tender deleted successfully", "id": str(tender_uuid)}
+
 
 
 # ── GET /search ───────────────────────────────────────────────────────────────

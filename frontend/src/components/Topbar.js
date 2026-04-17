@@ -2,6 +2,9 @@ import { navigate } from '../router.js';
 
 export function renderTopbar() {
     return `
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+            <i data-lucide="menu" style="width:20px;height:20px;"></i>
+        </button>
         <div class="search-bar" id="search-bar">
             <span class="search-icon"><i data-lucide="search" style="width:16px;height:16px;"></i></span>
             <input type="text" placeholder="Search or type a command" id="search-input">
@@ -75,12 +78,20 @@ export function initTopbarEvents() {
         themeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            const doc = document.documentElement;
-            const current = doc.getAttribute('data-theme') || 'dark';
-            const next = current === 'dark' ? 'light' : 'dark';
-            
-            doc.setAttribute('data-theme', next);
-            localStorage.setItem('leonex-theme', next);
+            // Use the proper toggleTheme() which applies the no-transition guard
+            // to prevent glitches on ALL elements during theme swap
+            import('../theme.js').then(({ toggleTheme }) => toggleTheme());
+        });
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar) sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
         });
     }
 

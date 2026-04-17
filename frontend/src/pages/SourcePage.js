@@ -277,8 +277,11 @@ function _renderTable(container, tenders, config) {
                             <span class="tc-tag location"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> ${_esc(t.location || '—')}</span>
                         </div>
                         <div class="tender-card-link" style="display:flex; gap:8px; align-items:center;">
-                            <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}'>
+                            <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}' title="Bookmark">
                                 <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
+                            </button>
+                            <button class="btn-icon delete-btn" data-id="${t.id}" title="Permanently Delete" style="background:rgba(255,50,50,0.1); color:var(--accent-red, #ef4444); cursor:pointer;">
+                                <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
                             </button>
                             ${t.link
                                 ? '<a href="' + t.link + '" target="_blank" rel="noopener" class="tc-link-btn"><i data-lucide="external-link" style="width:13px;height:13px;"></i> View</a>'
@@ -304,6 +307,35 @@ function _renderTable(container, tenders, config) {
                 b.classList.add('active');
             } else {
                 b.classList.remove('active');
+            }
+        });
+    });
+
+    const delBtns = area.querySelectorAll('.delete-btn');
+    delBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const b = e.currentTarget;
+            const id = b.getAttribute('data-id');
+            if(!confirm("Are you sure you want to permanently delete this tender from the database?")) return;
+            
+            const card = b.closest('.tender-card');
+            if (card) {
+                card.style.opacity = '0.5';
+                card.style.pointerEvents = 'none';
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/tenders/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    if (card) card.remove();
+                } else {
+                    alert("Failed to delete tender.");
+                    if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                }
+            } catch(err) {
+                console.error("Delete failed", err);
+                alert("Delete failed.");
+                if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
             }
         });
     });

@@ -1,0 +1,74 @@
+# ============================================================
+#  LEONEX TENDER PLATFORM — .gitignore
+#  NEVER COMMIT THE FILES LISTED BELOW
+# ============================================================
+
+# ── Credentials & Secrets ────────────────────────────────────
+.env
+.env.*
+!.env.example          # Allow only the example template
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+*.whl
+
+# ── Virtual Environments ─────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Node / Frontend ──────────────────────────────────────────
+node_modules/
+.npm/
+*.lock
+package-lock.json
+
+# ── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+
+# ── OS Generated ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs & Temp Files ────────────────────────────────────────
+*.log
+*.txt
+logs/
+browser_logs.txt
+error.txt
+td_inputs.txt
+td_results_source.html
+
+# ── Data & Output Files (may contain sensitive tender data) ──
+data/
+*.xlsx
+*.csv
+*.json.bak
+
+# ── Test & Debug Scripts ─────────────────────────────────────
+test_*.py
+*.test.py
+
+# ── Docker ───────────────────────────────────────────────────
+# docker-compose.override.yml  # Uncomment if you add local overrides
+
+# ── Gemini/AI ────────────────────────────────────────────────
+.gemini/
+.sixth/

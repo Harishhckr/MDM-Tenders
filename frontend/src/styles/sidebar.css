@@ -85,7 +85,7 @@
   color: var(--text-secondary);
   cursor: pointer;
   margin-bottom: 4px;
-  transition: all var(--duration) var(--ease);
+  transition: transform var(--duration) var(--ease), opacity var(--duration) var(--ease);
   gap: 14px;
   font-family: inherit;
   font-size: 14px;

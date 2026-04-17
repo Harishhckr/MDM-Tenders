@@ -61,7 +61,6 @@ class Settings(BaseSettings):
         "codification of material",
         "Supply and implementation of Vendor data",
         "data catalogue",
-        "data processing",
         "Data Validation (deduplication, cleansing)",
         "Deduplication, Cleansing and Standardization",
         "Data Cleansing and Enrichment services",
@@ -74,8 +73,7 @@ class Settings(BaseSettings):
         "Asset Verification",
         "bill of material",
         "Material master",
-        "data codification",
-        "mdm"
+        "data codification"
     ]
 
 

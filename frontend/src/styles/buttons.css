@@ -17,7 +17,7 @@
   justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transition: all var(--duration) var(--ease);
+  transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease), opacity var(--duration-fast) var(--ease);
   white-space: nowrap;
 }
 .btn-primary:hover {
@@ -51,7 +51,7 @@
   justify-content: center;
   gap: 6px;
   cursor: pointer;
-  transition: all var(--duration) var(--ease);
+  transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease), border-color var(--duration-fast) var(--ease);
   white-space: nowrap;
   min-width: fit-content;
 }
@@ -75,7 +75,7 @@
   justify-content: center;
   gap: 4px;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease);
+  transition: transform var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
 }
 .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
 .btn-ghost.active { color: var(--accent-purple); background: var(--accent-purple-dim); }
@@ -92,7 +92,7 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  transition: all var(--duration-fast) var(--ease);
+  transition: transform var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
   flex-shrink: 0;
 }
 .btn-icon a { color: inherit; display: flex; }

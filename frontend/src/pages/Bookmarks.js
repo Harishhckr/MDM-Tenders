@@ -135,6 +135,54 @@ export async function renderBookmarks(container) {
                 applyFilters(); // Re-render immediately
             });
         });
+
+        // Bind delete buttons
+        const delBtns = area.querySelectorAll('.delete-btn');
+        delBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const b = e.currentTarget;
+                const id = b.getAttribute('data-id');
+                const dtype = b.getAttribute('data-type'); // 'tender' or 'google'
+                
+                if(!confirm(`Are you sure you want to permanently delete this ${dtype} from the database?`)) return;
+                
+                const card = b.closest('.tender-card') || b.closest('.goog-result-card');
+                if (card) {
+                    card.style.opacity = '0.5';
+                    card.style.pointerEvents = 'none';
+                }
+
+                try {
+                    const endpoint = dtype === 'google' 
+                        ? `http://localhost:8000/api/google/results/${id}`
+                        : `http://localhost:8000/api/tenders/${id}`;
+                        
+                    const res = await fetch(endpoint, { method: 'DELETE' });
+                    if (res.ok) {
+                        // Also auto-unbookmark it locally so it permanently drops from view
+                        const attrStr = dtype === 'google' ? 'data-google' : 'data-tender';
+                        const relatedBmBtn = card.querySelector(`[${attrStr}]`);
+                        if (relatedBmBtn) {
+                            const objForStore = JSON.parse(relatedBmBtn.getAttribute(attrStr));
+                            // If it's saved, toggle to remove it
+                            if (isBookmarked(objForStore.tender_id || objForStore.link)) {
+                                toggleBookmark(objForStore, dtype);
+                            }
+                        }
+                        if (card) card.remove();
+                        applyFilters();
+                    } else {
+                        alert("Failed to delete record.");
+                        if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                    }
+                } catch(err) {
+                    console.error("Delete failed", err);
+                    alert("Delete failed.");
+                    if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                }
+            });
+        });
     }
 
     function renderTenderCard(t) {
@@ -166,9 +214,13 @@ export async function renderBookmarks(container) {
                 </div>
                 <div class="tender-card-link" style="display:flex; gap:12px; align-items:center;">
                     <span style="font-size:11px; color:var(--text-tertiary); margin-right:4px;">Scraped: ${formatScrapeDate(t.created_at || t.start_date)}</span>
-                    <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}' style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer;">
+                    <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}' style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer;" title="Bookmark">
                         <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
                     </button>
+                    ${t.id ? `
+                    <button class="btn-icon delete-btn" data-id="${t.id}" data-type="tender" title="Permanently Delete" style="background:rgba(255,50,50,0.1); color:var(--accent-red, #ef4444); cursor:pointer; width:36px;height:36px;border-radius:10px; border:none;">
+                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                    </button>` : ''}
                     ${t.link
                         ? '<a href="' + t.link + '" target="_blank" rel="noopener" class="tc-link-btn"><i data-lucide="external-link" style="width:13px;height:13px;"></i> View</a>'
                         : '<span class="tc-no-link">—</span>'
@@ -213,9 +265,13 @@ export async function renderBookmarks(container) {
                     </div>
                     <div style="display:flex; align-items:center; gap:12px;">
                         <span style="font-size:11px; color:var(--text-tertiary);">Scraped: ${formatScrapeDate(r.scraped_at)}</span>
-                        <button class="btn-icon bookmark-btn ${isActive}" data-google='${JSON.stringify(r).replace(/'/g, "&#39;")}' style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer; flex-shrink:0;">
+                        <button class="btn-icon bookmark-btn ${isActive}" data-google='${JSON.stringify(r).replace(/'/g, "&#39;")}' style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05); color:var(--text-secondary); cursor:pointer; flex-shrink:0; border:none;" title="Bookmark">
                             <i data-lucide="bookmark" style="width:16px;height:16px;"></i>
                         </button>
+                        ${r.id ? `
+                        <button class="btn-icon delete-btn" data-id="${r.id}" data-type="google" title="Permanently Delete" style="background:rgba(255,50,50,0.1); color:var(--accent-red, #ef4444); cursor:pointer; width:36px;height:36px;border-radius:10px; border:none; flex-shrink:0;">
+                            <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                        </button>` : ''}
                     </div>
                 </div>
             </div>

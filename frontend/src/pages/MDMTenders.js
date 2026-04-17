@@ -122,8 +122,8 @@ export async function renderMDMTenders(container) {
             </div>
         </div>
 
-        <!-- TENDER LIST CARD -->
-        <div class="card anim-in anim-d2" style="padding:20px 24px;">
+        <!-- TENDER LIST AREA -->
+        <div class="anim-in anim-d2" style="margin-top: 20px;">
             <div id="mdm-table-area">
                 <div style="text-align:center;padding:48px;color:var(--text-tertiary);">
                     <p style="font-size:14px;">Fetching MDM Tenders...</p>
@@ -233,8 +233,11 @@ export async function renderMDMTenders(container) {
                     ${dk ? `<span class="tc-tag scraped-date"><i data-lucide="calendar-check" style="width:10px;height:10px;"></i> ${fmtDateLabel(dk)}</span>` : ''}
                 </div>
                 <div class="tender-card-link" style="display:flex; gap:8px; align-items:center;">
-                    <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(m).replace(/'/g, "&#39;")}'>
+                    <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(m).replace(/'/g, "&#39;")}' title="Bookmark">
                         <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
+                    </button>
+                    <button class="btn-icon delete-btn" data-id="${m.id}" title="Permanently Delete" style="background:rgba(255,50,50,0.1); color:var(--accent-red, #ef4444); cursor:pointer;">
+                        <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
                     </button>
                     ${m.link
                         ? `<a href="${m.link}" target="_blank" rel="noopener" class="tc-link-btn"><i data-lucide="external-link" style="width:13px;height:13px;"></i> View</a>`
@@ -252,6 +255,36 @@ export async function renderMDMTenders(container) {
                 const obj = JSON.parse(b.getAttribute('data-tender'));
                 const saved = toggleBookmark(obj);
                 saved ? b.classList.add('active') : b.classList.remove('active');
+            });
+        });
+
+        area.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const b = e.currentTarget;
+                const id = b.getAttribute('data-id');
+                if(!confirm("Are you sure you want to permanently delete this tender from the database?")) return;
+                
+                const card = b.closest('.tender-card');
+                if (card) {
+                    card.style.opacity = '0.5';
+                    card.style.pointerEvents = 'none';
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE}/tenders/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        if (card) card.remove();
+                        allTenders = allTenders.filter(t => t.id !== id);
+                        renderTenders(); // Refresh counts globally
+                    } else {
+                        alert("Failed to delete tender.");
+                        if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                    }
+                } catch(err) {
+                    console.error("Delete failed", err);
+                    alert("Delete failed.");
+                    if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                }
             });
         });
     }

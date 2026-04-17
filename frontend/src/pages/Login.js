@@ -2,37 +2,46 @@ import { navigate } from '../router.js?v=1002';
 
 export function renderLogin(container) {
     container.innerHTML = `
-        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
-            <div class="card glass-panel" style="width: 100%; max-width: 420px; padding: 40px; text-align: center;">
-                <div style="display: flex; justify-content: center; margin-bottom: 24px; color: var(--accent-purple);">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" fill="currentColor"/>
-                        <path d="M19 3L19.75 5.25L22 6L19.75 6.75L19 9L18.25 6.75L16 6L18.25 5.25L19 3Z" fill="currentColor" opacity="0.7"/>
-                        <path d="M6 16L6.5 17.5L8 18L6.5 18.5L6 20L5.5 18.5L4 18L5.5 17.5L6 16Z" fill="currentColor" opacity="0.5"/>
-                    </svg>
-                </div>
-                <h1 style="font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Welcome back</h1>
-                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 32px;">Enter your credentials to access your tenders</p>
+        <div class="auth-wrapper" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; background: var(--bg-primary);">
+            <div class="auth-card" style="width: 100%; max-width: 420px; padding: 32px; border: 1px solid var(--border-color); border-radius: 12px; text-align: left; box-sizing: border-box;">
                 
-                <form id="login-form" style="text-align: left; display: flex; flex-direction: column; gap: 20px;">
+                <div style="margin-bottom: 32px;">
+                    <h1 style="font-size: 26px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; letter-spacing: -0.03em;">Log in</h1>
+                    <p style="color: var(--text-secondary); font-size: 13px;">Access your intelligence platform.</p>
+                </div>
+                
+                <form id="login-form" style="display: flex; flex-direction: column; gap: 20px;">
                     <div>
-                        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Email</label>
-                        <input type="email" class="input" placeholder="admin@leonex.net" value="admin@leonex.net" required style="width: 100%; height: 44px; background: rgba(255,255,255,0.03);">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Email address</label>
+                        <input type="email" class="input auth-input" placeholder="admin@leonex.net" value="admin@leonex.net" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
                     </div>
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <label style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Password</label>
-                            <a href="#/forgot-password" style="font-size: 13px; color: var(--accent-purple); text-decoration: none; font-weight: 500;">Forgot password?</a>
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Password</label>
+                            <a href="#/forgot-password" style="font-size: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s;" class="auth-link">Forgot password?</a>
                         </div>
-                        <input type="password" class="input" placeholder="••••••••" value="password" required style="width: 100%; height: 44px; background: rgba(255,255,255,0.03);">
+                        <input type="password" class="input auth-input" placeholder="••••••••" value="password" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
                     </div>
-                    <button type="submit" class="btn-primary" style="width: 100%; height: 44px; justify-content: center; font-size: 15px; margin-top: 8px;">Log In</button>
+                    <button type="submit" class="auth-btn" style="width: 100%; height: 44px; background: var(--text-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.2s;">
+                        Continue
+                    </button>
                 </form>
                 
-                <div style="margin-top: 32px; font-size: 14px; color: var(--text-secondary);">
-                    Don't have an account? <a href="#/register" style="color: var(--accent-purple); font-weight: 600; text-decoration: none;">Sign up</a>
+                <div style="margin-top: 32px; font-size: 13px; color: var(--text-secondary); text-align: center;">
+                    Don't have an account? <a href="#/register" style="color: var(--text-primary); font-weight: 600; text-decoration: none;" class="auth-link">Sign up</a>
                 </div>
             </div>
+            
+            <style>
+                .auth-card { background: #000000; }
+                html[data-theme="light"] .auth-card { background: #ffffff; }
+                .auth-input { width: 100%; box-sizing: border-box !important; }
+                .auth-btn { width: 100%; box-sizing: border-box !important; background: #ffffff !important; color: #000000 !important; }
+                html[data-theme="light"] .auth-btn { background: #000000 !important; color: #ffffff !important; }
+                .auth-input:focus { border-color: var(--text-primary) !important; box-shadow: 0 0 0 1px var(--text-primary); }
+                .auth-btn:hover { opacity: 0.8 !important; }
+                .auth-link:hover { color: var(--text-primary) !important; }
+            </style>
         </div>
     `;
 
@@ -40,6 +49,6 @@ export function renderLogin(container) {
         e.preventDefault();
         // Simulate login
         localStorage.setItem('leonex-auth', 'true');
-        navigate('/overview');
+        navigate('/portal');
     });
 }

@@ -30,6 +30,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 from app.database import SessionLocal
 from app.models import GoogleResult
+from app.utils.human_behavior import (
+    build_stealth_options, inject_stealth_scripts, warmup_session,
+    slow_scroll, human_delay, random_between_keyword_delay,
+    random_between_page_delay, random_mouse_move, micro_delay, get_random_proxy
+)
 
 
 class GoogleSearchScraper:
@@ -44,6 +49,7 @@ class GoogleSearchScraper:
         self.keyword_to_find = "material codification"
         self.results_all = []
         self.results_filtered = []
+        self.captcha_callback = None
         
         # ALL MDM KEYWORDS (from your boss's document)
         self.mdm_keywords = [
@@ -79,35 +85,23 @@ class GoogleSearchScraper:
         self._setup_driver()
     
     def _setup_driver(self):
-        """Setup Chrome driver"""
-        options = Options()
-        
-        if self.headless:
-            options.add_argument('--headless=new')
-        else:
-            options.add_argument('--start-maximized')
-        
-        options.add_experimental_option('prefs', {
-            'plugins.always_open_pdf_externally': False,
-        })
-        
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--disable-notifications')
-        options.add_argument('--disable-popup-blocking')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        
-        options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-        
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
-        
+        """Setup Chrome driver with full anti-detection stealth."""
+        proxy = get_random_proxy()
+        opts = build_stealth_options(headless=self.headless, proxy=proxy)
+
         service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=options)
+        self.driver = webdriver.Chrome(service=service, options=opts)
         self.wait = WebDriverWait(self.driver, 20)
-        
-        print("✅ Browser opened successfully!")
+
+        # Inject JS stealth patches immediately
+        inject_stealth_scripts(self.driver)
+
+        print(f"\u2705 Browser opened with stealth mode (proxy={'yes' if proxy else 'no'})!")
+
+        # Warm up session: visit a neutral page first
+        print("🌐 Warming up browser session...")
+        warmup_session(self.driver)
+        print("✅ Session warmed up!")
     
     def _build_search_url(self, base_phrase: str, suffix: str, page: int = 0) -> str:
         """Build Google search URL with exact phrase quotes"""
@@ -163,7 +157,7 @@ class GoogleSearchScraper:
         
         return list(set(keywords))[:10]
     
-    def _extract_result_block(self, block, original_query: str) -> Optional[Dict]:
+    def _extract_result_block(self, block, original_query: str, base_phrase: str) -> Optional[Dict]:
         """Extract a single result block"""
         try:
             title_elem = block.find_element(By.CSS_SELECTOR, "h3")
@@ -194,6 +188,7 @@ class GoogleSearchScraper:
                 'link': link,
                 'keywords': keywords,
                 'search_query': original_query,
+                'base_phrase': base_phrase,
                 'keyword_found_on_page': False,
                 'page_excerpt': '',
                 'is_pdf': link.lower().endswith('.pdf') or '.pdf?' in link.lower()
@@ -202,7 +197,7 @@ class GoogleSearchScraper:
         except Exception:
             return None
     
-    def _extract_page_results(self, original_query: str) -> List[Dict]:
+    def _extract_page_results(self, original_query: str, base_phrase: str) -> List[Dict]:
         """Extract ALL results from current page"""
         results = []
         seen_links = set()
@@ -212,7 +207,7 @@ class GoogleSearchScraper:
             
             for block in result_blocks:
                 try:
-                    result = self._extract_result_block(block, original_query)
+                    result = self._extract_result_block(block, original_query, base_phrase)
                     if result and result['link'] and result['link'] not in seen_links:
                         seen_links.add(result['link'])
                         results.append(result)
@@ -300,19 +295,36 @@ class GoogleSearchScraper:
             return False
     
     def _check_page_for_keyword(self, url: str, keyword: str) -> Tuple[bool, str]:
-        """Open URL and check if keyword exists on the page"""
+        """Open URL and check if keyword exists on the page. Handles captchas via callback."""
         print(f"         🔍 Checking: {url[:80]}...")
-        
+
         try:
-            is_pdf = url.lower().endswith('.pdf') or '.pdf?' in url.lower()
-            
             self.driver.get(url)
-            time.sleep(3)
+            human_delay(2.0, 4.5)  # natural load wait
+
+            # ── Captcha check during filtering phase ──────────────────────
+            # We strictly check for Cloudflare blocks or specific Captcha forms
+            title = self.driver.title.lower()
+            is_captcha = False
             
+            if "just a moment" in title or "attention required" in title or "security check" in title:
+                is_captcha = True
+            elif self.driver.find_elements(By.ID, "captcha-form"):
+                is_captcha = True
+                
+            if is_captcha:
+                print("            ⚠️ Challenge block detected on result page!")
+                if self.captcha_callback:
+                    self.captcha_callback()
+                else:
+                    input("            Press Enter after solving challenge...")
+                # After resuming, wait for page to re-load
+                time.sleep(2)
+
             page_text = self.driver.find_element(By.TAG_NAME, "body").text
             page_text_lower = page_text.lower()
             keyword_lower = keyword.lower()
-            
+
             if keyword_lower in page_text_lower:
                 idx = page_text_lower.find(keyword_lower)
                 start = max(0, idx - 100)
@@ -324,7 +336,7 @@ class GoogleSearchScraper:
             else:
                 print(f"            ❌ Keyword NOT found")
                 return False, ""
-                
+
         except Exception as e:
             print(f"            ⚠️ Error: {str(e)[:100]}")
             return False, ""
@@ -347,30 +359,43 @@ class GoogleSearchScraper:
             
             try:
                 self.driver.get(search_url)
-                time.sleep(3)
+                human_delay(2.5, 5.0)  # realistic load wait — not constant
+                inject_stealth_scripts(self.driver)
+
+                # Reliable Captcha Check for Google
+                is_captcha = False
+                if self.driver.find_elements(By.ID, "captcha-form") or "sorry" in self.driver.title.lower():
+                    is_captcha = True
                 
-                if "captcha" in self.driver.page_source.lower() or "unusual traffic" in self.driver.page_source.lower():
-                    print("   ⚠️ Captcha detected! Please solve manually...")
-                    input("   Press Enter after solving...")
+                if is_captcha:
+                    print("   ⚠️ Google Captcha detected! Please solve manually...")
+                    if self.captcha_callback:
+                        self.captcha_callback()
+                    else:
+                        input("   Press Enter after solving...")
                 
                 try:
                     self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div#search")))
-                    time.sleep(2)
-                except:
+                    human_delay(1.5, 3.0)
+                except Exception:
                     pass
-                
-                page_results = self._extract_page_results(query_display)
+
+                # Slow human-like scroll before extracting (also loads lazy elements)
+                slow_scroll(self.driver, total_height=1200, step=200, delay_range=(0.3, 0.7))
+                random_mouse_move(self.driver)
+
+                page_results = self._extract_page_results(query_display, base_phrase)
                 print(f"      ✅ Found {len(page_results)} results")
                 all_results.extend(page_results)
                 
-                # Check if we should continue to next page
+                # Human-like delay between pages
                 if page < max_pages - 1:
                     if not self._go_to_next_page():
                         print(f"      🏁 No more pages available")
                         break
-                
-                time.sleep(random.uniform(2, 4))
-                
+
+                random_between_page_delay()
+
             except Exception as e:
                 print(f"      ❌ Error: {e}")
                 break
@@ -381,17 +406,18 @@ class GoogleSearchScraper:
     def filter_results_by_page_content(self, results: List[Dict]) -> List[Dict]:
         """Filter results by actual page content"""
         print("\n" + "="*70)
-        print("🔍 FILTERING RESULTS BY PAGE CONTENT")
-        print(f"   Searching for: '{self.keyword_to_find}'")
+        print("🔍 FILTERING RESULTS BY EXACT PAGE CONTENT")
         print("="*70)
         
         filtered_results = []
         total = len(results)
         
         for idx, result in enumerate(results, 1):
+            target_keyword = result.get('base_phrase', self.keyword_to_find)
             print(f"\n   [{idx}/{total}] Processing: {result['title'][:60]}...")
+            print(f"      🎯 Target Keyword: '{target_keyword}'")
             
-            found, excerpt = self._check_page_for_keyword(result['link'], self.keyword_to_find)
+            found, excerpt = self._check_page_for_keyword(result['link'], target_keyword)
             
             result['keyword_found_on_page'] = found
             result['page_excerpt'] = excerpt
@@ -435,25 +461,28 @@ class GoogleSearchScraper:
                     print(f"🔑 Keyword: \"{keyword}\"")
                     print(f"🏷️ Suffix: {suffix}")
                     print(f"{'='*60}")
-                    
+
+                    # Random mouse movement before each keyword (human-like)
+                    random_mouse_move(self.driver)
+
                     results = self.search_with_suffix(keyword, suffix, max_pages)
-                    
+
                     new_count = 0
                     for result in results:
                         if result['link'] not in seen_links:
                             seen_links.add(result['link'])
                             all_results.append(result)
                             new_count += 1
-                    
+
                     print(f"\n   📊 New unique results: {new_count}")
                     print(f"   📈 Total unique so far: {len(all_results)}")
-                    
-                    # Random delay between searches
+
+                    # Human-like delay between keyword searches (8–18s Gaussian)
                     if search_count < total_searches:
-                        delay = random.uniform(5, 8)
-                        print(f"\n⏸️  Waiting {delay:.1f} seconds...")
-                        time.sleep(delay)
-        
+                        print(f"\n⏸️  Human-like pause between keywords...")
+                        random_between_keyword_delay()
+
+
         except KeyboardInterrupt:
             print("\n⚠️ Interrupted by user")
         

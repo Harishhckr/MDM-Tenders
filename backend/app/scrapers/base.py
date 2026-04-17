@@ -3,6 +3,7 @@ BaseScraper — all scrapers inherit from this.
 Provides: driver setup/teardown, safe_get with retry, logging, normalized output.
 """
 import time
+import random
 import logging
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional, Any
@@ -19,6 +20,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from app.config import settings
 from app.utils.logger import get_logger
 from app.services.sync_manager import sync_manager, ScrapeStoppedException
+from app.utils.human_behavior import (
+    build_stealth_options, inject_stealth_scripts, warmup_session,
+    slow_scroll, human_delay, random_between_keyword_delay,
+    random_mouse_move, get_random_proxy
+)
 
 
 class BaseScraper(ABC):
@@ -38,26 +44,26 @@ class BaseScraper(ABC):
 
     # ── Driver lifecycle ──────────────────────────────────────────────────
     def setup_driver(self) -> None:
-        opts = Options()
-        if settings.HEADLESS_MODE:
-            opts.add_argument("--headless=new")
-        opts.add_argument("--disable-blink-features=AutomationControlled")
-        opts.add_argument("--start-maximized")
-        opts.add_argument("--disable-notifications")
-        opts.add_argument("--disable-gpu")
-        opts.add_argument("--no-sandbox")
-        opts.add_argument("--disable-dev-shm-usage")
-        opts.add_argument(
-            "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        proxy = get_random_proxy()
+        if proxy:
+            self.logger.info("[%s] Using proxy: %s", self.SOURCE, proxy.split('@')[-1])
+        else:
+            self.logger.info("[%s] No proxy configured, using direct connection", self.SOURCE)
+
+        opts = build_stealth_options(
+            headless=settings.HEADLESS_MODE,
+            proxy=proxy,
         )
-        opts.add_experimental_option("excludeSwitches", ["enable-automation"])
-        opts.add_experimental_option("useAutomationExtension", False)
 
         service = Service(ChromeDriverManager().install())
         self.driver = webdriver.Chrome(service=service, options=opts)
         self.wait   = WebDriverWait(self.driver, settings.SCRAPE_TIMEOUT)
-        self.logger.info("Driver started (headless=%s)", settings.HEADLESS_MODE)
+
+        # Inject JS stealth patches immediately after driver starts
+        inject_stealth_scripts(self.driver)
+
+        self.logger.info("Driver started (headless=%s, proxy=%s)",
+                         settings.HEADLESS_MODE, bool(proxy))
 
     def close_driver(self) -> None:
         if self.driver:
@@ -80,7 +86,11 @@ class BaseScraper(ABC):
             self.check_stop()
             try:
                 self.driver.get(url)
-                time.sleep(delay)
+                # Randomise the post-nav delay to look human
+                actual_delay = delay + random.uniform(0.5, 2.5)
+                time.sleep(actual_delay)
+                # Inject stealth again (some SPAs reset navigator)
+                inject_stealth_scripts(self.driver)
                 return True
             except WebDriverException as exc:
                 self.logger.warning("safe_get attempt %d/%d failed: %s", attempt, retries, exc)
@@ -171,13 +181,26 @@ class BaseScraper(ABC):
         sync_manager.clear_stop_flag(self.SOURCE)
         self.setup_driver()
         try:
-            for kw in keywords:
+            # Warm up the session to look like a real browser user
+            self.logger.info("[%s] Warming up browser session...", self.SOURCE)
+            warmup_session(self.driver)
+
+            for idx, kw in enumerate(keywords):
                 self.check_stop()
-                self.logger.info("[%s] Scraping keyword: %s", self.SOURCE, kw)
+                self.logger.info("[%s] Scraping keyword %d/%d: %s", self.SOURCE, idx + 1, len(keywords), kw)
                 try:
+                    # Random mouse movement before each keyword search
+                    random_mouse_move(self.driver)
+
                     batch = self.scrape(kw)
                     self.logger.info("[%s] Got %d results for '%s'", self.SOURCE, len(batch), kw)
                     results.extend(batch)
+
+                    # Human-like delay between keywords (not zero, not constant)
+                    if idx < len(keywords) - 1:
+                        self.logger.info("[%s] Waiting between keywords...", self.SOURCE)
+                        random_between_keyword_delay()
+
                 except ScrapeStoppedException as exc:
                     self.logger.warning("[%s] Scraping fully halted (%s)", self.SOURCE, exc)
                     break

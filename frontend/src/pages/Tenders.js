@@ -9,7 +9,7 @@ const API_BASE = 'http://localhost:8000/api';
 
 export async function renderTenders(container) {
     container.innerHTML = `
-        <div class="page-header anim-in">
+        <div class="page-header anim-in" id="tenders-header">
             <div class="page-header-text">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <h1>All Tenders</h1>
@@ -23,7 +23,7 @@ export async function renderTenders(container) {
                 </button>
                 <button class="btn-primary" id="all-sync-btn" style="gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now</button>
                 <button class="btn-secondary" id="all-refresh-btn"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh</button>
-                <button class="btn-secondary" id="all-export-btn"><i data-lucide="download" style="width:14px;height:14px;"></i> Export</button>
+                <button class="btn-secondary" id="all-export-btn" style="gap:6px;"><i data-lucide="download" style="width:14px;height:14px;"></i> Export</button>
             </div>
         </div>
 
@@ -118,8 +118,11 @@ export async function renderTenders(container) {
                                 <span class="tc-tag location"><i data-lucide="map-pin" style="width:10px;height:10px;"></i> ${esc(t.location || '—')}</span>
                             </div>
                             <div class="tender-card-link" style="display:flex; gap:8px; align-items:center;">
-                                <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}'>
+                                <button class="btn-icon bookmark-btn ${isActive}" data-tender='${JSON.stringify(t).replace(/'/g, "&#39;")}' title="Bookmark">
                                     <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
+                                </button>
+                                <button class="btn-icon delete-btn" data-id="${t.id}" title="Permanently Delete" style="background:rgba(255,50,50,0.1); color:var(--accent-red, #ef4444); cursor:pointer;">
+                                    <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
                                 </button>
                                 <a href="#/tender-view?id=${t.id}" class="tc-link-btn secondary" style="background: rgba(255,255,255,0.05); color: var(--text-primary);">
                                     <i data-lucide="info" style="width:13px;height:13px;"></i> Details
@@ -149,6 +152,40 @@ export async function renderTenders(container) {
                     b.classList.add('active');
                 } else {
                     b.classList.remove('active');
+                }
+            });
+        });
+
+        // Bind delete buttons
+        const delBtns = area.querySelectorAll('.delete-btn');
+        delBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const b = e.currentTarget;
+                const id = b.getAttribute('data-id');
+                if(!confirm("Are you sure you want to permanently delete this tender from the database?")) return;
+                
+                // Optimistically remove from DOM
+                const card = b.closest('.tender-card');
+                if (card) {
+                    card.style.opacity = '0.5';
+                    card.style.pointerEvents = 'none';
+                }
+
+                try {
+                    const res = await fetch(`${API_BASE}/tenders/${id}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        if (card) card.remove();
+                        // Also remove from array so it doesn't pop back strictly on pure frontend filter
+                        allTenders = allTenders.filter(t => t.id !== id);
+                        if (badge) badge.textContent = allTenders.length.toLocaleString();
+                    } else {
+                        alert("Failed to delete tender.");
+                        if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+                    }
+                } catch(err) {
+                    console.error("Delete failed", err);
+                    alert("Delete failed.");
+                    if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
                 }
             });
         });

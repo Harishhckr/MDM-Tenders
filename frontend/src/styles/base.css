@@ -45,7 +45,7 @@
 }
 
 /* ── APP SHELL ── */
-.app-shell { display: contents; }
+.app-shell { display: flex; flex: 1; min-height: 0; width: 100%; gap: var(--panel-gap); }
 
 /* ── SHARED GLASS PANEL STYLE ── */
 .glass-panel {

@@ -18,8 +18,20 @@ export function initTheme() {
 export function toggleTheme() {
     const current = getTheme();
     const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
+
+    const root = document.documentElement;
+
+    // Block ALL transitions across every element while theme variables swap.
+    // setTimeout(0) fires AFTER the browser has painted the new theme.
+    root.classList.add('no-transition');
+    root.setAttribute('data-theme', next);
     localStorage.setItem(THEME_KEY, next);
+
+    // Give the browser enough time to fully repaint before re-enabling transitions
+    setTimeout(() => {
+        root.classList.remove('no-transition');
+    }, 300);
+
     return next;
 }
 

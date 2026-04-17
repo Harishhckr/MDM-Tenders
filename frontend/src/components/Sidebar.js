@@ -24,12 +24,10 @@ const navItems = [
     }
 ];
 
-// Sparkle cluster logo SVG
+// Geometric AI Sparkle logo SVG
 const logoSVG = `
-<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" fill="currentColor"/>
-  <path d="M19 3L19.75 5.25L22 6L19.75 6.75L19 9L18.25 6.75L16 6L18.25 5.25L19 3Z" fill="currentColor" opacity="0.7"/>
-  <path d="M6 16L6.5 17.5L8 18L6.5 18.5L6 20L5.5 18.5L4 18L5.5 17.5L6 16Z" fill="currentColor" opacity="0.5"/>
+<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z"/>
 </svg>`;
 
 export function renderSidebar() {
@@ -57,7 +55,7 @@ export function renderSidebar() {
     return `
         <div class="sidebar-inner">
             <div class="sidebar-header">
-                <div class="sidebar-logo">
+                <div class="sidebar-logo" id="sidebar-logo-home" style="cursor: pointer;">
                     <div class="logo-icon">${logoSVG}</div>
                     <div class="logo-text">Leonex</div>
                 </div>
@@ -80,11 +78,25 @@ export function renderSidebar() {
 }
 
 export function initSidebarEvents() {
+    const closeSidebar = () => {
+        document.querySelector('.sidebar')?.classList.remove('open');
+        document.getElementById('sidebar-overlay')?.classList.remove('active');
+    };
+
     document.querySelectorAll('.nav-item[data-route]').forEach(btn => {
         btn.addEventListener('click', () => {
             navigate(btn.getAttribute('data-route'));
+            closeSidebar();
         });
     });
+
+    const homeLogo = document.getElementById('sidebar-logo-home');
+    if (homeLogo) {
+        homeLogo.addEventListener('click', () => {
+            navigate('/portal');
+            closeSidebar();
+        });
+    }
 
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {

@@ -19,6 +19,7 @@ import { renderNotes } from './pages/Notes.js?v=1001';
 import { renderBookmarks } from './pages/Bookmarks.js?v=1001';
 import { renderGoogle } from './pages/Google.js?v=1001';
 import { renderTenderView } from './pages/TenderView.js?v=1001';
+import { renderPortal } from './pages/Portal.js?v=1001';
 
 initTheme();
 
@@ -49,6 +50,7 @@ function withAppLayout(renderFn) {
             container.innerHTML = `
                 <div class="page-wrapper">
                     <div class="app-shell">
+                        <div class="sidebar-overlay" id="sidebar-overlay"></div>
                         <aside class="sidebar glass-panel">
                             ${renderSidebar()}
                         </aside>
@@ -63,6 +65,16 @@ function withAppLayout(renderFn) {
             `;
             initSidebarEvents();
             initTopbarEvents();
+            
+            // Handle overlay click to close sidebar
+            const overlay = document.getElementById('sidebar-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    document.querySelector('.sidebar')?.classList.remove('open');
+                    overlay.classList.remove('active');
+                });
+            }
+            
             pageContent = document.getElementById('page-content');
         }
 
@@ -82,6 +94,7 @@ registerRoute('/login', withAuthLayout(renderLogin));
 registerRoute('/register', withAuthLayout(renderRegister));
 registerRoute('/forgot-password', withAuthLayout(renderForgotPassword));
 
+registerRoute('/portal', withAppLayout(renderPortal));
 registerRoute('/overview', withAppLayout(renderOverview));
 registerRoute('/tenders', withAppLayout(renderTenders));
 registerRoute('/mdm-tenders', withAppLayout(renderMDMTenders));
@@ -99,7 +112,7 @@ registerRoute('/notes', withAppLayout(renderNotes));
 
 initRouter(app);
 
-if (!getCurrentRoute() || getCurrentRoute() === '/') {
-    navigate(isAuthenticated() ? '/overview' : '/login');
+if (!getCurrentRoute() || getCurrentRoute().path === '/') {
+    navigate(isAuthenticated() ? '/portal' : '/login');
 }
 

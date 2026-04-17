@@ -18,7 +18,7 @@
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.05);
   gap: 12px;
-  transition: all var(--duration) var(--ease);
+  transition: border-color var(--duration) var(--ease);
 }
 [data-theme="light"] .search-bar {
   background: rgba(0, 0, 0, 0.02);
@@ -135,7 +135,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--duration) var(--ease);
+  transition: transform var(--duration) var(--ease), opacity var(--duration) var(--ease);
   position: relative;
   flex-shrink: 0;
 }
@@ -150,7 +150,7 @@
   justify-content: center;
   margin-top: -8px; 
   margin-left: -8px; 
-  transition: all var(--duration-slow) var(--ease); 
+  transition: opacity var(--duration-slow) var(--ease), transform var(--duration-slow) var(--ease); 
 }
 .theme-toggle .icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
 .theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.4); }
@@ -198,7 +198,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .stat-icon {
@@ -216,7 +216,7 @@
   width: 24px; 
   height: 24px; 
   stroke-width: 2.2;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .stat-card:hover .stat-icon { transform: scale(1.08) rotate(-3deg); }
@@ -344,7 +344,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
   font-family: inherit;
   display: flex;
   align-items: center;
@@ -499,7 +499,7 @@
   margin-bottom: 8px;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid transparent;
 }
 .note-item:hover {
@@ -645,7 +645,7 @@
   background: transparent !important;
   color: #555555 !important; /* Force dark grey icons */
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease;
   cursor: pointer;
 }
 .notepad-tool-btn:hover {

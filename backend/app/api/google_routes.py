@@ -11,6 +11,7 @@ Endpoints:
 import json
 import io
 import threading
+import uuid
 from datetime import datetime, date
 from typing import Optional
 
@@ -32,11 +33,13 @@ _sync_thread  = None                # reference to running thread
 _sync_status  = {
     "running":  False,
     "stopped":  False,
+    "captcha_detected": False,
     "last_run": None,
     "message":  "Never synced",
     "saved_all": 0,
     "saved_filtered": 0,
 }
+_captcha_event = threading.Event()
 
 
 # ── Scraper thread ────────────────────────────────────────────────────────────
@@ -54,6 +57,23 @@ def _run_scraper(db_session_factory):
         from app.api.google import GoogleSearchScraper
 
         scraper = GoogleSearchScraper(headless=False)
+
+        def captcha_wait_hook():
+            global _captcha_event, _sync_status
+            _sync_status["captcha_detected"] = True
+            _sync_status["message"] = "⚠️ Captcha detected! Please solve it in the Chrome window."
+            logger.warning("Captcha detected, blocking thread until UI clears it...")
+            _captcha_event.clear()            # ensure it's unset before waiting
+            # Wait with a safety timeout — if UI never responds, auto-resume after 5 minutes
+            unblocked = _captcha_event.wait(timeout=300)
+            if unblocked:
+                logger.info("Captcha cleared by user via UI — resuming scraper.")
+            else:
+                logger.warning("Captcha wait timed out after 5 min — resuming anyway.")
+            _sync_status["captcha_detected"] = False
+            _sync_status["message"] = "Searching Google pages…"
+
+        scraper.captcha_callback = captcha_wait_hook
 
         # ── Inject stop check into scraper ──
         # We monkey-patch the inner loop to check _stop_event between pages.
@@ -148,6 +168,9 @@ def sync_google():
 
     from app.database import SessionLocal
     _stop_event.clear()
+    _captcha_event.clear()
+    _sync_status["captcha_detected"] = False
+    
     _sync_thread = threading.Thread(
         target=_run_scraper, args=(SessionLocal,), daemon=True, name="google-scraper"
     )
@@ -155,6 +178,18 @@ def sync_google():
     _sync_status["running"] = True
     _sync_status["message"] = "Sync started — searching Google…"
     return {"status": "started", "message": "Google scraper started"}
+
+
+@router.post("/clear-captcha")
+def clear_captcha():
+    """Signal the scraper thread that captcha was manually solved."""
+    # Always call set() — even if status flag looks wrong due to timing,
+    # setting an already-set Event is a no-op and safe.
+    _captcha_event.set()
+    _sync_status["captcha_detected"] = False
+    _sync_status["message"] = "Captcha cleared by user — resuming scraper..."
+    logger.info("clear-captcha endpoint called — _captcha_event.set() fired")
+    return {"status": "cleared", "message": "Captcha cleared, scraper resuming"}
 
 
 @router.post("/stop")
@@ -284,3 +319,15 @@ def export_google(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
+
+
+@router.delete("/results/{result_id}")
+def delete_google_result(result_id: uuid.UUID, db: Session = Depends(get_db)):
+    """Delete a specific google search result from the database."""
+    row = db.query(GoogleResult).filter(GoogleResult.id == result_id).first()
+    if not row:
+        return JSONResponse({"detail": "Result not found"}, 404)
+    db.delete(row)
+    db.commit()
+    return {"message": "Google result deleted successfully", "id": result_id}
+

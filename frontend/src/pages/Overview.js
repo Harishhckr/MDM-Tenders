@@ -65,7 +65,7 @@ export async function renderOverview(container) {
         </div>
 
         <!-- ═══ ROW 2: Scraper Status + Sources Donut + Keyword Match ═══ -->
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:${GAP}; margin-bottom:${GAP};" class="anim-in anim-d2">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:${GAP}; margin-bottom:${GAP};" class="anim-in anim-d2" id="dash-row2">
             
             <!-- Scraper Status Card -->
             <div class="card glass-panel" style="padding:24px; border-radius:20px; display:flex; flex-direction:column;">
@@ -106,7 +106,7 @@ export async function renderOverview(container) {
         </div>
 
         <!-- ═══ ROW 3: Line Chart (8fr) + Right Stack (4fr) ═══ -->
-        <div style="display:grid; grid-template-columns:8fr 4fr; gap:${GAP};" class="anim-in anim-d3">
+        <div style="display:grid; grid-template-columns:8fr 4fr; gap:${GAP};" class="anim-in anim-d3" id="dash-row3">
             
             <!-- LEFT: Extraction Trends -->
             <div class="card glass-panel" style="display:flex; flex-direction:column; padding:24px; border-radius:20px; min-height:320px;">

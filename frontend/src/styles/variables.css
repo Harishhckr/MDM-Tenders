@@ -6,9 +6,9 @@
 :root {
   /* ── LAYER SYSTEM (Dark) ── */
   --bg-page: #000000;
-  --bg-glass: rgba(54, 54, 54, 0.65);
-  --bg-glass-hover: #141414;
-  --bg-card: #0A0A0A;
+  --bg-glass: #000000;
+  --bg-glass-hover: #111111;
+  --bg-card: #050505;
   --bg-card-elevated: #000000;
   --border-glass: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.04);
@@ -87,6 +87,17 @@
 
 /* ── GLOBAL RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── NO-TRANSITION GUARD ── */
+/* Applied for 300ms during theme toggle — prevents any colour-wipe glitch on
+   search bars, cards, buttons, sidebar, overview cards, link buttons, etc. */
+.no-transition *,
+.no-transition *::before,
+.no-transition *::after {
+  transition: none !important;
+  animation-duration: 0.001ms !important;
+  -webkit-transition: none !important;
+}
 
 body {
   background-color: var(--bg-page);
