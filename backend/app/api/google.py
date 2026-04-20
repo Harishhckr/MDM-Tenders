@@ -28,7 +28,7 @@ import os
 # Add the backend directory to sys.path so we can import 'app' modules when running directly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.database import ExternalSessionLocal
+from app.database import SessionLocal
 from app.models import GoogleResult
 from app.utils.human_behavior import (
     build_stealth_options, inject_stealth_scripts, warmup_session,
@@ -565,7 +565,7 @@ class GoogleSearchScraper:
         print("💾 SAVING TO DATABASE")
         print("="*70)
         
-        db = ExternalSessionLocal()
+        db = SessionLocal()
         try:
             saved_all = self._save_results_type(db, results_all, "all")
             saved_filtered = self._save_results_type(db, results_filtered, "filtered")
