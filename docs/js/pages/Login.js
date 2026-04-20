@@ -1,4 +1,4 @@
-import { navigate } from '../router.js?v=1002';
+import { navigate } from '../router.js';
 
 export function renderLogin(container) {
     container.innerHTML = `

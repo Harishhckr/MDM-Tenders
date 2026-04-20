@@ -1,4 +1,4 @@
-import { navigate } from '../router.js?v=1003';
+import { navigate } from '../router.js';
 
 export function renderPortal(container) {
     container.innerHTML = `

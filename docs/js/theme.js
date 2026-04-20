@@ -6,7 +6,7 @@
 const THEME_KEY = 'leonex-theme';
 
 export function initTheme() {
-    const saved = // localStorage removed
+    const saved = null; // localStorage removed
     if (saved) {
         document.documentElement.setAttribute('data-theme', saved);
     } else {

@@ -137,7 +137,7 @@ export async function renderMDMTenders(container) {
 
     // ── Fetch Data ─────────────────────────────
     try {
-        const r = await fetch(`${API_BASE}/tenders?limit=1000`, { cache: "no-store",  cache: "no-store" });
+        const r = await fetch(`${API_BASE}/tenders?limit=1000`, { cache: "no-store" });
         const d = await r.json();
         allTenders = d.results || [];
     } catch(e) { console.warn('Fetch error', e); }

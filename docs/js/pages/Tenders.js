@@ -63,7 +63,7 @@ export async function renderTenders(container) {
     const badge = container.querySelector('#total-tender-badge');
 
     try {
-        const res = await fetch(`${API_BASE}/tenders?limit=500`, { cache: "no-store",  cache: "no-store" });
+        const res = await fetch(`${API_BASE}/tenders?limit=500`, { cache: "no-store" });
         const data = await res.json();
         allTenders = data.results || [];
         if (badge) {
@@ -309,7 +309,7 @@ export async function renderTenders(container) {
         _setSyncingUI();
         pollInterval = setInterval(async () => {
             try {
-                const res = await fetch(`${API_BASE}/sync-status?source=all`, { cache: "no-store",  cache: "no-store" });
+                const res = await fetch(`${API_BASE}/sync-status?source=all`, { cache: "no-store" });
                 const data = await res.json();
                 if (!data.is_running) {
                     clearInterval(pollInterval);
@@ -322,7 +322,7 @@ export async function renderTenders(container) {
     }
 
     // Check initial state on page load in case it's ALREADY running
-    fetch(`${API_BASE}/sync-status?source=all`, { cache: "no-store",  cache: "no-store" })
+    fetch(`${API_BASE}/sync-status?source=all`, { cache: "no-store" })
         .then(r => r.json())
         .then(d => { if (d.is_running) _startPolling(); })
         .catch(() => {});
@@ -345,7 +345,7 @@ export async function renderTenders(container) {
             try {
                 // Fire all 5 scrapers simultaneously
                 const promises = sources.map(src =>
-                    fetch(`${API_BASE}/search?source=${src}`, { cache: "no-store",  cache: "no-store" }).then(r => r.json()).catch(e => null)
+                    fetch(`${API_BASE}/search?source=${src}`, { cache: "no-store" }).then(r => r.json()).catch(e => null)
                 );
                 await Promise.all(promises);
                 setTimeout(() => _startPolling(), 1000);

@@ -204,7 +204,7 @@ export async function renderGoogle(container) {
         if (qs) url += `&${qs}`;
         
         try {
-            const res = await fetch(url, { cache: "no-store",  cache: "no-store" });
+            const res = await fetch(url, { cache: "no-store" });
             const d = await res.json();
             
             let allItems = [];
@@ -292,7 +292,7 @@ export async function renderGoogle(container) {
 
     async function loadStats() {
         try {
-            const res = await fetch(`${API}/stats`, { cache: "no-store",  cache: "no-store" });
+            const res = await fetch(`${API}/stats`, { cache: "no-store" });
             const d = await res.json();
             setText('goog-s1', fmtNum(d.today_all));
             setText('goog-s2', fmtNum(d.today_filtered));
@@ -306,7 +306,7 @@ export async function renderGoogle(container) {
 
     async function pollStatusOnly() {
         try {
-            const res = await fetch(`${API}/sync/status`, { cache: "no-store",  cache: "no-store" });
+            const res = await fetch(`${API}/sync/status`, { cache: "no-store" });
             const st = await res.json();
             checkCaptchaStatus(st);
         } catch (e) { /* ignore network error on fast poll */ }
@@ -400,7 +400,7 @@ export async function renderGoogle(container) {
         if (qs) url += `&${qs}`;
 
         try {
-            const res = await fetch(url, { cache: "no-store",  cache: "no-store" });
+            const res = await fetch(url, { cache: "no-store" });
             const d = await res.json();
             
             // Re-flatten items to apply JS-side filters (search and keyword)

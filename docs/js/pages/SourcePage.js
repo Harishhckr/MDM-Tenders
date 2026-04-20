@@ -55,7 +55,7 @@ export async function renderSourcePage(container, config) {
     // ── Fetch tenders ──────────────────────────────────────────────────────
     let allTenders = [];
     try {
-        const res  = await fetch(`${API_BASE}/tenders?source=${config.source}&limit=500`, { cache: "no-store",  cache: "no-store" });
+        const res  = await fetch(`${API_BASE}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
         const data = await res.json();
         allTenders = data.results || [];
     } catch (err) {
@@ -114,7 +114,7 @@ export async function renderSourcePage(container, config) {
         _setSyncingUI();
         pollInterval = setInterval(async () => {
             try {
-                const res = await fetch(`${API_BASE}/sync-status?source=${config.source}`, { cache: "no-store",  cache: "no-store" });
+                const res = await fetch(`${API_BASE}/sync-status?source=${config.source}`, { cache: "no-store" });
                 const data = await res.json();
                 if (!data.is_running) {
                     clearInterval(pollInterval);
@@ -122,7 +122,7 @@ export async function renderSourcePage(container, config) {
                     _resetSyncUI();
                     
                     // Reload data safely
-                    const tRes = await fetch(`${API_BASE}/tenders?source=${config.source}&limit=500`, { cache: "no-store",  cache: "no-store" });
+                    const tRes = await fetch(`${API_BASE}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
                     const tData = await tRes.json();
                     allTenders = tData.results || [];
                     _renderTable(container, allTenders, config);
@@ -133,7 +133,7 @@ export async function renderSourcePage(container, config) {
     }
 
     // Check initial state on page load in case it's ALREADY running
-    fetch(`${API_BASE}/sync-status?source=${config.source}`, { cache: "no-store",  cache: "no-store" })
+    fetch(`${API_BASE}/sync-status?source=${config.source}`, { cache: "no-store" })
         .then(r => r.json())
         .then(d => { if (d.is_running) _startPolling(); })
         .catch(() => {});
@@ -151,7 +151,7 @@ export async function renderSourcePage(container, config) {
         syncBtn.addEventListener('click', async () => {
             _setSyncingUI();
             try {
-                await fetch(`${API_BASE}/search?source=${config.source}`, { cache: "no-store",  cache: "no-store" });
+                await fetch(`${API_BASE}/search?source=${config.source}`, { cache: "no-store" });
                 setTimeout(() => _startPolling(), 1000); // Start polling after 1s
             } catch (e) {
                 _resetSyncUI();
@@ -194,7 +194,7 @@ function _loadingSpinner() {
 
 async function _loadStats(container, source) {
     try {
-        const res  = await fetch(`${API_BASE}/stats`, { cache: "no-store",  cache: "no-store" });
+        const res  = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
         const data = await res.json();
         const total    = data.tenders_by_source?.[source] ?? 0;
         const allTotal = data.total_tenders ?? 0;

@@ -50,7 +50,7 @@ export async function renderTenderView(container, query) {
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const res = await fetch(`${API_BASE}/tenders/${tenderUuid}`, { cache: "no-store",  cache: "no-store" });
+        const res = await fetch(`${API_BASE}/tenders/${tenderUuid}`, { cache: "no-store" });
         if (!res.ok) throw new Error('Not found');
         const tender = await res.json();
         renderTenderData(container, tender);

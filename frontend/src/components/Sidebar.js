@@ -107,7 +107,7 @@ export function initSidebarEvents() {
     }
 
     // Fetch live tender count for sidebar badge
-    fetch('https://mdm-tenders.onrender.com/api/stats', { cache: "no-store",  cache: "no-store" })
+    fetch('https://mdm-tenders.onrender.com/api/stats', { cache: "no-store" })
         .then(r => r.json())
         .then(data => {
             const badge = document.getElementById('tender-count');

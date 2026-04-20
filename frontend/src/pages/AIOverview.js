@@ -26,7 +26,7 @@ function parseMarkdown(text) {
 
 export function renderAIOverview(container) {
     container.classList.add('no-scroll-panel');
-    let sessionId = // localStorage removed || null;
+    let sessionId = null; // localStorage removed || null;
 
     container.innerHTML = `
         <div class="ai-chat-layout is-empty anim-in" id="ai-chat-layout">
@@ -88,7 +88,7 @@ export function renderAIOverview(container) {
     let isWaiting = false;
 
     // Check backend health
-    fetch('https://mdm-tenders.onrender.com/api/ai/health', { cache: "no-store",  cache: "no-store" })
+    fetch('https://mdm-tenders.onrender.com/api/ai/health', { cache: "no-store" })
         .then(res => res.json())
         .then(data => {
             const statusEl = document.getElementById('ai-status-indicator');

@@ -1,4 +1,4 @@
-import { renderSourcePage } from './SourcePage.js?v=1002';
+import { renderSourcePage } from './SourcePage.js';
 
 export async function renderTender247(container) {
     await renderSourcePage(container, {

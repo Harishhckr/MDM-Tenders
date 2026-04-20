@@ -2,7 +2,7 @@ const STORE_KEY = 'leonex_bookmarks';
 
 export function getBookmarks() {
     try {
-        const data = // localStorage removed
+        const data = null; // localStorage removed
         return data ? JSON.parse(data) : [];
     } catch (err) {
         console.error("Failed to parse bookmarks", err);

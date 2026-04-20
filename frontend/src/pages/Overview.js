@@ -2,7 +2,7 @@
 // LEONEX TENDER — OVERVIEW PAGE (Dashboard)
 // Premium Colorful Grid — Feature-Rich Layout
 // ============================================
-import { drawDonutChart } from '../components/Chart.js?v=1002';
+import { drawDonutChart } from '../components/Chart.js';
 
 const API_BASE = 'https://mdm-tenders.onrender.com/api';
 const GAP = '20px';
@@ -173,12 +173,12 @@ export async function renderOverview(container) {
     let recentTenders = [];
     
     try {
-        const statsRes = await fetch(`${API_BASE}/stats`, { cache: "no-store",  cache: "no-store" });
+        const statsRes = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
         stats = await statsRes.json();
     } catch(e) { console.warn('Stats error:', e); }
 
     try {
-        const tRes = await fetch(`${API_BASE}/tenders?limit=30`, { cache: "no-store",  cache: "no-store" });
+        const tRes = await fetch(`${API_BASE}/tenders?limit=30`, { cache: "no-store" });
         const tData = await tRes.json();
         recentTenders = tData.results || [];
     } catch(e) { console.warn('Tenders error:', e); }
@@ -283,7 +283,7 @@ export async function renderOverview(container) {
             fill: 'rgba(0, 0, 0, 0.04)',
         }];
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        import('../components/Chart.js?v=1003').then(m => {
+        import('../components/Chart.js').then(m => {
             if (m.drawLineChart) m.drawLineChart(lineCanvas, trendData, { height: 180, labels: days });
         });
     }

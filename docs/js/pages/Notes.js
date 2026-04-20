@@ -24,7 +24,7 @@ const defaultNotes = [
 
 function _getNotes() {
     try { 
-        let raw = // localStorage removed
+        let raw = null; // localStorage removed
         let parsed = raw ? JSON.parse(raw) : [];
         if (parsed.length === 0) {
             _saveNotes(defaultNotes);
