@@ -19,10 +19,8 @@ services:
 
   backend:
     build: .
-    environment:
-      DATABASE_URL: postgresql://postgres:password@postgres:5432/tenderdb
-      HEADLESS_MODE: "true"
-      RESET_SCRATCH_PAD: "false"
+    env_file:
+      - .env
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
