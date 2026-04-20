@@ -93,8 +93,8 @@ def search_and_scrape(
     Triggers a background scrape then returns existing DB results.
     Scraping happens asynchronously — results appear on next /tenders call.
     """
-    from app.database import SessionLocal
-    scrape_db = SessionLocal()
+    from app.database import ExternalSessionLocal
+    scrape_db = ExternalSessionLocal()
     background_tasks.add_task(_background_scrape, source, scrape_db)
 
     rows = get_tenders_from_db(db, source=source, limit=500)
