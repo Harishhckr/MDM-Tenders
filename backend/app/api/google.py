@@ -293,52 +293,85 @@ class GoogleSearchScraper:
         except Exception as e:
             print(f"      ❌ Error clicking next: {e}")
             return False
-    
+
+    # ── CAPTCHA SIGNALS (Step 2 only) ──────────────────────────────────────
+    _CAPTCHA_TITLES = (
+        "just a moment", "attention required", "security check",
+        "access denied", "are you a robot", "bot verification",
+        "ddos protection", "please verify", "human verification",
+    )
+    _CAPTCHA_SELECTORS = [
+        "#captcha-form",
+        "form[action*='captcha']",
+        "div.cf-challenge-running",   # Cloudflare
+        "div#challenge-stage",        # Cloudflare
+        "iframe[src*='recaptcha']",   # reCAPTCHA
+        "div.g-recaptcha",
+        "div#px-captcha",             # PerimeterX
+    ]
+
+    def _is_captcha_page(self) -> bool:
+        """Return True if the current page looks like a CAPTCHA / bot-block page."""
+        try:
+            title = self.driver.title.lower()
+            if any(sig in title for sig in self._CAPTCHA_TITLES):
+                return True
+            for sel in self._CAPTCHA_SELECTORS:
+                if self.driver.find_elements(By.CSS_SELECTOR, sel):
+                    return True
+        except Exception:
+            pass
+        return False
+
     def _check_page_for_keyword(self, url: str, keyword: str) -> Tuple[bool, str]:
-        """Open URL and check if keyword exists on the page. Handles captchas via callback."""
+        """
+        Step 2 — Open each result URL and check whether the target keyword
+        appears in the page body.
+
+        CAPTCHA / block detection:
+          • If any CAPTCHA signal is found → immediately skip (return False)
+            and move on to the next link.  No user prompt, no waiting.
+        """
         print(f"         🔍 Checking: {url[:80]}...")
 
         try:
             self.driver.get(url)
-            human_delay(2.0, 4.5)  # natural load wait
+            human_delay(1.5, 3.5)        # natural load wait
 
-            # ── Captcha check during filtering phase ──────────────────────
-            # We strictly check for Cloudflare blocks or specific Captcha forms
-            title = self.driver.title.lower()
-            is_captcha = False
-            
-            if "just a moment" in title or "attention required" in title or "security check" in title:
-                is_captcha = True
-            elif self.driver.find_elements(By.ID, "captcha-form"):
-                is_captcha = True
-                
-            if is_captcha:
-                print("            ⚠️ Challenge block detected on result page!")
-                if self.captcha_callback:
-                    self.captcha_callback()
-                else:
-                    input("            Press Enter after solving challenge...")
-                # After resuming, wait for page to re-load
-                time.sleep(2)
+            # ── Step 2: CAPTCHA / block → SKIP immediately ────────────────
+            if self._is_captcha_page():
+                print("            ⏭️  CAPTCHA / block detected — skipping this link.")
+                return False, ""
 
-            page_text = self.driver.find_element(By.TAG_NAME, "body").text
+            # Extra safety: short extra wait then re-check once
+            time.sleep(1.0)
+            if self._is_captcha_page():
+                print("            ⏭️  Still blocked after wait — skipping.")
+                return False, ""
+
+            # ── Keyword scan ───────────────────────────────────────────────
+            try:
+                page_text = self.driver.find_element(By.TAG_NAME, "body").text
+            except Exception:
+                print("            ⚠️  Could not read page body — skipping.")
+                return False, ""
+
             page_text_lower = page_text.lower()
-            keyword_lower = keyword.lower()
+            keyword_lower   = keyword.lower()
 
             if keyword_lower in page_text_lower:
-                idx = page_text_lower.find(keyword_lower)
-                start = max(0, idx - 100)
-                end = min(len(page_text), idx + len(keyword) + 100)
-                excerpt = page_text[start:end].strip()
-                excerpt = ' '.join(excerpt.split())
-                print(f"            ✅ Keyword FOUND!")
+                idx    = page_text_lower.find(keyword_lower)
+                start  = max(0, idx - 100)
+                end    = min(len(page_text), idx + len(keyword) + 100)
+                excerpt = ' '.join(page_text[start:end].strip().split())
+                print("            ✅ Keyword FOUND!")
                 return True, excerpt[:500]
             else:
-                print(f"            ❌ Keyword NOT found")
+                print("            ❌ Keyword NOT found")
                 return False, ""
 
         except Exception as e:
-            print(f"            ⚠️ Error: {str(e)[:100]}")
+            print(f"            ⚠️  Error loading page: {str(e)[:100]} — skipping.")
             return False, ""
     
     def search_with_suffix(self, base_phrase: str, suffix: str, max_pages: int = 7) -> List[Dict]:
