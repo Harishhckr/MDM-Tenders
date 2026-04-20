@@ -84,9 +84,9 @@ def delete_tender(tender_uuid: uuid.UUID, db: Session = Depends(get_db)):
 # ── GET /search ───────────────────────────────────────────────────────────────
 @router.get("/search")
 def search_and_scrape(
+    background_tasks: BackgroundTasks,
     keyword: Optional[str] = Query(None, description="Keyword to scrape (blank = all configured)"),
     source:  Optional[str] = Query(None),
-    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
     """
