@@ -2,6 +2,7 @@
 BaseScraper — all scrapers inherit from this.
 Provides: driver setup/teardown, safe_get with retry, logging, normalized output.
 """
+import os
 import time
 import random
 import logging
@@ -50,13 +51,18 @@ class BaseScraper(ABC):
         else:
             self.logger.info("[%s] No proxy configured, using direct connection", self.SOURCE)
 
-        opts = build_stealth_options(
-            headless=settings.HEADLESS_MODE,
-            proxy=proxy,
-        )
+        # Production optimizations for Docker/Render
+        binary_path = "/usr/bin/google-chrome"
+        if os.path.exists(binary_path):
+            opts.binary_location = binary_path
 
-        service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=service, options=opts)
+        try:
+            service = Service(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=service, options=opts)
+        except Exception as e:
+            self.logger.error(f"Failed to start driver with Service: {e}")
+            self.driver = webdriver.Chrome(options=opts)
+
         self.wait   = WebDriverWait(self.driver, settings.SCRAPE_TIMEOUT)
 
         # Inject JS stealth patches immediately after driver starts

@@ -13,8 +13,7 @@ from selenium.webdriver.chrome.options import Options
 PROXY_LIST: List[str] = []
 
 def get_random_user_agent() -> str:
-    # Use standard default undetected chromedriver / headless UA, or just let Chrome decide
-    return ""
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
 
 def get_random_viewport() -> tuple:
     return (1920, 1080)
@@ -40,7 +39,9 @@ def build_stealth_options(
     opts.add_argument("--ignore-certificate-errors")
     opts.add_argument("--window-size=1920,1080")
 
-    # Removed random user agent rotation and stealth patches
+    # Apply modern User-Agent
+    ua = user_agent or get_random_user_agent()
+    opts.add_argument(f"user-agent={ua}")
     
     return opts
 
