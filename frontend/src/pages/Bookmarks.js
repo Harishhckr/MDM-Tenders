@@ -155,8 +155,8 @@ export async function renderBookmarks(container) {
 
                 try {
                     const endpoint = dtype === 'google' 
-                        ? `http://localhost:8000/api/google/results/${id}`
-                        : `http://localhost:8000/api/tenders/${id}`;
+                        ? `https://mdm-tenders.onrender.com/api/google/results/${id}`
+                        : `https://mdm-tenders.onrender.com/api/tenders/${id}`;
                         
                     const res = await fetch(endpoint, { method: 'DELETE' });
                     if (res.ok) {

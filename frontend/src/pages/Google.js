@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API = 'http://localhost:8000/api/google';
+const API = 'https://mdm-tenders.onrender.com/api/google';
 
 export async function renderGoogle(container) {
     container.innerHTML = `

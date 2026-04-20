@@ -106,7 +106,7 @@ export function renderSettings(container) {
                         <div style="font-size:14px; font-weight:500; color:var(--text-primary);">API Endpoint</div>
                         <div style="font-size:12px; color:var(--text-tertiary); margin-top:2px;">Backend connection URL</div>
                     </div>
-                    <code style="font-size:12px; padding:6px 14px; background:var(--bg-hover); border-radius:8px; color:var(--text-secondary);">localhost:8000</code>
+                    <code style="font-size:12px; padding:6px 14px; background:var(--bg-hover); border-radius:8px; color:var(--text-secondary);">mdm-tenders.onrender.com</code>
                 </div>
                 <div class="settings-row" style="border-bottom:none;">
                     <div>
@@ -140,7 +140,7 @@ export function renderSettings(container) {
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
             const a = document.createElement('a');
-            a.href = 'http://localhost:8000/api/export';
+            a.href = 'https://mdm-tenders.onrender.com/api/export';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         });
     }

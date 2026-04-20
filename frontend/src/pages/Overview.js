@@ -4,7 +4,7 @@
 // ============================================
 import { drawDonutChart } from '../components/Chart.js?v=1002';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://mdm-tenders.onrender.com/api';
 const GAP = '20px';
 
 export async function renderOverview(container) {

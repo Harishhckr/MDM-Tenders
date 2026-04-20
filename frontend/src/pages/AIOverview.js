@@ -88,7 +88,7 @@ export function renderAIOverview(container) {
     let isWaiting = false;
 
     // Check backend health
-    fetch('http://localhost:8000/api/ai/health')
+    fetch('https://mdm-tenders.onrender.com/api/ai/health')
         .then(res => res.json())
         .then(data => {
             const statusEl = document.getElementById('ai-status-indicator');
@@ -159,7 +159,7 @@ export function renderAIOverview(container) {
         const typingEl = appendTypingIndicator();
 
         try {
-            const response = await fetch('http://localhost:8000/api/ai/chat', {
+            const response = await fetch('https://mdm-tenders.onrender.com/api/ai/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text, session_id: sessionId })

@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://mdm-tenders.onrender.com/api';
 
 export async function renderTenderView(container, query) {
     const params = new URLSearchParams(query);
