@@ -66,9 +66,9 @@ export function initRouter(container) {
 
 // Auth guard
 export function isAuthenticated() {
-    return localStorage.getItem('leonex-auth') === 'true';
+    return true; // Force true to avoid confusion with localStorage
 }
 
 export function setAuthenticated(value) {
-    localStorage.setItem('leonex-auth', value ? 'true' : 'false');
+    // Doing nothing — localStorage removed
 }

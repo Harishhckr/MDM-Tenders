@@ -130,7 +130,7 @@ export function renderSettings(container) {
             const next = themeToggle.checked ? 'dark' : 'light';
             document.documentElement.classList.add('theme-transition');
             document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('leonex-theme', next);
+            // localStorage removed
             setTimeout(() => document.documentElement.classList.remove('theme-transition'), 500);
         });
     }
@@ -140,7 +140,7 @@ export function renderSettings(container) {
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
             const a = document.createElement('a');
-            a.href = 'http://localhost:8000/api/export';
+            a.href = 'https://mdm-tenders.onrender.com/api/export';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         });
     }

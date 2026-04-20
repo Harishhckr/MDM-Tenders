@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://mdm-tenders.onrender.com/api';
 
 export async function renderMDMTenders(container) {
 
@@ -137,7 +137,7 @@ export async function renderMDMTenders(container) {
 
     // ── Fetch Data ─────────────────────────────
     try {
-        const r = await fetch(`${API_BASE}/tenders?limit=1000`);
+        const r = await fetch(`${API_BASE}/tenders?limit=1000`, { cache: "no-store",  cache: "no-store" });
         const d = await r.json();
         allTenders = d.results || [];
     } catch(e) { console.warn('Fetch error', e); }
@@ -271,7 +271,7 @@ export async function renderMDMTenders(container) {
                 }
 
                 try {
-                    const res = await fetch(`${API_BASE}/tenders/${id}`, { method: 'DELETE' });
+                    const res = await fetch(`${API_BASE}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
                         if (card) card.remove();
                         allTenders = allTenders.filter(t => t.id !== id);

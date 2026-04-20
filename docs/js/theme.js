@@ -6,7 +6,7 @@
 const THEME_KEY = 'leonex-theme';
 
 export function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
+    const saved = // localStorage removed
     if (saved) {
         document.documentElement.setAttribute('data-theme', saved);
     } else {
@@ -25,7 +25,7 @@ export function toggleTheme() {
     // setTimeout(0) fires AFTER the browser has painted the new theme.
     root.classList.add('no-transition');
     root.setAttribute('data-theme', next);
-    localStorage.setItem(THEME_KEY, next);
+    // localStorage removed
 
     // Give the browser enough time to fully repaint before re-enabling transitions
     setTimeout(() => {

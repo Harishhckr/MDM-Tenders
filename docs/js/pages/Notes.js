@@ -24,7 +24,7 @@ const defaultNotes = [
 
 function _getNotes() {
     try { 
-        let raw = localStorage.getItem(STORAGE_KEY);
+        let raw = // localStorage removed
         let parsed = raw ? JSON.parse(raw) : [];
         if (parsed.length === 0) {
             _saveNotes(defaultNotes);
@@ -36,7 +36,7 @@ function _getNotes() {
 }
 
 function _saveNotes(notes) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    // localStorage removed);
 }
 
 function formatNoteDate(isoString) {

@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://mdm-tenders.onrender.com/api';
 
 export async function renderTenderView(container, query) {
     const params = new URLSearchParams(query);
@@ -50,7 +50,7 @@ export async function renderTenderView(container, query) {
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const res = await fetch(`${API_BASE}/tenders/${tenderUuid}`);
+        const res = await fetch(`${API_BASE}/tenders/${tenderUuid}`, { cache: "no-store",  cache: "no-store" });
         if (!res.ok) throw new Error('Not found');
         const tender = await res.json();
         renderTenderData(container, tender);

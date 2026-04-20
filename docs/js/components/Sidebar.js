@@ -101,13 +101,13 @@ export function initSidebarEvents() {
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('leonex-auth');
+            // localStorage removed
             navigate('/login');
         });
     }
 
     // Fetch live tender count for sidebar badge
-    fetch('http://localhost:8000/api/stats')
+    fetch('https://mdm-tenders.onrender.com/api/stats', { cache: "no-store",  cache: "no-store" })
         .then(r => r.json())
         .then(data => {
             const badge = document.getElementById('tender-count');

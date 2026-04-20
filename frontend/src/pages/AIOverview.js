@@ -26,7 +26,7 @@ function parseMarkdown(text) {
 
 export function renderAIOverview(container) {
     container.classList.add('no-scroll-panel');
-    let sessionId = localStorage.getItem('leonex-ai-session') || null;
+    let sessionId = // localStorage removed || null;
 
     container.innerHTML = `
         <div class="ai-chat-layout is-empty anim-in" id="ai-chat-layout">
@@ -88,7 +88,7 @@ export function renderAIOverview(container) {
     let isWaiting = false;
 
     // Check backend health
-    fetch('http://localhost:8000/api/ai/health')
+    fetch('https://mdm-tenders.onrender.com/api/ai/health', { cache: "no-store",  cache: "no-store" })
         .then(res => res.json())
         .then(data => {
             const statusEl = document.getElementById('ai-status-indicator');
@@ -159,8 +159,7 @@ export function renderAIOverview(container) {
         const typingEl = appendTypingIndicator();
 
         try {
-            const response = await fetch('http://localhost:8000/api/ai/chat', {
-                method: 'POST',
+            const response = await fetch('https://mdm-tenders.onrender.com/api/ai/chat', { cache: "no-store", method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text, session_id: sessionId })
             });
@@ -204,7 +203,7 @@ export function renderAIOverview(container) {
                             if (payload.type === 'meta') {
                                 if (payload.session_id) {
                                     sessionId = payload.session_id;
-                                    localStorage.setItem('leonex-ai-session', sessionId);
+                                    // localStorage removed
                                 }
                             } else if (payload.type === 'chunk') {
                                 accumulatedText += payload.text;

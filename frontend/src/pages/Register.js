@@ -48,7 +48,7 @@ export function renderRegister(container) {
 
     document.getElementById('register-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        localStorage.setItem('leonex-auth', 'true');
+        // localStorage removed
         navigate('/portal');
     });
 }

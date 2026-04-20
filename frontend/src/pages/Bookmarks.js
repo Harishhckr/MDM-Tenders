@@ -155,10 +155,10 @@ export async function renderBookmarks(container) {
 
                 try {
                     const endpoint = dtype === 'google' 
-                        ? `http://localhost:8000/api/google/results/${id}`
-                        : `http://localhost:8000/api/tenders/${id}`;
+                        ? `https://mdm-tenders.onrender.com/api/google/results/${id}`
+                        : `https://mdm-tenders.onrender.com/api/tenders/${id}`;
                         
-                    const res = await fetch(endpoint, { method: 'DELETE' });
+                    const res = await fetch(endpoint, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
                         // Also auto-unbookmark it locally so it permanently drops from view
                         const attrStr = dtype === 'google' ? 'data-google' : 'data-tender';

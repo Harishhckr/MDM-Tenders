@@ -48,7 +48,7 @@ export function renderLogin(container) {
     document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
         // Simulate login
-        localStorage.setItem('leonex-auth', 'true');
+        // localStorage removed
         navigate('/portal');
     });
 }

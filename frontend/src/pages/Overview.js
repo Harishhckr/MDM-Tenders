@@ -4,7 +4,7 @@
 // ============================================
 import { drawDonutChart } from '../components/Chart.js?v=1002';
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://mdm-tenders.onrender.com/api';
 const GAP = '20px';
 
 export async function renderOverview(container) {
@@ -173,12 +173,12 @@ export async function renderOverview(container) {
     let recentTenders = [];
     
     try {
-        const statsRes = await fetch(`${API_BASE}/stats`);
+        const statsRes = await fetch(`${API_BASE}/stats`, { cache: "no-store",  cache: "no-store" });
         stats = await statsRes.json();
     } catch(e) { console.warn('Stats error:', e); }
 
     try {
-        const tRes = await fetch(`${API_BASE}/tenders?limit=30`);
+        const tRes = await fetch(`${API_BASE}/tenders?limit=30`, { cache: "no-store",  cache: "no-store" });
         const tData = await tRes.json();
         recentTenders = tData.results || [];
     } catch(e) { console.warn('Tenders error:', e); }
