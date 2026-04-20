@@ -20,10 +20,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production"
 
     # Database
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/tenderdb"
+    DATABASE_URL: str = "postgresql://user:password@host/dbname"
+    EXTERNAL_DATABASE_URL: str = "postgresql://user:password@host/dbname"
 
     # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://127.0.0.1:6379/0"
 
     # Scraping
     HEADLESS_MODE: bool = False
@@ -37,7 +38,7 @@ class Settings(BaseSettings):
     LOGS_DIR: str = "logs"
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:8080,http://127.0.0.1:8080"
+    CORS_ORIGINS: str = "https://harishhckr.github.io,http://127.0.0.1:8080"
 
     @property
     def cors_origins_list(self) -> List[str]:
