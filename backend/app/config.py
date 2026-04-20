@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     LOGS_DIR: str = "logs"
 
     # CORS
-    CORS_ORIGINS: str = "http://localhost:8080,http://127.0.0.1:8080,https://harishhckr.github.io"
+    CORS_ORIGINS: str = "https://harishhckr.github.io,http://localhost:8080,http://127.0.0.1:8080"
 
     @property
     def cors_origins_list(self) -> List[str]:
