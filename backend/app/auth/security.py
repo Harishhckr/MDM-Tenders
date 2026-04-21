@@ -5,22 +5,25 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+# removed passlib
 
 from app.config import settings
 
-# ── bcrypt context ────────────────────────────────────────────────────────────
-pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+import bcrypt
 
 def hash_password(plain: str) -> str:
     """Return bcrypt hash of the plain-text password."""
-    return pwd_ctx.hash(plain)
-
+    # bcrypt requires bytes, and returns bytes. We store it as a string.
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(plain.encode('utf-8'), salt)
+    return hashed.decode('utf-8')
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Return True if plain matches the stored bcrypt hash."""
-    return pwd_ctx.verify(plain, hashed)
+    try:
+        return bcrypt.checkpw(plain.encode('utf-8'), hashed.encode('utf-8'))
+    except Exception:
+        return False
 
 
 # ── JWT helpers ───────────────────────────────────────────────────────────────
