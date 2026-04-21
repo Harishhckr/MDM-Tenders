@@ -1,3 +1,4 @@
+import { getApiBase } from '../utils/api.js';
 function parseMarkdown(text) {
     if (!text) return '';
     let html = text
@@ -88,7 +89,7 @@ export function renderAIOverview(container) {
     let isWaiting = false;
 
     // Check backend health
-    fetch('https://mdm-tenders.onrender.com/api/ai/health', { cache: "no-store" })
+    fetch('${getApiBase()}/ai/health', { cache: "no-store" })
         .then(res => res.json())
         .then(data => {
             const statusEl = document.getElementById('ai-status-indicator');
@@ -159,7 +160,7 @@ export function renderAIOverview(container) {
         const typingEl = appendTypingIndicator();
 
         try {
-            const response = await fetch('https://mdm-tenders.onrender.com/api/ai/chat', { cache: "no-store", method: 'POST',
+            const response = await fetch('${getApiBase()}/ai/chat', { cache: "no-store", method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text, session_id: sessionId })
             });

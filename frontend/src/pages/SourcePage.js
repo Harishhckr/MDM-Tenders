@@ -6,8 +6,7 @@
 // ============================================
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
-
-const API_BASE = 'https://mdm-tenders.onrender.com/api';
+import { getApiBase } from '../utils/api.js';
 
 export async function renderSourcePage(container, config) {
     // ── Loading state ─────────────────────────────────────────────────────
@@ -55,7 +54,7 @@ export async function renderSourcePage(container, config) {
     // ── Fetch tenders ──────────────────────────────────────────────────────
     let allTenders = [];
     try {
-        const res  = await fetch(`${API_BASE}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
+        const res  = await fetch(`${getApiBase()}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
         const data = await res.json();
         allTenders = data.results || [];
     } catch (err) {
@@ -114,7 +113,7 @@ export async function renderSourcePage(container, config) {
         _setSyncingUI();
         pollInterval = setInterval(async () => {
             try {
-                const res = await fetch(`${API_BASE}/sync-status?source=${config.source}`, { cache: "no-store" });
+                const res = await fetch(`${getApiBase()}/sync-status?source=${config.source}`, { cache: "no-store" });
                 const data = await res.json();
                 if (!data.is_running) {
                     clearInterval(pollInterval);
@@ -122,7 +121,7 @@ export async function renderSourcePage(container, config) {
                     _resetSyncUI();
                     
                     // Reload data safely
-                    const tRes = await fetch(`${API_BASE}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
+                    const tRes = await fetch(`${getApiBase()}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
                     const tData = await tRes.json();
                     allTenders = tData.results || [];
                     _renderTable(container, allTenders, config);
@@ -133,7 +132,7 @@ export async function renderSourcePage(container, config) {
     }
 
     // Check initial state on page load in case it's ALREADY running
-    fetch(`${API_BASE}/sync-status?source=${config.source}`, { cache: "no-store" })
+    fetch(`${getApiBase()}/sync-status?source=${config.source}`, { cache: "no-store" })
         .then(r => r.json())
         .then(d => { if (d.is_running) _startPolling(); })
         .catch(() => {});
@@ -144,14 +143,14 @@ export async function renderSourcePage(container, config) {
             stopBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Stopping...';
             if (window.lucide) window.lucide.createIcons();
             try {
-                await fetch(`${API_BASE}/stop-sync?source=${config.source}`, { cache: "no-store", method: 'POST' });
+                await fetch(`${getApiBase()}/stop-sync?source=${config.source}`, { cache: "no-store", method: 'POST' });
             } catch (e) {}
         });
 
         syncBtn.addEventListener('click', async () => {
             _setSyncingUI();
             try {
-                await fetch(`${API_BASE}/search?source=${config.source}`, { cache: "no-store" });
+                await fetch(`${getApiBase()}/search?source=${config.source}`, { cache: "no-store" });
                 setTimeout(() => _startPolling(), 1000); // Start polling after 1s
             } catch (e) {
                 _resetSyncUI();
@@ -163,7 +162,7 @@ export async function renderSourcePage(container, config) {
     const exportBtn = container.querySelector('#sp-export-btn');
     if (exportBtn) {
         exportBtn.addEventListener('click', async () => {
-            const url = `${API_BASE}/export?source=${config.source}`;
+            const url = `${getApiBase()}/export?source=${config.source}`;
             const a = document.createElement('a');
             a.href = url;
             a.download = `${config.source}_tenders.xlsx`;
@@ -194,7 +193,7 @@ function _loadingSpinner() {
 
 async function _loadStats(container, source) {
     try {
-        const res  = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
+        const res  = await fetch(`${getApiBase()}/stats`, { cache: "no-store" });
         const data = await res.json();
         const total    = data.tenders_by_source?.[source] ?? 0;
         const allTotal = data.total_tenders ?? 0;
@@ -325,7 +324,7 @@ function _renderTable(container, tenders, config) {
             }
 
             try {
-                const res = await fetch(`${API_BASE}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
+                const res = await fetch(`${getApiBase()}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
                 if (res.ok) {
                     if (card) card.remove();
                 } else {

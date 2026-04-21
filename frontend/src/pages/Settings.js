@@ -1,3 +1,4 @@
+import { getApiBase } from '../utils/api.js';
 // ============================================
 // LEONEX TENDER — Settings Page
 // Premium Glassmorphism Settings UI
@@ -140,7 +141,7 @@ export function renderSettings(container) {
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
             const a = document.createElement('a');
-            a.href = 'https://mdm-tenders.onrender.com/api/export';
+            a.href = '${getApiBase()}/export';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         });
     }

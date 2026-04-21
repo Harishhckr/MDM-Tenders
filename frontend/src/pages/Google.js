@@ -1,3 +1,4 @@
+import { getApiBase } from '../utils/api.js';
 // ============================================
 // LEONEX — Google Search Results Page
 // Displays scraped results stored in the DB
@@ -5,7 +6,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API = 'https://mdm-tenders.onrender.com/api/google';
+const API = '${getApiBase()}/google';
 
 export async function renderGoogle(container) {
     container.innerHTML = `

@@ -1,3 +1,4 @@
+import { getApiBase } from '../utils/api.js';
 import { navigate, getCurrentRoute } from '../router.js';
 
 const navItems = [
@@ -107,7 +108,7 @@ export function initSidebarEvents() {
     }
 
     // Fetch live tender count for sidebar badge
-    fetch('https://mdm-tenders.onrender.com/api/stats', { cache: "no-store" })
+    fetch('${getApiBase()}/stats', { cache: "no-store" })
         .then(r => r.json())
         .then(data => {
             const badge = document.getElementById('tender-count');

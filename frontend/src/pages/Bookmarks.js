@@ -1,3 +1,4 @@
+import { getApiBase } from '../utils/api.js';
 import { getBookmarks, toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
 export async function renderBookmarks(container) {
@@ -155,8 +156,8 @@ export async function renderBookmarks(container) {
 
                 try {
                     const endpoint = dtype === 'google' 
-                        ? `https://mdm-tenders.onrender.com/api/google/results/${id}`
-                        : `https://mdm-tenders.onrender.com/api/tenders/${id}`;
+                        ? `${getApiBase()}/google/results/${id}`
+                        : `${getApiBase()}/tenders/${id}`;
                         
                     const res = await fetch(endpoint, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
