@@ -51,8 +51,17 @@ class BaseScraper(ABC):
         else:
             self.logger.info("[%s] No proxy configured, using direct connection", self.SOURCE)
 
-        # Production optimizations for Docker/Render
-        opts = build_stealth_options(proxy=proxy)
+        # Auto-detect environment:
+        # - On Linux (Render/Docker) → force headless (no display available)
+        # - On Windows (local dev)   → respect HEADLESS_MODE setting (default False = visible tab)
+        is_linux = os.name != "nt"  # True on Render/Docker, False on Windows
+        use_headless = True if is_linux else settings.HEADLESS_MODE
+
+        opts = build_stealth_options(proxy=proxy, headless=use_headless)
+        self.logger.info("[%s] Running %s (Linux=%s)", self.SOURCE,
+                         "HEADLESS" if use_headless else "VISIBLE BROWSER", is_linux)
+
+        # On Linux/Docker, set Chrome binary path
         binary_path = "/usr/bin/google-chrome"
         if os.path.exists(binary_path):
             opts.binary_location = binary_path
