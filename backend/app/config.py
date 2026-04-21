@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production"
 
     # Database
+    # Render server → set DATABASE_URL env var to internal URL in Render dashboard
+    # Local dev     → .env uses external URL (oregon-postgres.render.com)
     DATABASE_URL: str = "postgresql://mdm_db_tp32_user:MX8J4VpCJb5fjsZRCU6JH1GLtAuzctqz@dpg-d7isi8faqgkc73a4jgr0-a/mdm_db_tp32?sslmode=require"
 
     # Redis
