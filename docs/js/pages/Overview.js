@@ -4,7 +4,7 @@
 // ============================================
 import { drawDonutChart } from '../components/Chart.js';
 
-const API_BASE = 'https://mdm-tenders.onrender.com/api';
+import { getApiBase, authFetch } from '../utils/api.js';
 const GAP = '20px';
 
 export async function renderOverview(container) {
@@ -173,12 +173,12 @@ export async function renderOverview(container) {
     let recentTenders = [];
     
     try {
-        const statsRes = await fetch(`${API_BASE}/stats`, { cache: "no-store" });
+        const statsRes = await authFetch(`${getApiBase()}/stats`, { cache: "no-store" });
         stats = await statsRes.json();
     } catch(e) { console.warn('Stats error:', e); }
 
     try {
-        const tRes = await fetch(`${API_BASE}/tenders?limit=30`, { cache: "no-store" });
+        const tRes = await authFetch(`${getApiBase()}/tenders?limit=30`, { cache: "no-store" });
         const tData = await tRes.json();
         recentTenders = tData.results || [];
     } catch(e) { console.warn('Tenders error:', e); }
@@ -294,7 +294,7 @@ export async function renderOverview(container) {
     const exp = container.querySelector('#dash-export');
     if (exp) {
         exp.addEventListener('click', () => {
-            const a = document.createElement('a'); a.href = `${API_BASE}/export`;
+            const a = document.createElement('a'); a.href = `${getApiBase()}/export`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         });
     }

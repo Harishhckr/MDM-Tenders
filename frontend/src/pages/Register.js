@@ -30,7 +30,7 @@ export function renderRegister(container) {
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Password <span style="font-weight:400; color:var(--text-tertiary);">(8+ chars, 1 uppercase, 1 digit)</span></label>
                         <div style="position: relative;">
-                            <input type="password" id="reg-password" class="input auth-input" placeholder="••••••••" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px 40px 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
+                            <input type="password" id="reg-password" class="input auth-input" placeholder="••••••••" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 40px 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
                             <button type="button" id="toggle-reg-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; transition: color 0.2s;">
                                 <i data-lucide="eye" id="eye-icon-reg" style="width: 18px; height: 18px;"></i>
                             </button>

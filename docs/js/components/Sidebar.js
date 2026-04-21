@@ -1,3 +1,4 @@
+import { getApiBase, clearTokens, authFetch } from '../utils/api.js';
 import { navigate, getCurrentRoute } from '../router.js';
 
 const navItems = [
@@ -19,7 +20,7 @@ const navItems = [
             { icon: 'bar-chart-2', label: 'TenderOnTime', route: '/tender-on-time' },
             { icon: 'file-text', label: 'TenderDetails', route: '/tender-detail' },
             { icon: 'clock', label: 'Tender247', route: '/tender-247' },
-            { icon: 'briefcase', label: 'BidTenders', route: '/bid-tenders' }
+            { icon: 'briefcase', label: 'BidTenders', route: '/briefcase' }
         ]
     }
 ];
@@ -39,7 +40,7 @@ export function renderSidebar() {
             navHTML += `<div class="nav-section-title">${group.section}</div>`;
         }
         group.items.forEach(item => {
-            const isActive = currentRoute === item.route ? 'active' : '';
+            const isActive = (currentRoute.path === item.route) ? 'active' : '';
             const badge = item.badgeId
                 ? `<span class="nav-badge" id="${item.badgeId}">…</span>`
                 : (item.badge ? `<span class="nav-badge">${item.badge}</span>` : '');
@@ -101,13 +102,13 @@ export function initSidebarEvents() {
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            // localStorage removed
+            clearTokens();
             navigate('/login');
         });
     }
 
     // Fetch live tender count for sidebar badge
-    fetch('https://mdm-tenders.onrender.com/api/stats', { cache: "no-store" })
+    authFetch(`${getApiBase()}/stats`, { cache: "no-store" })
         .then(r => r.json())
         .then(data => {
             const badge = document.getElementById('tender-count');
@@ -118,4 +119,3 @@ export function initSidebarEvents() {
             if (badge) badge.textContent = '—';
         });
 }
-

@@ -1,10 +1,21 @@
+import { getApiBase, authFetch } from '../utils/api.js';
 // ============================================
 // LEONEX TENDER — Settings Page
-// Premium Glassmorphism Settings UI
 // ============================================
 
-export function renderSettings(container) {
+export async function renderSettings(container) {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+
+    // Fetch user info
+    let user = { full_name: 'User', email: '...', role: 'user' };
+    try {
+        const res = await authFetch(`${getApiBase()}/auth/me`);
+        if (res.ok) {
+            user = await res.json();
+        }
+    } catch (e) {
+        console.error("Failed to fetch user profile", e);
+    }
 
     container.innerHTML = `
         <div class="page-header anim-in">
@@ -19,12 +30,12 @@ export function renderSettings(container) {
             <!-- Profile Section -->
             <div class="card glass-panel anim-in anim-d1" style="padding:28px; border-radius:20px; grid-column:span 2;">
                 <div style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
-                    <div style="width:64px; height:64px; border-radius:50%; overflow:hidden; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <img src="src/assets/image.png" style="width:100%; height:100%; object-fit:cover;" alt="User Profile">
+                    <div style="width:64px; height:64px; border-radius:50%; overflow:hidden; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: var(--bg-hover); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; color:var(--accent-purple);">
+                        ${user.full_name ? user.full_name.charAt(0).toUpperCase() : (user.username ? user.username.charAt(0).toUpperCase() : 'U')}
                     </div>
                     <div>
-                        <div style="font-size:20px; font-weight:700; color:var(--text-primary);">Admin User</div>
-                        <div style="font-size:14px; color:var(--text-tertiary); margin-top:2px;">admin@leonex.io</div>
+                        <div style="font-size:20px; font-weight:700; color:var(--text-primary);">${user.full_name || user.username || 'User'}</div>
+                        <div style="font-size:14px; color:var(--text-tertiary); margin-top:2px;">${user.email} · <span style="text-transform:capitalize;">${user.role}</span></div>
                     </div>
                     <button class="btn-secondary" style="margin-left:auto; border-radius:100px; padding:8px 20px; font-size:13px;">Edit Profile</button>
                 </div>
@@ -106,7 +117,7 @@ export function renderSettings(container) {
                         <div style="font-size:14px; font-weight:500; color:var(--text-primary);">API Endpoint</div>
                         <div style="font-size:12px; color:var(--text-tertiary); margin-top:2px;">Backend connection URL</div>
                     </div>
-                    <code style="font-size:12px; padding:6px 14px; background:var(--bg-hover); border-radius:8px; color:var(--text-secondary);">localhost:8000</code>
+                    <code style="font-size:12px; padding:6px 14px; background:var(--bg-hover); border-radius:8px; color:var(--text-secondary);">${getApiBase()}</code>
                 </div>
                 <div class="settings-row" style="border-bottom:none;">
                     <div>
@@ -130,7 +141,6 @@ export function renderSettings(container) {
             const next = themeToggle.checked ? 'dark' : 'light';
             document.documentElement.classList.add('theme-transition');
             document.documentElement.setAttribute('data-theme', next);
-            // localStorage removed
             setTimeout(() => document.documentElement.classList.remove('theme-transition'), 500);
         });
     }
@@ -139,9 +149,30 @@ export function renderSettings(container) {
     const exportBtn = container.querySelector('#settings-export');
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
-            const a = document.createElement('a');
-            a.href = 'https://mdm-tenders.onrender.com/api/export';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            // Note: browser download via <a> doesn't easily support auth headers unless we fetch blob.
+            // For simplicity, we can use a temporary token or just let it fail if endpoint is protected.
+            // Since we protected /export, we need a way to pass the token.
+            // One way is a query param token (less secure but works for links).
+            // For now, let's use a blob fetch approach.
+            _handleExport();
         });
+    }
+}
+
+async function _handleExport() {
+    try {
+        const res = await authFetch(`${getApiBase()}/export`);
+        if (!res.ok) throw new Error("Export failed");
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tender_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (e) {
+        alert("Export failed: " + e.message);
     }
 }

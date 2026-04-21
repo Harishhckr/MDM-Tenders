@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API_BASE = 'https://mdm-tenders.onrender.com/api';
+import { getApiBase, authFetch } from '../utils/api.js';
 
 export async function renderTenders(container) {
     container.innerHTML = `
@@ -63,7 +63,7 @@ export async function renderTenders(container) {
     const badge = container.querySelector('#total-tender-badge');
 
     try {
-        const res = await fetch(`${API_BASE}/tenders?limit=500`, { cache: "no-store" });
+        const res = await authFetch(`${getApiBase()}/tenders?limit=500`, { cache: "no-store" });
         const data = await res.json();
         allTenders = data.results || [];
         if (badge) {
@@ -172,7 +172,7 @@ export async function renderTenders(container) {
                 }
 
                 try {
-                    const res = await fetch(`${API_BASE}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
+                    const res = await authFetch(`${getApiBase()}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
                         if (card) card.remove();
                         // Also remove from array so it doesn't pop back strictly on pure frontend filter
@@ -309,7 +309,7 @@ export async function renderTenders(container) {
         _setSyncingUI();
         pollInterval = setInterval(async () => {
             try {
-                const res = await fetch(`${API_BASE}/sync-status?source=all`, { cache: "no-store" });
+                const res = await authFetch(`${getApiBase()}/sync-status?source=all`, { cache: "no-store" });
                 const data = await res.json();
                 if (!data.is_running) {
                     clearInterval(pollInterval);
@@ -322,7 +322,7 @@ export async function renderTenders(container) {
     }
 
     // Check initial state on page load in case it's ALREADY running
-    fetch(`${API_BASE}/sync-status?source=all`, { cache: "no-store" })
+    authFetch(`${getApiBase()}/sync-status?source=all`, { cache: "no-store" })
         .then(r => r.json())
         .then(d => { if (d.is_running) _startPolling(); })
         .catch(() => {});
@@ -333,7 +333,7 @@ export async function renderTenders(container) {
             stopBtn.innerHTML = `<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Stopping...`;
             if (window.lucide) window.lucide.createIcons();
             try {
-                await fetch(`${API_BASE}/stop-sync?source=all`, { cache: "no-store", method: 'POST' });
+                await authFetch(`${getApiBase()}/stop-sync?source=all`, { cache: "no-store", method: 'POST' });
             } catch (e) {}
         });
     }
@@ -345,7 +345,7 @@ export async function renderTenders(container) {
             try {
                 // Fire all 5 scrapers simultaneously
                 const promises = sources.map(src =>
-                    fetch(`${API_BASE}/search?source=${src}`, { cache: "no-store" }).then(r => r.json()).catch(e => null)
+                    authFetch(`${getApiBase()}/search?source=${src}`, { cache: "no-store" }).then(r => r.json()).catch(e => null)
                 );
                 await Promise.all(promises);
                 setTimeout(() => _startPolling(), 1000);
@@ -359,7 +359,7 @@ export async function renderTenders(container) {
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
             const a = document.createElement('a');
-            a.href = `${API_BASE}/export`;
+            a.href = `${getApiBase()}/export`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
