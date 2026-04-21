@@ -7,9 +7,8 @@ let pollTimer = null;
 
 export async function renderScrapers(container) {
     container.innerHTML = `
-        <div class="scraper-header anim-in">
-            <h1>Scraper Control Panel</h1>
-            <p>Manage and monitor all tender extraction engines</p>
+        <div class="section-title anim-in">
+            <i data-lucide="shield"></i> Scraper Control Panel
         </div>
 
         <div class="scraper-actions anim-in anim-d1">
@@ -21,14 +20,14 @@ export async function renderScrapers(container) {
             </button>
         </div>
 
-        <div class="section-title anim-in anim-d2" style="font-size:20px; font-weight:800; margin-bottom:24px; text-transform:none;">
-            <i data-lucide="box" style="width:20px;height:20px;"></i> Tender Source Engines
+        <div class="section-title anim-in anim-d2">
+            <i data-lucide="box"></i> Tender Source Engines
         </div>
 
         <div class="scraper-list anim-in anim-d2" id="adm-scraper-grid"></div>
 
-        <div class="section-title anim-in anim-d3" style="font-size:20px; font-weight:800; margin-top:40px; margin-bottom:24px; text-transform:none;">
-            <i data-lucide="search" style="width:20px;height:20px;"></i> Google Research Scraper
+        <div class="section-title anim-in anim-d3">
+            <i data-lucide="search"></i> Google Research Scraper
         </div>
         <div class="adm-card anim-in anim-d3" id="adm-google-panel"></div>
     `;

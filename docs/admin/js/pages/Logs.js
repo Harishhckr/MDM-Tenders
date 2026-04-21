@@ -7,9 +7,8 @@ let logTimer = null;
 
 export async function renderLogs(container) {
     container.innerHTML = `
-        <div class="scraper-header anim-in">
-            <h1>Engine Telemetry</h1>
-            <p>Real-time extraction logs and system diagnostics</p>
+        <div class="section-title anim-in">
+            <i data-lucide="activity"></i> Engine Telemetry
         </div>
 
         <div style="display:flex; gap:12px; align-items:center; margin-bottom:24px;" class="anim-in anim-d1">
