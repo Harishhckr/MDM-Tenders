@@ -5,7 +5,7 @@ import { getApiBase, adminFetch } from '../utils/api.js';
 
 let logTimer = null;
 
-async function renderLogs(container) {
+export async function renderLogs(container) {
     container.innerHTML = `
         <div class="scraper-header anim-in">
             <h1>Engine Telemetry</h1>
