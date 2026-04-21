@@ -52,6 +52,7 @@ class BaseScraper(ABC):
             self.logger.info("[%s] No proxy configured, using direct connection", self.SOURCE)
 
         # Production optimizations for Docker/Render
+        opts = build_stealth_options(proxy=proxy)
         binary_path = "/usr/bin/google-chrome"
         if os.path.exists(binary_path):
             opts.binary_location = binary_path
