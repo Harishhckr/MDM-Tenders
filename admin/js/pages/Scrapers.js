@@ -4,40 +4,42 @@
 import { getApiBase, adminFetch } from '../utils/api.js';
 
 let pollTimer = null;
+const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 
 export async function renderScrapers(container) {
     container.innerHTML = `
-        <div class="scraper-header anim-in">
-            <h1>Scraper Control Panel</h1>
-            <p>Manage and monitor all tender extraction engines</p>
+        <div class="scraper-header anim-in" style="margin-bottom:40px;">
+            <h1 style="font-size:32px; font-weight:800; letter-spacing:-1px;">Scraper Management</h1>
+            <p style="color:var(--text-tertiary); font-weight:500;">Monitor and control real-time tender extraction engines</p>
         </div>
 
-        <div class="scraper-actions anim-in anim-d1">
-            <button class="btn-stop-all" id="adm-stop-all" disabled>
-                <i data-lucide="x-circle" style="width:16px;height:16px;"></i> Stop All Engines
-            </button>
-            <button class="btn-sync-all" id="adm-sync-all">
-                <i data-lucide="zap" style="width:16px;height:16px;"></i> Sync All Sources
-            </button>
+        <div id="captcha-alert-area"></div>
+
+        <div class="scraper-actions anim-in anim-d1" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+            <div style="font-size:14px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px;">Active Engines</div>
+            <div style="display:flex; gap:12px;">
+                <button class="btn-sc stop" id="adm-stop-all" style="width:160px;" disabled>
+                    <i data-lucide="square"></i> Stop All
+                </button>
+                <button class="btn-sc start" id="adm-sync-all" style="width:160px;">
+                    <i data-lucide="zap"></i> Sync All Sources
+                </button>
+            </div>
         </div>
 
-        <div class="section-title anim-in anim-d2" style="font-size:20px; font-weight:800; margin-bottom:24px; text-transform:none;">
-            <i data-lucide="box" style="width:20px;height:20px;"></i> Tender Source Engines
-        </div>
+        <div class="scraper-grid anim-in anim-d2" id="adm-scraper-grid"></div>
 
-        <div class="scraper-list anim-in anim-d2" id="adm-scraper-grid"></div>
-
-        <div class="section-title anim-in anim-d3" style="font-size:20px; font-weight:800; margin-top:40px; margin-bottom:24px; text-transform:none;">
-            <i data-lucide="search" style="width:20px;height:20px;"></i> Google Research Scraper
+        <div class="section-title anim-in anim-d3" style="margin-top:48px;">
+            <i data-lucide="search"></i> Google Research Scraper
         </div>
-        <div class="adm-card anim-in anim-d3" id="adm-google-panel"></div>
+        <div id="adm-google-card" class="anim-in anim-d3"></div>
     `;
 
     if (window.lucide) window.lucide.createIcons();
 
     await loadScraperStatus();
     if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(loadScraperStatus, 5000);
+    pollTimer = setInterval(loadScraperStatus, 4000);
 
     const obs = new MutationObserver(() => {
         if (!document.getElementById('adm-scraper-grid')) {
@@ -47,11 +49,13 @@ export async function renderScrapers(container) {
     });
     obs.observe(document.body, { childList: true, subtree: true });
 
+    // Global Actions
     container.querySelector('#adm-sync-all')?.addEventListener('click', async () => {
         const sources = ['gem', 'tender247', 'tenderdetail', 'tenderontime', 'biddetail'];
+        const headless = localStorage.getItem('visible_tab') !== 'true';
         try {
             await Promise.all(sources.map(src => 
-                adminFetch(`${getApiBase()}/admin/scrapers/start?source=${src}`, { method: 'POST' })
+                adminFetch(`${getApiBase()}/admin/scrapers/start?source=${src}&headless=${headless}`, { method: 'POST' })
             ));
         } catch (e) { console.error(e); }
         await loadScraperStatus();
@@ -71,61 +75,102 @@ async function loadScraperStatus() {
         if (!res.ok) return;
         const d = await res.json();
 
-        const tenderScrapers = d.scrapers || {};
-        const anyRunning = Object.values(tenderScrapers).some(s => s.is_running);
-        
-        const syncAllBtn = document.getElementById('adm-sync-all');
-        const stopAllBtn = document.getElementById('adm-stop-all');
-        if (syncAllBtn) syncAllBtn.disabled = anyRunning;
-        if (stopAllBtn) stopAllBtn.disabled = !anyRunning;
-
         const grid = document.getElementById('adm-scraper-grid');
-        if (grid) {
-            grid.innerHTML = Object.entries(tenderScrapers).map(([name, info]) => {
-                const status = info.is_running ? 'RUNNING' : 'COMPLETED';
-                return `
-                    <div class="scraper-item">
-                        <div class="sc-info-row">
-                            <span class="sc-name">${name}</span>
-                            <span class="sc-status-label">${status}</span>
-                        </div>
-                        <div class="sc-details"><strong>${info.total_tenders}</strong> tenders found to date</div>
-                        <div class="sc-time">Last run: ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}</div>
-                        <div class="sc-controls">
-                            <button class="btn-icon-sm" onclick="window._startScraper('${name}')" ${info.is_running ? 'disabled' : ''}>
-                                <i data-lucide="play" style="width:20px;height:20px;fill:currentColor;"></i>
-                            </button>
-                            <button class="btn-icon-sm" onclick="window._stopScraper('${name}')" ${!info.is_running ? 'disabled' : ''} style="opacity:0.3;">
-                                <i data-lucide="square" style="width:16px;height:16px;fill:currentColor;"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            if (window.lucide) window.lucide.createIcons();
-        }
+        const alertArea = document.getElementById('captcha-alert-area');
+        if (!grid) return;
 
-        const gPanel = document.getElementById('adm-google-panel');
-        if (gPanel) {
-            const g = d.google || {};
-            gPanel.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div class="sc-status-label">${g.running ? 'RUNNING' : 'IDLE'}</div>
-                        <div class="sc-details" style="margin-top:4px;">${g.message || 'Ready for research'}</div>
+        // Check for CAPTCHA or blocking
+        const scrapers = d.scrapers || {};
+        const anyCaptcha = Object.values(scrapers).some(s => s.status_message?.toLowerCase().includes('captcha'));
+        
+        if (anyCaptcha && alertArea && alertArea.innerHTML === '') {
+            alertArea.innerHTML = `
+                <div class="captcha-alert">
+                    <i data-lucide="alert-triangle"></i>
+                    <div style="flex:1">
+                        <div style="font-weight:800; font-size:14px;">CAPTCHA DETECTED</div>
+                        <div style="font-size:12px; opacity:0.8;">One or more scrapers require manual interaction. Use 'ENTER' to bypass or solve.</div>
                     </div>
-                    <button class="btn-sync-all" onclick="window._startGoogle()" ${g.running ? 'disabled' : ''}>
-                        Launch Google Engine
+                    <button class="btn-sc start" style="width:120px; height:36px; font-size:11px;" onclick="window._bypassCaptcha()">
+                        <i data-lucide="corner-down-left"></i> ENTER
                     </button>
                 </div>
             `;
             if (window.lucide) window.lucide.createIcons();
+            alertSound.play().catch(() => {});
+        } else if (!anyCaptcha && alertArea) {
+            alertArea.innerHTML = '';
         }
+
+        const anyRunning = Object.values(scrapers).some(s => s.is_running);
+        document.getElementById('adm-stop-all').disabled = !anyRunning;
+        document.getElementById('adm-sync-all').disabled = anyRunning;
+
+        grid.innerHTML = Object.entries(scrapers).map(([name, info]) => {
+            const statusClass = info.is_running ? 'running' : (info.last_run ? 'completed' : 'stopped');
+            return `
+                <div class="scraper-card">
+                    <div class="sc-header">
+                        <span class="sc-title">${name.toUpperCase()}</span>
+                        <span class="sc-status-pill ${statusClass}">${info.is_running ? 'Running' : (info.last_run ? 'Completed' : 'Idle')}</span>
+                    </div>
+                    
+                    <div class="sc-stat-row">
+                        <div class="sc-stat-item">
+                            <div class="sc-stat-label">Found</div>
+                            <div class="sc-stat-value">${info.total_tenders || 0}</div>
+                        </div>
+                        <div class="sc-stat-item">
+                            <div class="sc-stat-label">Saved</div>
+                            <div class="sc-stat-value" style="color:var(--accent-green)">${info.total_saved || 0}</div>
+                        </div>
+                    </div>
+
+                    <div style="font-size:11px; color:var(--text-tertiary); font-weight:600;">
+                        <i data-lucide="clock" style="width:10px;height:10px;vertical-align:middle;margin-right:4px;"></i>
+                        Last run: ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}
+                    </div>
+
+                    ${info.status_message ? `<div style="font-size:11px; color:var(--accent-orange); font-weight:700;">${info.status_message}</div>` : ''}
+
+                    <div class="sc-actions">
+                        <button class="btn-sc start" onclick="window._startScraper('${name}')" ${info.is_running ? 'disabled' : ''}>
+                            <i data-lucide="play"></i> Start
+                        </button>
+                        <button class="btn-sc stop" onclick="window._stopScraper('${name}')" ${!info.is_running ? 'disabled' : ''}>
+                            <i data-lucide="square"></i> Stop
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        if (window.lucide) window.lucide.createIcons();
+
+        // Google Card
+        const gCard = document.getElementById('adm-google-card');
+        if (gCard) {
+            const g = d.google || {};
+            gCard.innerHTML = `
+                <div class="scraper-card" style="flex-direction:row; align-items:center; gap:24px;">
+                    <div style="flex:1">
+                        <div class="sc-title">AI RESEARCH ENGINE</div>
+                        <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Scans Google for material codification and AI insights</p>
+                        ${g.status_message ? `<div style="margin-top:8px; font-size:12px; color:var(--accent-orange); font-weight:700;">${g.status_message}</div>` : ''}
+                    </div>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn-sc stop" onclick="window._stopGoogle()" ${!g.running ? 'disabled' : ''}>Stop</button>
+                        <button class="btn-sc start" onclick="window._startGoogle()" ${g.running ? 'disabled' : ''}>Launch Engine</button>
+                    </div>
+                </div>
+            `;
+        }
+
     } catch (e) { console.error(e); }
 }
 
 window._startScraper = async (source) => {
-    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=${source}`, { method: 'POST' });
+    const headless = localStorage.getItem('visible_tab') !== 'true';
+    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=${source}&headless=${headless}`, { method: 'POST' });
     await loadScraperStatus();
 };
 window._stopScraper = async (source) => {
@@ -133,6 +178,16 @@ window._stopScraper = async (source) => {
     await loadScraperStatus();
 };
 window._startGoogle = async () => {
-    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=google&headless=true`, { method: 'POST' });
+    const headless = localStorage.getItem('visible_tab') !== 'true';
+    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=google&headless=${headless}`, { method: 'POST' });
     await loadScraperStatus();
+};
+window._stopGoogle = async () => {
+    await adminFetch(`${getApiBase()}/admin/scrapers/stop?source=google`, { method: 'POST' });
+    await loadScraperStatus();
+};
+window._bypassCaptcha = async () => {
+    console.log('Sending bypass/enter signal...');
+    // Implement backend endpoint for manual interaction if needed
+    await adminFetch(`${getApiBase()}/admin/scrapers/interact?action=enter`, { method: 'POST' });
 };
