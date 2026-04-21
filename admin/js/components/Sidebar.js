@@ -1,63 +1,59 @@
 // ============================================================
-// Admin Sidebar Component
+// Admin Sidebar Component — Premium Style
 // ============================================================
-import { navigate } from '../router.js';
-import { clearToken, getApiMode, setApiBackend } from '../utils/api.js';
+import { getApiMode } from '../utils/api.js';
 
 export function renderAdminSidebar() {
-    const sidebar = document.getElementById('admin-sidebar');
+    const sidebar = document.querySelector('.admin-sidebar');
     if (!sidebar) return;
+
+    const path = window.location.hash || '#/dashboard';
 
     sidebar.innerHTML = `
         <div class="brand">
-            <div class="brand-icon"><i data-lucide="terminal"></i></div>
-            <span class="brand-text">Leonex</span>
-            <span class="brand-badge">Admin</span>
+            <div class="brand-icon"><i data-lucide="shield-check"></i></div>
+            <div class="brand-text">Leonex</div>
+            <div class="brand-badge">Admin</div>
         </div>
+
         <div class="nav-section">
-            <div class="nav-label">Monitor</div>
-            <button class="nav-item" data-route="/dashboard" onclick="window.location.hash='#/dashboard'">
-                <i data-lucide="layout-dashboard"></i> Dashboard
-            </button>
-            <button class="nav-item" data-route="/scrapers" onclick="window.location.hash='#/scrapers'">
-                <i data-lucide="bot"></i> Scrapers
-            </button>
-            <button class="nav-item" data-route="/logs" onclick="window.location.hash='#/logs'">
-                <i data-lucide="scroll-text"></i> Live Logs
-            </button>
+            <div class="nav-label">System</div>
+            <a href="#/dashboard" class="nav-item ${path === '#/dashboard' ? 'active' : ''}">
+                <i data-lucide="activity"></i> Dashboard
+            </a>
+            <a href="#/scrapers" class="nav-item ${path === '#/scrapers' ? 'active' : ''}">
+                <i data-lucide="bot"></i> Scraper Engines
+            </a>
+            <a href="#/logs" class="nav-item ${path === '#/logs' ? 'active' : ''}">
+                <i data-lucide="scroll-text"></i> System Logs
+            </a>
         </div>
+
         <div class="nav-section">
-            <div class="nav-label">Manage</div>
-            <button class="nav-item" data-route="/users" onclick="window.location.hash='#/users'">
-                <i data-lucide="users"></i> Users
-            </button>
+            <div class="nav-label">Management</div>
+            <a href="#/users" class="nav-item ${path === '#/users' ? 'active' : ''}">
+                <i data-lucide="users"></i> User Access
+            </a>
         </div>
+
         <div class="sidebar-footer">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <span style="font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;font-family:var(--font-mono);">API</span>
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <span id="adm-api-label" style="font-size:10px;font-weight:600;color:${getApiMode() === 'local' ? 'var(--neon-green)' : 'var(--neon-orange)'};font-family:var(--font-mono);text-transform:uppercase;">${getApiMode()}</span>
-                    <label class="adm-toggle">
-                        <input type="checkbox" id="adm-api-toggle" ${getApiMode() === 'local' ? 'checked' : ''}>
-                        <span class="slider"></span>
-                    </label>
+            <button class="nav-item" id="admin-logout-btn" style="color:var(--accent-red); margin-top:0;">
+                <i data-lucide="log-out"></i> Sign Out
+            </button>
+            <div style="margin-top:16px; padding:0 16px;">
+                <div style="font-size:10px; color:var(--text-tertiary); text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">API Environment</div>
+                <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-top:4px; display:flex; align-items:center; gap:6px;">
+                    <span style="width:6px; height:6px; border-radius:50%; background:var(--accent-purple);"></span>
+                    ${getApiMode().toUpperCase()}
                 </div>
             </div>
-            <button class="nav-item" id="adm-logout-btn" style="color:var(--neon-red);">
-                <i data-lucide="log-out"></i> Logout
-            </button>
         </div>
     `;
 
     if (window.lucide) window.lucide.createIcons();
 
-    document.getElementById('adm-api-toggle')?.addEventListener('change', (e) => {
-        setApiBackend(e.target.checked ? 'local' : 'remote');
-        window.location.reload();
-    });
-
-    document.getElementById('adm-logout-btn')?.addEventListener('click', () => {
-        clearToken();
+    document.getElementById('admin-logout-btn')?.addEventListener('click', () => {
+        localStorage.removeItem('admin_token');
         window.location.hash = '#/login';
         window.location.reload();
     });

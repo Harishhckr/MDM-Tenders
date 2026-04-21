@@ -1,5 +1,5 @@
 // ============================================================
-// Admin Login Page
+// Admin Login Page — Premium Style
 // ============================================================
 import { getApiBase, setToken } from '../utils/api.js';
 
@@ -11,24 +11,33 @@ export async function renderLogin(container) {
         <div class="admin-login-wrap">
             <div class="admin-login-box anim-in">
                 <div class="login-brand">
-                    <div class="brand-icon"><i data-lucide="terminal"></i></div>
+                    <div class="brand-icon"><i data-lucide="shield-check"></i></div>
                     <span>Leonex Admin</span>
                 </div>
-                <h2>Mission Control Access</h2>
+                
+                <div style="text-align:center; margin-bottom:32px;">
+                    <h2 style="font-size:24px; font-weight:800; color:var(--text-primary); letter-spacing:-0.03em;">Mission Control</h2>
+                    <p style="color:var(--text-tertiary); font-size:13px; margin-top:4px;">Authorized personnel only</p>
+                </div>
+
+                <div id="adm-login-error" style="display:none; background:var(--accent-red-dim); border:1px solid var(--accent-red); color:var(--accent-red); padding:12px; border-radius:12px; font-size:13px; margin-bottom:24px; text-align:center; font-weight:600;"></div>
+
                 <form id="admin-login-form">
                     <div class="field">
-                        <label for="adm-email">Email</label>
+                        <label for="adm-email">Admin Email</label>
                         <input type="email" id="adm-email" placeholder="admin@leonex.net" autocomplete="email" required>
                     </div>
                     <div class="field">
                         <label for="adm-pass">Password</label>
                         <input type="password" id="adm-pass" placeholder="••••••••" autocomplete="current-password" required>
                     </div>
-                    <button type="submit" class="login-btn" id="adm-login-btn">Authenticate</button>
-                    <div class="login-error" id="adm-login-error"></div>
+                    <button type="submit" class="login-btn" id="adm-login-btn" style="margin-top:8px;">Authenticate Access</button>
                 </form>
-                <div class="login-footer">
-                    <a href="../#/login">← Back to User Portal</a>
+
+                <div style="margin-top:32px; text-align:center;">
+                    <a href="../#/login" style="color:var(--text-tertiary); font-size:13px; text-decoration:none; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-tertiary)'">
+                        ← Return to User Portal
+                    </a>
                 </div>
             </div>
         </div>
@@ -36,16 +45,18 @@ export async function renderLogin(container) {
 
     if (window.lucide) window.lucide.createIcons();
 
-    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+    const form = document.getElementById('admin-login-form');
+    const btn = document.getElementById('adm-login-btn');
+    const errEl = document.getElementById('adm-login-error');
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('adm-login-btn');
-        const errEl = document.getElementById('adm-login-error');
+        errEl.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Authenticating...';
+
         const email = document.getElementById('adm-email').value.trim();
         const pass  = document.getElementById('adm-pass').value;
-
-        btn.disabled = true;
-        btn.textContent = 'Authenticating…';
-        errEl.textContent = '';
 
         try {
             const res = await fetch(`${getApiBase()}/auth/login`, {
@@ -56,7 +67,7 @@ export async function renderLogin(container) {
 
             if (!res.ok) {
                 const d = await res.json().catch(() => ({}));
-                throw new Error(d.detail || 'Login failed');
+                throw new Error(d.detail || 'Access Denied: Invalid Credentials');
             }
 
             const data = await res.json();
@@ -65,11 +76,11 @@ export async function renderLogin(container) {
             const meRes = await fetch(`${getApiBase()}/auth/me`, {
                 headers: { 'Authorization': `Bearer ${data.access_token}` },
             });
-            if (!meRes.ok) throw new Error('Failed to verify role');
+            if (!meRes.ok) throw new Error('Verification Failed');
             const me = await meRes.json();
 
             if (me.role !== 'admin') {
-                throw new Error('Access denied — admin role required');
+                throw new Error('Access Denied: Admin Role Required');
             }
 
             setToken(data.access_token);
@@ -78,8 +89,9 @@ export async function renderLogin(container) {
             window.location.reload();
         } catch (err) {
             errEl.textContent = err.message;
+            errEl.style.display = 'block';
             btn.disabled = false;
-            btn.textContent = 'Authenticate';
+            btn.textContent = 'Authenticate Access';
         }
     });
 }

@@ -17,12 +17,6 @@ export async function renderSourcePage(container, config) {
                 <p>${config.description}</p>
             </div>
             <div class="page-header-actions">
-                <button class="btn-secondary" id="sp-stop-btn" disabled style="gap:6px;opacity:0.5;">
-                    <i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop Sync
-                </button>
-                <button class="btn-primary" id="sp-sync-btn" style="gap:6px;">
-                    <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Sync Now
-                </button>
                 <button class="btn-primary" id="sp-export-btn">
                     <i data-lucide="download" style="width:14px;height:14px;"></i> Export Excel
                 </button>
@@ -77,86 +71,7 @@ export async function renderSourcePage(container, config) {
         });
     }
 
-    // ── Sync / Stop Logic ───────────────────────────────────────────────────
-    const syncBtn = container.querySelector('#sp-sync-btn');
-    const stopBtn = container.querySelector('#sp-stop-btn');
-    let isPolling = false;
-    let pollInterval = null;
 
-    function _setSyncingUI() {
-        if (!syncBtn || !stopBtn) return;
-        syncBtn.disabled = true;
-        syncBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Syncing...';
-        stopBtn.disabled = false;
-        stopBtn.style.opacity = '1';
-        stopBtn.style.color = 'var(--accent-red, #ef4444)';
-        stopBtn.style.borderColor = 'var(--accent-red, #ef4444)';
-        stopBtn.innerHTML = '<i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop Sync';
-        if (window.lucide) window.lucide.createIcons();
-    }
-
-    function _resetSyncUI() {
-        if (!syncBtn || !stopBtn) return;
-        syncBtn.disabled = false;
-        syncBtn.innerHTML = '<i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Sync Now';
-        stopBtn.disabled = true;
-        stopBtn.style.opacity = '0.5';
-        stopBtn.style.color = '';
-        stopBtn.style.borderColor = '';
-        stopBtn.innerHTML = '<i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop Sync';
-        if (window.lucide) window.lucide.createIcons();
-    }
-
-    function _startPolling() {
-        if (isPolling) return;
-        isPolling = true;
-        _setSyncingUI();
-        pollInterval = setInterval(async () => {
-            try {
-                const res = await authFetch(`${getApiBase()}/sync-status?source=${config.source}`, { cache: "no-store" });
-                const data = await res.json();
-                if (!data.is_running) {
-                    clearInterval(pollInterval);
-                    isPolling = false;
-                    _resetSyncUI();
-                    
-                    // Reload data safely
-                    const tRes = await authFetch(`${getApiBase()}/tenders?source=${config.source}&limit=500`, { cache: "no-store" });
-                    const tData = await tRes.json();
-                    allTenders = tData.results || [];
-                    _renderTable(container, allTenders, config);
-                    _loadStats(container, config.source);
-                }
-            } catch (e) {}
-        }, 3000);
-    }
-
-    // Check initial state on page load in case it's ALREADY running
-    authFetch(`${getApiBase()}/sync-status?source=${config.source}`, { cache: "no-store" })
-        .then(r => r.json())
-        .then(d => { if (d.is_running) _startPolling(); })
-        .catch(() => {});
-
-    if (syncBtn && stopBtn) {
-        stopBtn.addEventListener('click', async () => {
-            stopBtn.disabled = true;
-            stopBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Stopping...';
-            if (window.lucide) window.lucide.createIcons();
-            try {
-                await authFetch(`${getApiBase()}/stop-sync?source=${config.source}`, { cache: "no-store", method: 'POST' });
-            } catch (e) {}
-        });
-
-        syncBtn.addEventListener('click', async () => {
-            _setSyncingUI();
-            try {
-                await authFetch(`${getApiBase()}/search?source=${config.source}`, { cache: "no-store" });
-                setTimeout(() => _startPolling(), 1000); // Start polling after 1s
-            } catch (e) {
-                _resetSyncUI();
-            }
-        });
-    }
 
     // ── Export button ────────────────────────────────────────────────────────
     const exportBtn = container.querySelector('#sp-export-btn');
@@ -242,7 +157,7 @@ function _renderTable(container, tenders, config) {
         area.innerHTML = `
             <div style="text-align:center;padding:60px;color:var(--text-tertiary);">
                 <i data-lucide="inbox" style="width:40px;height:40px;opacity:0.4;"></i>
-                <p style="margin-top:12px;font-size:14px;">No tenders found. Click <strong>Sync Now</strong> to start scraping.</p>
+                <p style="margin-top:12px;font-size:14px;">No tenders found for this source. Scrapers are managed via the <strong>Admin Portal</strong>.</p>
             </div>`;
         if (window.lucide) window.lucide.createIcons();
         return;
