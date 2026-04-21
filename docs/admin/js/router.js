@@ -46,7 +46,8 @@ export async function handleRoute() {
 
     // Highlight active sidebar nav
     document.querySelectorAll('.nav-item').forEach(el => {
-        const routeAttr = el.getAttribute('onclick')?.match(/'#(.*?)'/)?.[1];
+        const onClickAttr = el.getAttribute('onclick');
+        const routeAttr = onClickAttr ? onClickAttr.match(/'#(.*?)'/)?.[1] : null;
         if (routeAttr) {
             el.classList.toggle('active', path.includes(routeAttr));
         }

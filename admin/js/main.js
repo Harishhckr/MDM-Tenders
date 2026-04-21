@@ -2,7 +2,7 @@
 // Admin Portal — Main Entry Point
 // ============================================================
 import { registerRoute, handleRoute } from './router.js';
-import { isLoggedIn, getApiBase, getApiMode } from './utils/api.js';
+import { isLoggedIn, getApiBase, getApiMode, setApiBackend } from './utils/api.js';
 import { renderAdminSidebar } from './components/Sidebar.js';
 import { renderLogin } from './pages/Login.js';
 import { renderDashboard } from './pages/Dashboard.js';
@@ -35,6 +35,16 @@ function toggleTheme() {
 function boot() {
     initTheme();
     const app = document.getElementById('admin-app');
+
+    // Highlight active sidebar nav
+    const path = window.location.hash || '#/dashboard';
+    document.querySelectorAll('.nav-item').forEach(el => {
+        const onClickAttr = el.getAttribute('onclick');
+        const routeAttr = onClickAttr ? onClickAttr.match(/'#(.*?)'/)?.[1] : null;
+        if (routeAttr) {
+            el.classList.toggle('active', path.includes(routeAttr));
+        }
+    });
 
     if (isLoggedIn()) {
         app.classList.remove('logged-out');
@@ -95,10 +105,8 @@ function renderTopbar() {
     document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
 
     document.getElementById('adm-api-toggle')?.addEventListener('change', (e) => {
-        import('./utils/api.js').then(module => {
-            module.setApiBackend(e.target.checked ? 'local' : 'remote');
-            window.location.reload();
-        });
+        setApiBackend(e.target.checked ? 'local' : 'remote');
+        window.location.reload();
     });
 
     document.getElementById('adm-headless-toggle')?.addEventListener('change', (e) => {
