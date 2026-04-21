@@ -1,5 +1,5 @@
 // ============================================================
-// Admin Portal — Main Entry Point
+// Admin Portal — Main Entry Point & Topbar Logic
 // ============================================================
 import { registerRoute, handleRoute } from './router.js';
 import { isLoggedIn, getApiBase, getApiMode } from './utils/api.js';
@@ -20,6 +20,7 @@ registerRoute('/users',     renderUsers);
 // ── Boot ─────────────────────────────────────────────────────
 function boot() {
     const app = document.getElementById('admin-app');
+    window.API_BASE = getApiBase(); // Set global for components
 
     if (isLoggedIn()) {
         app.classList.remove('logged-out');
@@ -37,16 +38,52 @@ function renderTopbar() {
     if (!topbar) return;
 
     const mode = getApiMode();
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
     topbar.innerHTML = `
-        <span class="topbar-title">Mission Control</span>
+        <div class="top-search">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Search or type a command">
+            <span class="shortcut">⌘F</span>
+        </div>
+        
         <div class="topbar-right">
-            <span class="api-badge">${mode === 'local' ? '⚡ LOCAL' : '☁ RENDER'} — ${getApiBase()}</span>
-            <span class="live-dot"></span>
-            <span class="live-label">Live</span>
+            <div class="env-badge">
+                <span class="env-dot"></span>
+                <span>${mode === 'local' ? 'Localhost' : 'Render'}</span>
+            </div>
+            
+            <button class="theme-btn" id="adm-theme-toggle" title="Toggle Theme">
+                <i data-lucide="${isDark ? 'sun' : 'moon'}"></i>
+            </button>
+            
+            <button class="btn-new-proj">
+                <i data-lucide="plus"></i> New Project
+            </button>
+            
+            <button class="notif-btn">
+                <i data-lucide="bell"></i>
+            </button>
+            
+            <div class="user-avatar" title="Admin User">H</div>
         </div>
     `;
+
     if (window.lucide) window.lucide.createIcons();
+
+    // Theme Toggle Handler
+    document.getElementById('adm-theme-toggle')?.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('admin_theme', next);
+        renderTopbar(); // Refresh icons
+    });
 }
+
+// Initial Theme Load
+const savedTheme = localStorage.getItem('admin_theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
 
 // Wait for DOM
 if (document.readyState === 'loading') {

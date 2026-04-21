@@ -1,5 +1,5 @@
 // ============================================================
-// Admin Login Page — Premium Style
+// Admin Login — Minimalist Premium Design
 // ============================================================
 import { getApiBase, setToken } from '../utils/api.js';
 
@@ -8,42 +8,33 @@ export async function renderLogin(container) {
     app.classList.add('logged-out');
 
     container.innerHTML = `
-        <div class="admin-login-wrap">
-            <div class="admin-login-box anim-in">
-                <div class="login-brand">
-                    <div class="brand-icon"><i data-lucide="shield-check"></i></div>
-                    <span>Leonex Admin</span>
+        <div class="centered-login anim-in">
+            <h1 class="login-title">Log in</h1>
+            <p class="login-subtitle">Access your intelligence platform.</p>
+
+            <div id="adm-login-error" style="display:none; color:var(--accent-red); font-size:13px; margin-bottom:24px; font-weight:600;"></div>
+
+            <form id="admin-login-form">
+                <div class="login-field">
+                    <label>Email address</label>
+                    <input type="email" id="adm-email" placeholder="admin@leonex.net" required autocomplete="email">
+                </div>
+                <div class="login-field">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label>Password</label>
+                        <a href="#" style="font-size:12px; color:var(--text-tertiary); text-decoration:none;">Forgot password?</a>
+                    </div>
+                    <input type="password" id="adm-pass" placeholder="••••••••" required autocomplete="current-password">
                 </div>
                 
-                <div style="text-align:center; margin-bottom:32px;">
-                    <h2 style="font-size:24px; font-weight:800; color:var(--text-primary); letter-spacing:-0.03em;">Mission Control</h2>
-                    <p style="color:var(--text-tertiary); font-size:13px; margin-top:4px;">Authorized personnel only</p>
-                </div>
+                <button type="submit" class="login-btn-master" id="adm-login-btn">Continue</button>
+            </form>
 
-                <div id="adm-login-error" style="display:none; background:var(--accent-red-dim); border:1px solid var(--accent-red); color:var(--accent-red); padding:12px; border-radius:12px; font-size:13px; margin-bottom:24px; text-align:center; font-weight:600;"></div>
-
-                <form id="admin-login-form">
-                    <div class="field">
-                        <label for="adm-email">Admin Email</label>
-                        <input type="email" id="adm-email" placeholder="admin@leonex.net" autocomplete="email" required>
-                    </div>
-                    <div class="field">
-                        <label for="adm-pass">Password</label>
-                        <input type="password" id="adm-pass" placeholder="••••••••" autocomplete="current-password" required>
-                    </div>
-                    <button type="submit" class="login-btn" id="adm-login-btn" style="margin-top:8px;">Authenticate Access</button>
-                </form>
-
-                <div style="margin-top:32px; text-align:center;">
-                    <a href="../#/login" style="color:var(--text-tertiary); font-size:13px; text-decoration:none; font-weight:600; transition:color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-tertiary)'">
-                        ← Return to User Portal
-                    </a>
-                </div>
+            <div style="margin-top:32px; font-size:14px; color:var(--text-secondary);">
+                Don't have an account? <a href="#" style="color:#fff; text-decoration:none; font-weight:700;">Sign up</a>
             </div>
         </div>
     `;
-
-    if (window.lucide) window.lucide.createIcons();
 
     const form = document.getElementById('admin-login-form');
     const btn = document.getElementById('adm-login-btn');
@@ -53,7 +44,7 @@ export async function renderLogin(container) {
         e.preventDefault();
         errEl.style.display = 'none';
         btn.disabled = true;
-        btn.textContent = 'Authenticating...';
+        btn.textContent = 'Processing...';
 
         const email = document.getElementById('adm-email').value.trim();
         const pass  = document.getElementById('adm-pass').value;
@@ -65,23 +56,16 @@ export async function renderLogin(container) {
                 body: JSON.stringify({ email, password: pass }),
             });
 
-            if (!res.ok) {
-                const d = await res.json().catch(() => ({}));
-                throw new Error(d.detail || 'Access Denied: Invalid Credentials');
-            }
+            if (!res.ok) throw new Error('Invalid credentials');
 
             const data = await res.json();
-
-            // Verify admin role by calling /auth/me
+            
+            // Verification step (check role)
             const meRes = await fetch(`${getApiBase()}/auth/me`, {
                 headers: { 'Authorization': `Bearer ${data.access_token}` },
             });
-            if (!meRes.ok) throw new Error('Verification Failed');
             const me = await meRes.json();
-
-            if (me.role !== 'admin') {
-                throw new Error('Access Denied: Admin Role Required');
-            }
+            if (me.role !== 'admin') throw new Error('Unauthorized Access');
 
             setToken(data.access_token);
             app.classList.remove('logged-out');
@@ -91,7 +75,7 @@ export async function renderLogin(container) {
             errEl.textContent = err.message;
             errEl.style.display = 'block';
             btn.disabled = false;
-            btn.textContent = 'Authenticate Access';
+            btn.textContent = 'Continue';
         }
     });
 }
