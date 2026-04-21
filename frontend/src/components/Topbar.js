@@ -20,6 +20,7 @@ export function renderTopbar() {
                 document.getElementById('backend-label').textContent = mode === 'local' ? 'Local' : 'Render';
                 document.getElementById('backend-icon').setAttribute('data-lucide', mode === 'local' ? 'monitor' : 'cloud');
                 if(window.lucide) window.lucide.createIcons();
+                window.location.reload();
             })()">
                 <span id="backend-dot" style="width:8px;height:8px;border-radius:50%;background:${localStorage.getItem('api_backend') === 'local' ? '#22c55e' : '#f97316'};flex-shrink:0;"></span>
                 <i id="backend-icon" data-lucide="${localStorage.getItem('api_backend') === 'local' ? 'monitor' : 'cloud'}" style="width:13px;height:13px;opacity:0.75;"></i>
