@@ -1,77 +1,97 @@
 // ============================================================
-// Admin Dashboard — Premium Hero Layout
+// Admin Dashboard — Live System Overview
 // ============================================================
+import { getApiBase, adminFetch } from '../utils/api.js';
+
+let refreshTimer = null;
+
 export async function renderDashboard(container) {
     container.innerHTML = `
-        <div class="anim-in">
-            <div class="hero-tag">Tender Intelligence Platform</div>
-            
-            <h1 class="hero-title">
-                Leonex Tenders,<br>
-                intelligently sourced.
-            </h1>
-            
-            <p class="hero-desc">
-                One platform, multiple sources. Navigate enterprise master data management tenders, 
-                leverage deeply integrated AI insights, and effortlessly automate your discovery 
-                pipeline — while you focus on what matters.
-            </p>
+        <div class="section-title anim-in"><i data-lucide="activity"></i> System Overview</div>
+        <div class="stat-grid anim-in anim-d1" id="adm-stats"></div>
 
-            <div class="hero-links">
-                <a href="#/scrapers" class="hero-link">
-                    MDM Tenders
-                </a>
-                <a href="#/scrapers" class="hero-link">
-                    Google MDM Tenders
-                </a>
-                <a href="#/logs" class="hero-link">
-                    Leonex AI
-                </a>
-                <a href="#" class="hero-link" style="margin-left:40px; color:var(--text-secondary);">
-                    <i data-lucide="globe" style="width:18px;"></i>
-                </a>
-                <a href="#" class="hero-link" style="color:var(--text-secondary);">
-                    <i data-lucide="linkedin" style="width:18px;"></i>
-                </a>
-            </div>
-        </div>
+        <div class="section-title anim-in anim-d2"><i data-lucide="bar-chart-3"></i> Tenders by Source</div>
+        <div id="adm-source-grid" class="stat-grid anim-in anim-d2"></div>
 
-        <div style="margin-top:80px; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:24px;" class="anim-in anim-d1">
-            <div class="adm-card">
-                <div class="section-header"><i data-lucide="database"></i> System Stats</div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                    <div>
-                        <div style="font-size:11px; font-weight:800; color:var(--text-tertiary); margin-bottom:4px;">TOTAL TENDERS</div>
-                        <div style="font-size:32px; font-weight:800;" id="dash-total">—</div>
-                    </div>
-                    <div>
-                        <div style="font-size:11px; font-weight:800; color:var(--text-tertiary); margin-bottom:4px;">ACTIVE SOURCES</div>
-                        <div style="font-size:32px; font-weight:800;" id="dash-sources">—</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="adm-card">
-                <div class="section-header"><i data-lucide="activity"></i> Extraction Flow</div>
-                <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
-                    The scraper pipeline is currently idle. Next scheduled synchronization in <strong>4 hours</strong>.
-                </div>
-                <button class="btn-admin btn-green" style="margin-top:20px;" onclick="window.location.hash='#/scrapers'">
-                    Go to Scrapers Engine
-                </button>
-            </div>
-        </div>
+        <div class="section-title anim-in anim-d3"><i data-lucide="scroll-text"></i> Recent Activity</div>
+        <div class="adm-card anim-in anim-d3" id="adm-recent-logs"></div>
     `;
-
     if (window.lucide) window.lucide.createIcons();
-    fetchStats();
+
+    await loadDashboard();
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(loadDashboard, 8000);
+
+    // Stop polling when page changes
+    const obs = new MutationObserver(() => {
+        if (!document.getElementById('adm-stats')) {
+            clearInterval(refreshTimer);
+            obs.disconnect();
+        }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
 }
 
-async function fetchStats() {
+async function loadDashboard() {
     try {
-        const res = await fetch(`${window.API_BASE || ''}/stats`);
+        const res = await adminFetch(`${getApiBase()}/admin/dashboard`);
+        if (!res.ok) return;
         const d = await res.json();
-        document.getElementById('dash-total').textContent = d.total_tenders || 0;
-        document.getElementById('dash-sources').textContent = Object.keys(d.tenders_by_source || {}).length;
-    } catch(e) {}
+
+        const statsEl = document.getElementById('adm-stats');
+        if (statsEl) {
+            statsEl.innerHTML = `
+                ${statBox('Total Tenders', d.counts.tenders, 'cyan')}
+                ${statBox('Google Results', d.counts.google_results, 'cyan')}
+                ${statBox('Active Scrapers', d.active_scrapers, d.active_scrapers > 0 ? 'green' : '')}
+                ${statBox('Tenders Today', d.today.tenders, 'green')}
+                ${statBox('Google Today', d.today.google, 'green')}
+                ${statBox('Total Users', d.counts.users, '')}
+            `;
+        }
+
+        const srcEl = document.getElementById('adm-source-grid');
+        if (srcEl) {
+            const entries = Object.entries(d.tenders_by_source || {});
+            srcEl.innerHTML = entries.length
+                ? entries.map(([src, cnt]) => statBox(src.toUpperCase(), cnt, 'cyan')).join('')
+                : '<div style="color:var(--text-tertiary);font-size:12px;font-family:var(--font-mono);padding:12px;">No source data</div>';
+        }
+
+        const logsEl = document.getElementById('adm-recent-logs');
+        if (logsEl) {
+            const logs = d.recent_logs || [];
+            if (logs.length === 0) {
+                logsEl.innerHTML = '<div style="padding:16px;color:var(--text-tertiary);font-size:12px;font-family:var(--font-mono);">No recent activity</div>';
+            } else {
+                logsEl.innerHTML = `
+                    <table class="adm-table">
+                        <thead><tr><th>Source</th><th>Status</th><th>Found</th><th>Saved</th><th>Started</th></tr></thead>
+                        <tbody>
+                            ${logs.map(l => `
+                                <tr>
+                                    <td style="color:var(--neon-cyan);font-weight:600;">${l.source || '—'}</td>
+                                    <td><span class="badge ${l.status === 'completed' ? 'badge-ok' : l.status === 'running' ? 'badge-run' : 'badge-fail'}">${l.status}</span></td>
+                                    <td>${l.tenders_found || 0}</td>
+                                    <td>${l.tenders_saved || 0}</td>
+                                    <td>${l.started_at ? new Date(l.started_at).toLocaleString() : '—'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+    } catch (e) {
+        console.error('Dashboard load error:', e);
+    }
+}
+
+function statBox(label, value, colorClass = '') {
+    return `
+        <div class="stat-box">
+            <div class="stat-label">${label}</div>
+            <div class="stat-value ${colorClass}">${typeof value === 'number' ? value.toLocaleString() : value}</div>
+        </div>
+    `;
 }

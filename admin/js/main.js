@@ -1,5 +1,5 @@
 // ============================================================
-// Admin Portal — Main Entry Point & Topbar Logic
+// Admin Portal — Main Entry Point
 // ============================================================
 import { registerRoute, handleRoute } from './router.js';
 import { isLoggedIn, getApiBase, getApiMode } from './utils/api.js';
@@ -17,10 +17,24 @@ registerRoute('/scrapers',  renderScrapers);
 registerRoute('/logs',      renderLogs);
 registerRoute('/users',     renderUsers);
 
+// ── Theme Management ────────────────────────────────────────
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    renderTopbar(); // Update icon
+}
+
 // ── Boot ─────────────────────────────────────────────────────
 function boot() {
+    initTheme();
     const app = document.getElementById('admin-app');
-    window.API_BASE = getApiBase(); // Set global for components
 
     if (isLoggedIn()) {
         app.classList.remove('logged-out');
@@ -38,52 +52,29 @@ function renderTopbar() {
     if (!topbar) return;
 
     const mode = getApiMode();
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const currentTheme = document.documentElement.getAttribute('data-theme');
 
     topbar.innerHTML = `
-        <div class="top-search">
-            <i data-lucide="search"></i>
-            <input type="text" placeholder="Search or type a command">
-            <span class="shortcut">⌘F</span>
-        </div>
-        
+        <span class="topbar-title">Mission Control</span>
         <div class="topbar-right">
-            <div class="env-badge">
-                <span class="env-dot"></span>
-                <span>${mode === 'local' ? 'Localhost' : 'Render'}</span>
+            <span class="api-badge">${mode === 'local' ? '⚡ LOCAL' : '☁ RENDER'} — ${getApiBase()}</span>
+            
+            <button id="adm-theme-toggle" title="Toggle Theme">
+                <i data-lucide="${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>
+            </button>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="live-dot"></span>
+                <span class="live-label">Live</span>
             </div>
-            
-            <button class="theme-btn" id="adm-theme-toggle" title="Toggle Theme">
-                <i data-lucide="${isDark ? 'sun' : 'moon'}"></i>
-            </button>
-            
-            <button class="btn-new-proj">
-                <i data-lucide="plus"></i> New Project
-            </button>
-            
-            <button class="notif-btn">
-                <i data-lucide="bell"></i>
-            </button>
-            
-            <div class="user-avatar" title="Admin User">H</div>
         </div>
     `;
-
+    
     if (window.lucide) window.lucide.createIcons();
 
-    // Theme Toggle Handler
-    document.getElementById('adm-theme-toggle')?.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('admin_theme', next);
-        renderTopbar(); // Refresh icons
-    });
+    // Bind theme toggle
+    document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
 }
-
-// Initial Theme Load
-const savedTheme = localStorage.getItem('admin_theme') || 'dark';
-document.documentElement.setAttribute('data-theme', savedTheme);
 
 // Wait for DOM
 if (document.readyState === 'loading') {

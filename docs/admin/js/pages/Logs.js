@@ -1,57 +1,84 @@
 // ============================================================
-// Admin Logs — Premium Design
+// Admin Logs — Live Crawl Log Viewer
 // ============================================================
 import { getApiBase, adminFetch } from '../utils/api.js';
 
+let logTimer = null;
+
 export async function renderLogs(container) {
     container.innerHTML = `
-        <div class="anim-in">
-            <div class="hero-tag">System Integrity</div>
-            <h1 style="font-size:32px; font-weight:800; margin-bottom:12px;">Live System Logs</h1>
-            <p style="color:var(--text-secondary); margin-bottom:32px;">Real-time monitoring of backend events and scraper execution.</p>
-
-            <div class="adm-card" style="padding:0; overflow:hidden; border-radius:16px;">
-                <div style="background:var(--bg-topbar); padding:12px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                    <div style="font-size:12px; font-weight:700; color:var(--text-tertiary); text-transform:uppercase;">Stream: Production Logs</div>
-                    <button class="btn-admin" style="padding:6px 12px; font-size:11px;" onclick="window.location.reload()">
-                        <i data-lucide="refresh-cw" style="width:12px;"></i> Clear View
-                    </button>
-                </div>
-                <div class="log-viewer" id="adm-log-stream" style="height:600px; padding:24px; background:#000; font-family:'JetBrains Mono', monospace; font-size:12px; line-height:1.6; overflow-y:auto; color:#aaa;">
-                    <div class="log-line"><span class="log-time">[${new Date().toLocaleTimeString()}]</span> <span class="log-src">SYSTEM</span> Waiting for events...</div>
-                </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;" class="anim-in">
+            <div class="section-title" style="margin-bottom:0;"><i data-lucide="scroll-text"></i> Crawl Logs</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <select id="adm-log-source" style="background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:6px 12px;border-radius:6px;font-size:12px;font-family:var(--font-mono);">
+                    <option value="">All Sources</option>
+                    <option value="gem">GEM</option>
+                    <option value="tender247">Tender247</option>
+                    <option value="tenderdetail">TenderDetail</option>
+                    <option value="tenderontime">TenderOnTime</option>
+                    <option value="biddetail">BidDetail</option>
+                </select>
+                <button class="btn-admin btn-cyan" onclick="window._refreshLogs()">
+                    <i data-lucide="refresh-cw"></i> Refresh
+                </button>
             </div>
         </div>
+        <div class="log-viewer anim-in anim-d1" id="adm-log-viewer">
+            <div style="color:var(--text-tertiary);">Loading logs…</div>
+        </div>
     `;
-
     if (window.lucide) window.lucide.createIcons();
-    startLogPolling();
+
+    document.getElementById('adm-log-source')?.addEventListener('change', loadLogs);
+
+    await loadLogs();
+    if (logTimer) clearInterval(logTimer);
+    logTimer = setInterval(loadLogs, 6000);
+
+    const obs = new MutationObserver(() => {
+        if (!document.getElementById('adm-log-viewer')) {
+            clearInterval(logTimer);
+            obs.disconnect();
+        }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
 }
 
-async function startLogPolling() {
-    const stream = document.getElementById('adm-log-stream');
-    if (!stream) return;
+async function loadLogs() {
+    try {
+        const source = document.getElementById('adm-log-source')?.value || '';
+        let url = `${getApiBase()}/admin/logs?limit=100`;
+        if (source) url += `&source=${source}`;
 
-    const poll = async () => {
-        try {
-            const res = await adminFetch(`${getApiBase()}/admin/logs?limit=50`);
-            const logs = await res.json();
-            if (logs.length > 0) {
-                stream.innerHTML = logs.map(l => `
-                    <div class="log-line">
-                        <span class="log-time">[${l.timestamp?.split('T')[1]?.split('.')[0] || '—'}]</span>
-                        <span class="log-src" style="color:var(--accent-purple);">${l.source?.toUpperCase()}</span>
-                        <span class="log-msg ${l.level === 'error' ? 'error' : ''}">${l.message}</span>
-                    </div>
-                `).join('');
-                stream.scrollTop = stream.scrollHeight;
-            }
-        } catch(e) {}
-    };
+        const res = await adminFetch(url);
+        if (!res.ok) return;
+        const d = await res.json();
 
-    poll();
-    const interval = setInterval(() => {
-        if (!document.getElementById('adm-log-stream')) return clearInterval(interval);
-        poll();
-    }, 5000);
+        const viewer = document.getElementById('adm-log-viewer');
+        if (!viewer) return;
+
+        if (!d.logs || d.logs.length === 0) {
+            viewer.innerHTML = '<div style="color:var(--text-tertiary);">No logs found.</div>';
+            return;
+        }
+
+        viewer.innerHTML = d.logs.map(l => {
+            const time = l.started_at ? new Date(l.started_at).toLocaleString() : '—';
+            const msgClass = l.status === 'failed' ? 'error' : (l.status === 'completed' ? 'success' : '');
+            const statusIcon = l.status === 'running' ? '⟳' : (l.status === 'completed' ? '✓' : '✗');
+            const msg = `${statusIcon} ${l.status.toUpperCase()} — Found: ${l.tenders_found || 0}, Saved: ${l.tenders_saved || 0}${l.error_message ? ' — ' + l.error_message.substring(0, 120) : ''}`;
+
+            return `
+                <div class="log-line">
+                    <span class="log-time">${time}</span>
+                    <span class="log-src">${l.source || '?'}</span>
+                    <span class="log-msg ${msgClass}">${msg}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error('Log load error:', e);
+    }
 }
+
+window._refreshLogs = loadLogs;
