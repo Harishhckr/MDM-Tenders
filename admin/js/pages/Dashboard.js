@@ -41,12 +41,12 @@ async function loadDashboard() {
         const statsEl = document.getElementById('adm-stats');
         if (statsEl) {
             statsEl.innerHTML = `
-                ${statBox('Total Tenders', d.counts.tenders, 'cyan')}
-                ${statBox('Google Results', d.counts.google_results, 'cyan')}
-                ${statBox('Active Scrapers', d.active_scrapers, d.active_scrapers > 0 ? 'green' : '')}
-                ${statBox('Tenders Today', d.today.tenders, 'green')}
-                ${statBox('Google Today', d.today.google, 'green')}
-                ${statBox('Total Users', d.counts.users, '')}
+                ${statBox('Total Tenders', d.counts?.tenders ?? 0, 'cyan')}
+                ${statBox('Google Results', d.counts?.google_results ?? 0, 'cyan')}
+                ${statBox('Active Scrapers', d.active_scrapers ?? 0, (d.active_scrapers || 0) > 0 ? 'green' : '')}
+                ${statBox('Tenders Today', d.today?.tenders ?? 0, 'green')}
+                ${statBox('Google Today', d.today?.google ?? 0, 'green')}
+                ${statBox('Total Users', d.counts?.users ?? 0, '')}
             `;
         }
 
@@ -91,7 +91,7 @@ function statBox(label, value, colorClass = '') {
     return `
         <div class="stat-box">
             <div class="stat-label">${label}</div>
-            <div class="stat-value ${colorClass}">${typeof value === 'number' ? value.toLocaleString() : value}</div>
+            <div class="stat-value ${colorClass}">${(value || 0).toLocaleString()}</div>
         </div>
     `;
 }

@@ -90,7 +90,7 @@ async function loadScraperStatus() {
                             <span class="sc-status-label">${status}</span>
                         </div>
                         <div class="sc-details" style="font-size:24px; font-weight:800; color:var(--text-primary); margin-top:8px;">
-                            ${info.total_tenders.toLocaleString()} <span style="font-size:12px; font-weight:600; color:var(--text-tertiary);">TOTAL TENDERS</span>
+                            ${(info.total_tenders || 0).toLocaleString()} <span style="font-size:12px; font-weight:600; color:var(--text-tertiary);">TOTAL TENDERS</span>
                         </div>
                         <div class="sc-time">Last run: ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}</div>
                         <div class="sc-controls">
