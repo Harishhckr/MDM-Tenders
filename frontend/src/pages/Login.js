@@ -23,7 +23,12 @@ export function renderLogin(container) {
                             <label style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Password</label>
                             <a href="#/forgot-password" style="font-size: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s;" class="auth-link">Forgot password?</a>
                         </div>
-                        <input type="password" id="login-password" class="input auth-input" placeholder="••••••••" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
+                        <div style="position: relative;">
+                            <input type="password" id="login-password" class="input auth-input" placeholder="••••••••" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px 40px 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
+                            <button type="button" id="toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; transition: color 0.2s;">
+                                <i data-lucide="eye" id="eye-icon" style="width: 18px; height: 18px;"></i>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" id="login-btn" class="auth-btn" style="width: 100%; height: 44px; background: var(--text-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.2s;">
                         Continue
@@ -45,13 +50,29 @@ export function renderLogin(container) {
                 .auth-btn:hover { opacity: 0.8 !important; }
                 .auth-link:hover { color: var(--text-primary) !important; }
                 .auth-btn:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+                #toggle-password:hover { color: var(--text-primary) !important; }
             </style>
         </div>
     `;
 
-    const form    = document.getElementById('login-form');
-    const errBox  = document.getElementById('login-error');
-    const btn     = document.getElementById('login-btn');
+    if (window.lucide) window.lucide.createIcons();
+
+    const form      = document.getElementById('login-form');
+    const errBox    = document.getElementById('login-error');
+    const btn       = document.getElementById('login-btn');
+    const passInput = document.getElementById('login-password');
+    const toggleBtn = document.getElementById('toggle-password');
+    const eyeIcon   = document.getElementById('eye-icon');
+
+    // Toggle Password Visibility
+    toggleBtn.addEventListener('click', () => {
+        const isPassword = passInput.type === 'password';
+        passInput.type = isPassword ? 'text' : 'password';
+        
+        // Update Icon
+        eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+        if (window.lucide) window.lucide.createIcons();
+    });
 
     function showError(msg) {
         errBox.textContent = msg;
@@ -65,7 +86,7 @@ export function renderLogin(container) {
         btn.textContent = 'Signing in...';
 
         const email    = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-password').value;
+        const password = passInput.value;
 
         try {
             const res = await fetch(`${getApiBase()}/auth/login`, {
