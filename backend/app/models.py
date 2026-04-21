@@ -3,10 +3,37 @@ SQLAlchemy Models
 """
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, UniqueConstraint, Index
+from sqlalchemy import Column, String, Text, DateTime, UniqueConstraint, Index, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from app.database import Base
+
+
+class User(Base):
+    """Application users — passwords stored as bcrypt hash, never plain."""
+    __tablename__ = "users"
+
+    id             = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email          = Column(String(255), unique=True, index=True, nullable=False)
+    username       = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    full_name      = Column(String(200), nullable=True)
+    role           = Column(String(30), default="user")      # "user" | "admin"
+    is_active      = Column(Boolean, default=True)
+    is_verified    = Column(Boolean, default=False)
+    created_at     = Column(DateTime(timezone=True), server_default=func.now())
+    last_login     = Column(DateTime(timezone=True), nullable=True)
+
+    def to_dict(self) -> dict:
+        return {
+            "id":         str(self.id),
+            "email":      self.email,
+            "username":   self.username,
+            "full_name":  self.full_name,
+            "role":       self.role,
+            "is_active":  self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
 
 
 class Tender(Base):

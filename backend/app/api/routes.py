@@ -19,6 +19,7 @@ from app.services.scraper_service import (
     invalidate_cache,
 )
 from app.services.sync_manager import sync_manager
+from app.auth.dependencies import get_current_user
 from app.utils.logger import get_logger
 
 router = APIRouter(prefix="/api", tags=["tenders"])
@@ -88,10 +89,12 @@ def search_and_scrape(
     keyword: Optional[str] = Query(None, description="Keyword to scrape (blank = all configured)"),
     source:  Optional[str] = Query(None),
     db: Session = Depends(get_db),
+    _user = Depends(get_current_user),   # ← JWT required
 ):
     """
     Triggers a background scrape then returns existing DB results.
     Scraping happens asynchronously — results appear on next /tenders call.
+    Requires: Authorization: Bearer <access_token>
     """
     scrape_db = SessionLocal()
     background_tasks.add_task(_background_scrape, source, scrape_db)
@@ -106,8 +109,11 @@ def search_and_scrape(
 
 # ── POST /stop-sync ───────────────────────────────────────────────────────────
 @router.post("/stop-sync")
-def stop_sync(source: Optional[str] = Query(None)):
-    """Halts an ongoing scraping process."""
+def stop_sync(
+    source: Optional[str] = Query(None),
+    _user = Depends(get_current_user),   # ← JWT required
+):
+    """Halts an ongoing scraping process. Requires auth."""
     target = source or "all"
     sync_manager.set_stop_flag(target)
     logger.info(f"Stop sync requested for source: {target}")

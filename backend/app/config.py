@@ -39,11 +39,17 @@ class Settings(BaseSettings):
     LOGS_DIR: str = "logs"
 
     # CORS
-    CORS_ORIGINS: str = "https://harishhckr.github.io,http://127.0.0.1:8080"
+    CORS_ORIGINS: str = "https://harishhckr.github.io,http://127.0.0.1:8080,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080,null,*"
 
     @property
     def cors_origins_list(self) -> List[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",")]
+
+    # ── JWT Auth ──────────────────────────────────────────────────────────────
+    JWT_SECRET: str = "change-this-jwt-secret-in-render-env"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440   # 24 h
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     # All MDM/Tender keywords
     SEARCH_KEYWORDS: List[str] = [

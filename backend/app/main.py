@@ -17,7 +17,7 @@ logger = get_logger("main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: create DB tables."""
+    """Startup: create DB tables (includes users table)."""
     logger.info("Starting %s v%s", settings.APP_NAME, settings.APP_VERSION)
     create_tables()
     logger.info("Database tables ready")
@@ -41,7 +41,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routers ───────────────────────────────────────────────────────────────
+# ── Routers ───────────────────────────────────────────────────────────────────
+# Auth (public — login, register, etc.)
+from app.auth.routes import router as auth_router
+app.include_router(auth_router)
+logger.info("Auth router loaded")
+
+# Tender routes
 app.include_router(router)                        # /api/tenders, /api/search, etc.
 
 # Google Search router
