@@ -13,14 +13,6 @@ engine = create_engine(
     echo=settings.DEBUG,
 )
 
-# External Engine (for scrapers/local access)
-external_engine = create_engine(
-    settings.EXTERNAL_DATABASE_URL,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
-    echo=settings.DEBUG,
-)
 
 # Test connections
 try:
@@ -29,14 +21,8 @@ try:
 except Exception as e:
     print(f"\n[DB] INTERNAL ERROR: {e}")
 
-try:
-    with external_engine.connect() as conn:
-        print("[DB] EXTERNAL SUCCESS: Connected to Render External DB!")
-except Exception as e:
-    print(f"[DB] EXTERNAL ERROR: {e}")
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-ExternalSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=external_engine)
 Base = declarative_base()
 
 

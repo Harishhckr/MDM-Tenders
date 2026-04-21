@@ -21,7 +21,6 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "postgresql://mdm_db_tp32_user:MX8J4VpCJb5fjsZRCU6JH1GLtAuzctqz@dpg-d7isi8faqgkc73a4jgr0-a/mdm_db_tp32?sslmode=require"
-    EXTERNAL_DATABASE_URL: str = "postgresql://mdm_db_tp32_user:MX8J4VpCJb5fjsZRCU6JH1GLtAuzctqz@dpg-d7isi8faqgkc73a4jgr0-a.oregon-postgres.render.com/mdm_db_tp32?sslmode=require"
 
     # Redis
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
