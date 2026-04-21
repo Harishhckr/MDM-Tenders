@@ -1,5 +1,5 @@
 // ============================================================
-// Admin Portal — API Utilities
+// Admin Portal — API Utilities (Robust Version)
 // ============================================================
 
 const REMOTE_URL = 'https://mdm-tenders.onrender.com/api';
@@ -7,15 +7,25 @@ const LOCAL_URL  = 'http://localhost:8000/api';
 const KEY        = 'admin_api_backend';
 const TOKEN_KEY  = 'admin_token';
 
-export function getApiBase() {
-    return localStorage.getItem(KEY) === 'local' ? LOCAL_URL : REMOTE_URL;
+function safeGet(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
 }
-export function setApiBackend(mode) { localStorage.setItem(KEY, mode); }
-export function getApiMode() { return localStorage.getItem(KEY) === 'local' ? 'local' : 'remote'; }
+function safeSet(key, val) {
+    try { localStorage.setItem(key, val); } catch (e) {}
+}
+function safeRemove(key) {
+    try { localStorage.removeItem(key); } catch (e) {}
+}
 
-export function getToken()   { return localStorage.getItem(TOKEN_KEY); }
-export function setToken(t)  { localStorage.setItem(TOKEN_KEY, t); }
-export function clearToken()  { localStorage.removeItem(TOKEN_KEY); }
+export function getApiBase() {
+    return safeGet(KEY) === 'local' ? LOCAL_URL : REMOTE_URL;
+}
+export function setApiBackend(mode) { safeSet(KEY, mode); }
+export function getApiMode() { return safeGet(KEY) === 'local' ? 'local' : 'remote'; }
+
+export function getToken()   { return safeGet(TOKEN_KEY); }
+export function setToken(t)  { safeSet(TOKEN_KEY, t); }
+export function clearToken()  { safeRemove(TOKEN_KEY); }
 export function isLoggedIn() { return !!getToken(); }
 
 export async function adminFetch(url, opts = {}) {

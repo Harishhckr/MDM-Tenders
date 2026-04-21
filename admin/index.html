@@ -4,21 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leonex Admin — Mission Control</title>
-    <meta name="description" content="Leonex MDM Tender Platform Admin Portal — System monitoring, scraper control, and user management.">
-    <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        /* Emergency Fallback Styles */
+        #admin-app:empty::before {
+            content: 'Initializing Mission Control...';
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #666; font-family: monospace; font-size: 14px;
+        }
+    </style>
 </head>
 <body>
     <div id="admin-app">
         <aside class="admin-sidebar" id="admin-sidebar"></aside>
         <main class="admin-main">
             <header class="admin-topbar" id="admin-topbar"></header>
-            <div class="admin-content" id="admin-content"></div>
+            <div class="admin-content" id="admin-content">
+                <div style="text-align:center; padding:100px; color:#555; font-family:sans-serif;">
+                    Loading system components...
+                </div>
+            </div>
         </main>
     </div>
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>
