@@ -103,5 +103,9 @@ def health():
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
+    # Don't intercept HTTPException — let FastAPI handle them with the correct status code
+    from fastapi import HTTPException
+    if isinstance(exc, HTTPException):
+        raise exc
     logger.error("Unhandled error: %s", exc)
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
