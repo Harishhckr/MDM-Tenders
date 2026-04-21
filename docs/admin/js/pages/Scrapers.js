@@ -153,9 +153,27 @@ window._stopScraper = async (source) => {
     await loadScraperStatus();
 };
 window._startGoogle = async () => {
-    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
-    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
-    await loadScraperStatus();
+    const btn = event.currentTarget;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:16px;height:16px;"></i> Launching...';
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const res = await adminFetch(`${getApiBase()}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
+        if (!res.ok) {
+            const d = await res.json().catch(() => ({}));
+            alert('Launch Failed: ' + (d.detail || 'Internal Server Error'));
+        }
+    } catch (e) {
+        alert('Launch Error: ' + e.message);
+    } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        if (window.lucide) window.lucide.createIcons();
+        await loadScraperStatus();
+    }
 };
 window._submitCaptcha = async () => {
     const el = document.getElementById('adm-captcha-input');

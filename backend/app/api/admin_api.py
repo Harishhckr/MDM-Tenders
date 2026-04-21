@@ -138,6 +138,18 @@ def start_scraper(
         return {"status": "started", "source": source, "message": f"{source} scraper started"}
 
 
+# ── Captcha Resolution ────────────────────────────────────────────────────────
+@router.post("/scrapers/captcha")
+def resolve_captcha(_admin=Depends(require_admin)):
+    """Signal that a captcha has been solved manually."""
+    try:
+        from app.api.google_routes import clear_captcha
+        return clear_captcha()
+    except Exception as e:
+        logger.error("Captcha resolution error: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ── Stop Scraper ─────────────────────────────────────────────────────────────
 @router.post("/scrapers/stop")
 def stop_scraper(
