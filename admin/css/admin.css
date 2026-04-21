@@ -64,6 +64,10 @@ body {
     gap: var(--panel-gap);
 }
 #admin-app.logged-out { display: block; padding: 0; }
+#admin-app.logged-out .admin-sidebar,
+#admin-app.logged-out .admin-topbar { display: none; }
+#admin-app.logged-out .admin-main { padding: 0; display: block; }
+#admin-app.logged-out .admin-content { border: none; border-radius: 0; background: transparent; padding: 0; }
 
 /* ── Sidebar (Floating Card) ──────────────────────────────── */
 .admin-sidebar {
@@ -180,6 +184,26 @@ body {
 .sc-controls { display: flex; gap: 8px; margin-top: 8px; }
 .btn-icon-sm { width: 44px; height: 38px; border-radius: 8px; border: 1px solid var(--border-glass); background: transparent; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 [data-theme="light"] .btn-icon-sm { color: #000; }
+
+/* ── Tables & Utilities ──────────────────────────────────── */
+.adm-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+.adm-table th { text-align: left; padding: 12px; color: var(--text-tertiary); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-glass); }
+.adm-table td { padding: 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); }
+.adm-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+.badge-admin { background: rgba(124, 92, 255, 0.1); color: var(--accent-purple); }
+.badge-user { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+.badge-ok { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); }
+.badge-fail { background: rgba(248, 81, 73, 0.1); color: var(--accent-red); }
+.badge-run { background: rgba(255, 122, 0, 0.1); color: var(--accent-orange); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.stat-box { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; padding: 20px; }
+.stat-label { font-size: 11px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 800; color: var(--text-primary); letter-spacing: -1px; }
+.stat-value.cyan { color: #00D4FF; }
+.stat-value.green { color: var(--accent-green); }
 
 /* ── Login Page ───────────────────────────────────────────── */
 .admin-login-wrap { height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background: #000; }

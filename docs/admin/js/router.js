@@ -6,10 +6,18 @@ import { isLoggedIn } from './utils/api.js';
 const routes = {};
 const publicRoutes = ['/login'];
 
-export function registerRoute(path, handler) { routes[path] = handler; }
+export function registerRoute(path, handler) { 
+    routes[path] = handler; 
+}
 
 export async function navigate(path) {
     window.location.hash = '#' + path;
+}
+
+export function getCurrentRoute() {
+    const hash = window.location.hash.slice(1) || '/login';
+    const path = hash.split('?')[0];
+    return { path, handler: routes[path] };
 }
 
 export async function handleRoute() {
@@ -29,7 +37,7 @@ export async function handleRoute() {
     if (handler) {
         const content = document.getElementById('admin-content');
         if (content) {
-            content.innerHTML = '<div style="text-align:center;padding:80px;color:#555;font-family:var(--font-mono);font-size:12px;">Loading…</div>';
+            content.innerHTML = '<div style="text-align:center;padding:80px;color:var(--text-tertiary);font-family:var(--font-mono);font-size:12px;">Loading Mission Control…</div>';
             await handler(content);
         }
     } else {
@@ -38,7 +46,10 @@ export async function handleRoute() {
 
     // Highlight active sidebar nav
     document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.toggle('active', el.dataset.route === path);
+        const routeAttr = el.getAttribute('onclick')?.match(/'#(.*?)'/)?.[1];
+        if (routeAttr) {
+            el.classList.toggle('active', path.includes(routeAttr));
+        }
     });
 }
 
