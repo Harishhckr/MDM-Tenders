@@ -49,7 +49,12 @@ export async function handleRoute() {
         
         if (content && handler) {
             content.innerHTML = `<div style="text-align:center;padding:100px;color:#666;font-family:monospace;font-size:13px;">SYNCHRONIZING ${path.toUpperCase()}...</div>`;
-            await handler(content);
+            try {
+                await handler(content);
+            } catch (err) {
+                console.error('[Router] Handler Error:', err);
+                content.innerHTML = `<div style="padding:40px; background:#200; color:#f88; border-radius:12px; font-family:monospace;"><b>[HANDLER_ERROR]</b><br>${err.message}<br><br><small style="opacity:0.6;">Check console for stack trace</small></div>`;
+            }
         } else if (!handler) {
             console.warn('[Router] No handler for:', path);
             if (loggedIn) window.location.hash = '#/dashboard';

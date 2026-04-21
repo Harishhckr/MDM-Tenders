@@ -8,6 +8,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="stylesheet" href="./css/admin.css">
+    <script>
+        // Global Error Catcher for Debugging
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            const errStr = msg + '\nAt: ' + url + ':' + lineNo;
+            console.error('[FATAL]', errStr);
+            const content = document.getElementById('admin-content');
+            if (content) {
+                content.innerHTML = '<div style="background:#200; color:#f88; padding:20px; border-radius:12px; font-family:monospace; white-space:pre-wrap; border:1px solid #500;">' +
+                                   '<b>[SYSTEM_CRASH]</b><br><br>' + errStr + '</div>';
+            }
+            return false;
+        };
+    </script>
     <style>
         /* Emergency Fallback Styles */
         #admin-app:empty::before {
