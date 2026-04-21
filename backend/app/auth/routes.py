@@ -70,33 +70,40 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 def login(body: LoginRequest, db: Session = Depends(get_db)):
     """Authenticate and return access + refresh tokens."""
-    user = db.query(User).filter(User.email == body.email.lower()).first()
+    try:
+        user = db.query(User).filter(User.email == body.email.lower()).first()
 
-    # Always run verify_password even if user not found → prevent timing attacks
-    dummy_hash = "$2b$12$KIXMlLaQoHLkzOcIhCXtDu6G9cFz2m1xJ0IcR9d8iC3pMLkxFNAGe"
-    if not user:
-        verify_password(body.password, dummy_hash)
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        # Always run verify_password even if user not found → prevent timing attacks
+        dummy_hash = "$2b$12$KIXMlLaQoHLkzOcIhCXtDu6G9cFz2m1xJ0IcR9d8iC3pMLkxFNAGe"
+        if not user:
+            verify_password(body.password, dummy_hash)
+            raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    if not verify_password(body.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        if not verify_password(body.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    if not user.is_active:
-        raise HTTPException(status_code=403, detail="Account is disabled. Contact support.")
+        if not user.is_active:
+            raise HTTPException(status_code=403, detail="Account is disabled. Contact support.")
 
-    # Update last login timestamp
-    user.last_login = datetime.now(timezone.utc)
-    db.commit()
+        # Update last login timestamp
+        user.last_login = datetime.now(timezone.utc)
+        db.commit()
 
-    access  = create_access_token(str(user.id), extra={"role": user.role, "email": user.email})
-    refresh = create_refresh_token(str(user.id))
+        access  = create_access_token(str(user.id), extra={"role": user.role, "email": user.email})
+        refresh = create_refresh_token(str(user.id))
 
-    logger.info("User logged in: %s", user.email)
-    return TokenResponse(
-        access_token  = access,
-        refresh_token = refresh,
-        expires_in    = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-    )
+        logger.info("User logged in: %s", user.email)
+        return TokenResponse(
+            access_token  = access,
+            refresh_token = refresh,
+            expires_in    = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("LOGIN CRASH: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
