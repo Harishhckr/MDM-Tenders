@@ -18,10 +18,6 @@ export async function renderTenders(container) {
                 <p>Browse and manage all tender opportunities across platforms</p>
             </div>
             <div class="page-header-actions">
-                <button class="btn-secondary" id="all-stop-btn" disabled style="gap:6px;opacity:0.5;">
-                    <i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop All
-                </button>
-                <button class="btn-primary" id="all-sync-btn" style="gap:6px;"><i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now</button>
                 <button class="btn-secondary" id="all-refresh-btn"><i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh</button>
                 <button class="btn-secondary" id="all-export-btn" style="gap:6px;"><i data-lucide="download" style="width:14px;height:14px;"></i> Export</button>
             </div>
@@ -260,100 +256,7 @@ export async function renderTenders(container) {
     const refreshBtn = container.querySelector('#all-refresh-btn');
     if (refreshBtn) refreshBtn.addEventListener('click', () => { renderTenders(container); });
 
-    // Sync Now — triggers all 5 scrapers in parallel
-    const syncBtn = container.querySelector('#all-sync-btn');
-    const stopBtn = container.querySelector('#all-stop-btn');
-    let isPolling = false;
-    let pollInterval = null;
 
-    function _setSyncingUI() {
-        if (!syncBtn || !stopBtn) return;
-        syncBtn.disabled = true;
-        syncBtn.innerHTML = `<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Syncing...`;
-        stopBtn.disabled = false;
-        stopBtn.style.opacity = '1';
-        stopBtn.style.color = 'var(--accent-red, #ef4444)';
-        stopBtn.style.borderColor = 'var(--accent-red, #ef4444)';
-        stopBtn.innerHTML = `<i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop All`;
-        if (window.lucide) window.lucide.createIcons();
-    }
-
-    function _resetSyncUI(successText = "Sync Now") {
-        if (!syncBtn || !stopBtn) return;
-        syncBtn.disabled = false;
-        if (successText !== "Sync Now") {
-            syncBtn.innerHTML = `<i data-lucide="check" style="width:14px;height:14px;"></i> ${successText}`;
-            syncBtn.style.background = 'var(--accent-green, #22c55e)';
-            setTimeout(() => {
-                syncBtn.innerHTML = `<i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now`;
-                syncBtn.style.background = '';
-                if (window.lucide) window.lucide.createIcons();
-            }, 3000);
-        } else {
-            syncBtn.innerHTML = `<i data-lucide="zap" style="width:14px;height:14px;"></i> Sync Now`;
-            syncBtn.style.background = '';
-            if (window.lucide) window.lucide.createIcons();
-        }
-        
-        stopBtn.disabled = true;
-        stopBtn.style.opacity = '0.5';
-        stopBtn.style.color = '';
-        stopBtn.style.borderColor = '';
-        stopBtn.innerHTML = `<i data-lucide="x-octagon" style="width:14px;height:14px;"></i> Stop All`;
-        if (window.lucide) window.lucide.createIcons();
-    }
-
-    function _startPolling() {
-        if (isPolling) return;
-        isPolling = true;
-        _setSyncingUI();
-        pollInterval = setInterval(async () => {
-            try {
-                const res = await authFetch(`${getApiBase()}/sync-status?source=all`, { cache: "no-store" });
-                const data = await res.json();
-                if (!data.is_running) {
-                    clearInterval(pollInterval);
-                    isPolling = false;
-                    _resetSyncUI('Synced');
-                    renderTenders(container);
-                }
-            } catch (e) {}
-        }, 3000);
-    }
-
-    // Check initial state on page load in case it's ALREADY running
-    authFetch(`${getApiBase()}/sync-status?source=all`, { cache: "no-store" })
-        .then(r => r.json())
-        .then(d => { if (d.is_running) _startPolling(); })
-        .catch(() => {});
-
-    if (stopBtn) {
-        stopBtn.addEventListener('click', async () => {
-            stopBtn.disabled = true;
-            stopBtn.innerHTML = `<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Stopping...`;
-            if (window.lucide) window.lucide.createIcons();
-            try {
-                await authFetch(`${getApiBase()}/stop-sync?source=all`, { cache: "no-store", method: 'POST' });
-            } catch (e) {}
-        });
-    }
-
-    if (syncBtn) {
-        syncBtn.addEventListener('click', async () => {
-            _setSyncingUI();
-            const sources = ['gem', 'tender247', 'tenderdetail', 'tenderontime', 'biddetail'];
-            try {
-                // Fire all 5 scrapers simultaneously
-                const promises = sources.map(src =>
-                    authFetch(`${getApiBase()}/search?source=${src}`, { cache: "no-store" }).then(r => r.json()).catch(e => null)
-                );
-                await Promise.all(promises);
-                setTimeout(() => _startPolling(), 1000);
-            } catch (err) {
-                _resetSyncUI();
-            }
-        });
-    }
 
     const exportBtn = container.querySelector('#all-export-btn');
     if (exportBtn) {
