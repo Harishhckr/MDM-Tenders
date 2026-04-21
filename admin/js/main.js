@@ -28,7 +28,7 @@ function toggleTheme() {
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
-    renderTopbar(); // Update icon
+    renderTopbar();
 }
 
 // ── Boot ─────────────────────────────────────────────────────
@@ -51,28 +51,38 @@ function renderTopbar() {
     const topbar = document.getElementById('admin-topbar');
     if (!topbar) return;
 
-    const mode = getApiMode();
     const currentTheme = document.documentElement.getAttribute('data-theme');
 
     topbar.innerHTML = `
-        <span class="topbar-title">Mission Control</span>
-        <div class="topbar-right">
-            <span class="api-badge">${mode === 'local' ? '⚡ LOCAL' : '☁ RENDER'} — ${getApiBase()}</span>
+        <div class="search-bar">
+            <i data-lucide="search" style="width:16px;height:16px;"></i>
+            <span>Search or type a command</span>
+            <span style="margin-left:auto; font-size:10px; font-weight:700; opacity:0.5;">⌘F</span>
+        </div>
+        
+        <div class="topbar-actions">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Render</span>
+            </div>
             
-            <button id="adm-theme-toggle" title="Toggle Theme">
-                <i data-lucide="${currentTheme === 'dark' ? 'sun' : 'moon'}"></i>
+            <button class="btn-theme-toggle" id="adm-theme-toggle">
+                <i data-lucide="${currentTheme === 'dark' ? 'sun' : 'moon'}" style="width:18px;height:18px;"></i>
             </button>
 
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span class="live-dot"></span>
-                <span class="live-label">Live</span>
-            </div>
+            <button class="btn-new-project">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                New Project
+            </button>
+
+            <button class="btn-theme-toggle">
+                <i data-lucide="bell" style="width:18px;height:18px;"></i>
+            </button>
         </div>
     `;
     
     if (window.lucide) window.lucide.createIcons();
 
-    // Bind theme toggle
     document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
 }
 
