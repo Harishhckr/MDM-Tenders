@@ -1,8 +1,13 @@
 // ============================================================
-// Admin Sidebar Component — Premium Monochrome
+// Admin Sidebar Component — Premium Reference Style
 // ============================================================
 import { navigate, getCurrentRoute } from '../router.js';
 import { clearToken } from '../utils/api.js';
+
+const logoSVG = `
+<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 0L14.4 9.6L24 12L14.4 14.4L12 24L9.6 14.4L0 12L9.6 9.6L12 0Z"/>
+</svg>`;
 
 const navGroups = [
     {
@@ -34,9 +39,7 @@ export function renderAdminSidebar() {
         navHTML += `<div class="nav-section-title">${group.section}</div>`;
         group.items.forEach(item => {
             const isActive = currentPath.includes(item.route) ? 'active' : '';
-            // Live badge count logic could go here
-            const badge = item.badgeId ? `<span class="nav-badge" id="${item.badgeId}">—</span>` : '';
-            
+            const badge = item.badgeId ? `<span class="nav-badge" id="${item.badgeId}">807</span>` : '';
             navHTML += `
                 <button class="nav-item ${isActive}" onclick="window.location.hash='#${item.route}'">
                     <span class="nav-icon"><i data-lucide="${item.icon}"></i></span>
@@ -49,8 +52,8 @@ export function renderAdminSidebar() {
     sidebar.innerHTML = `
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <div class="logo-icon"><i data-lucide="shield-check"></i></div>
-                <div class="logo-text">Admin</div>
+                <div class="logo-icon"><i data-lucide="shield" style="width:28px;height:28px;"></i></div>
+                <div class="logo-text">ADMIN</div>
             </div>
         </div>
         <nav class="sidebar-nav">

@@ -2,7 +2,7 @@
 // Admin Portal — Main Entry Point
 // ============================================================
 import { registerRoute, handleRoute } from './router.js';
-import { isLoggedIn, getApiBase, getApiMode, setApiBackend } from './utils/api.js';
+import { isLoggedIn, getApiBase, getApiMode } from './utils/api.js';
 import { renderAdminSidebar } from './components/Sidebar.js';
 import { renderLogin } from './pages/Login.js';
 import { renderDashboard } from './pages/Dashboard.js';
@@ -17,7 +17,7 @@ registerRoute('/scrapers',  renderScrapers);
 registerRoute('/logs',      renderLogs);
 registerRoute('/users',     renderUsers);
 
-// ── Theme & Settings ────────────────────────────────────────
+// ── Theme Management ────────────────────────────────────────
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -29,11 +29,6 @@ function toggleTheme() {
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     renderTopbar();
-}
-
-function toggleVisibleTab(enabled) {
-    localStorage.setItem('visible_tab', enabled);
-    console.log('Visible Tab mode:', enabled);
 }
 
 // ── Boot ─────────────────────────────────────────────────────
@@ -57,62 +52,57 @@ function renderTopbar() {
     if (!topbar) return;
 
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    const apiMode = getApiMode();
-    const apiBase = getApiBase();
-    const isVisibleTab = localStorage.getItem('visible_tab') === 'true';
+    const mode = getApiMode();
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
 
     topbar.innerHTML = `
-        <div class="search-container">
-            <i data-lucide="search"></i>
-            <input type="text" class="search-input" placeholder="Quick Search (Tender ID, Source, or Log)...">
-            <span class="search-kb">⌘K</span>
-        </div>
-        
-        <div class="topbar-right">
-            <!-- Visible Tab Toggle -->
-            <div class="toggle-wrap">
-                <span class="toggle-label">Visible Tab</span>
-                <label class="adm-switch">
-                    <input type="checkbox" id="adm-visible-toggle" ${isVisibleTab ? 'checked' : ''}>
+        <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:16px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">API Mode</span>
+                <label class="adm-toggle">
+                    <input type="checkbox" id="adm-api-toggle" ${mode === 'local' ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
+                <span style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;">${mode}</span>
+            </div>
+
+            ${mode === 'local' ? `
+            <div style="display:flex;align-items:center;gap:6px; margin-left: 12px;">
+                <span style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">Visible Tab</span>
+                <label class="adm-toggle">
+                    <input type="checkbox" id="adm-headless-toggle" ${!isHeadless ? 'checked' : ''}>
                     <span class="slider"></span>
                 </label>
             </div>
+            ` : ''}
 
-            <!-- Backend Info -->
-            <div class="backend-card">
-                <div class="backend-status">
-                    <div class="status-dot" style="background:${apiMode === 'local' ? 'var(--accent-green)' : 'var(--accent-orange)'}"></div>
-                    <span>${apiMode.toUpperCase()}</span>
-                </div>
-                <div class="backend-url">${apiBase.replace('https://', '').replace('/api', '')}</div>
-                <button class="btn-icon" id="adm-api-mode-toggle" title="Switch Backend">
-                    <i data-lucide="refresh-ccw" style="width:14px;height:14px;"></i>
-                </button>
+            <div class="btn-new-project" style="cursor:default; margin-left: 12px; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary);">
+                <div class="status-dot"></div>
+                <span style="font-weight:600;">LIVE — ${getApiBase()}</span>
             </div>
-            
-            <button class="btn-icon" id="adm-theme-toggle" title="Toggle Theme">
-                <i data-lucide="${currentTheme === 'dark' ? 'sun' : 'moon'}" style="width:20px;height:20px;"></i>
-            </button>
 
-            <button class="btn-icon" title="Notifications">
-                <i data-lucide="bell" style="width:20px;height:20px;"></i>
+            <button class="btn-theme-toggle" id="adm-theme-toggle">
+                <i data-lucide="${currentTheme === 'dark' ? 'sun' : 'moon'}" style="width:18px;height:18px;"></i>
+            </button>
+            <button class="btn-theme-toggle">
+                <i data-lucide="bell" style="width:18px;height:18px;"></i>
             </button>
         </div>
     `;
     
     if (window.lucide) window.lucide.createIcons();
 
-    // Event Bindings
     document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
-    
-    document.getElementById('adm-visible-toggle')?.addEventListener('change', (e) => {
-        toggleVisibleTab(e.target.checked);
+
+    document.getElementById('adm-api-toggle')?.addEventListener('change', (e) => {
+        import('./utils/api.js').then(module => {
+            module.setApiBackend(e.target.checked ? 'local' : 'remote');
+            window.location.reload();
+        });
     });
 
-    document.getElementById('adm-api-mode-toggle')?.addEventListener('click', () => {
-        const nextMode = apiMode === 'local' ? 'remote' : 'local';
-        setApiBackend(nextMode);
-        window.location.reload();
+    document.getElementById('adm-headless-toggle')?.addEventListener('change', (e) => {
+        localStorage.setItem('admin_headless', e.target.checked ? 'false' : 'true');
     });
 }
 
