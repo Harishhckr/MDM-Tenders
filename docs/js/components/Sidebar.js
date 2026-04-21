@@ -20,7 +20,7 @@ const navItems = [
             { icon: 'bar-chart-2', label: 'TenderOnTime', route: '/tender-on-time' },
             { icon: 'file-text', label: 'TenderDetails', route: '/tender-detail' },
             { icon: 'clock', label: 'Tender247', route: '/tender-247' },
-            { icon: 'briefcase', label: 'BidTenders', route: '/briefcase' }
+            { icon: 'briefcase', label: 'BidTenders', route: '/bid-tenders' }
         ]
     }
 ];
