@@ -6,7 +6,7 @@ import { getApiBase, authFetch } from '../utils/api.js';
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-const API = '${getApiBase()}/google';
+const API = `${getApiBase()}/google`;
 
 export async function renderGoogle(container) {
     container.innerHTML = `
