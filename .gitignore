@@ -1,12 +1,12 @@
 # ============================================================
-#  LEONEX TENDER PLATFORM — .gitignore
-#  NEVER COMMIT THE FILES LISTED BELOW
+#  LEONEX MDM TENDER PLATFORM — .gitignore
+#  Production-ready: protects secrets, caches, and temp files
 # ============================================================
 
 # ── Credentials & Secrets ────────────────────────────────────
 .env
 .env.*
-!.env.example          # Allow only the example template
+!.env.example
 
 # ── Python ───────────────────────────────────────────────────
 __pycache__/
@@ -49,14 +49,13 @@ desktop.ini
 
 # ── Logs & Temp Files ────────────────────────────────────────
 *.log
-*.txt
 logs/
 browser_logs.txt
 error.txt
 td_inputs.txt
 td_results_source.html
 
-# ── Data & Output Files (may contain sensitive tender data) ──
+# ── Data & Output Files ─────────────────────────────────────
 data/
 *.xlsx
 *.csv
@@ -65,10 +64,11 @@ data/
 # ── Test & Debug Scripts ─────────────────────────────────────
 test_*.py
 *.test.py
+backend/check_db.py
 
 # ── Docker ───────────────────────────────────────────────────
-# docker-compose.override.yml  # Uncomment if you add local overrides
+# docker-compose.override.yml
 
-# ── Gemini/AI ────────────────────────────────────────────────
+# ── Gemini / AI ──────────────────────────────────────────────
 .gemini/
 .sixth/

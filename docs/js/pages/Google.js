@@ -17,17 +17,6 @@ export async function renderGoogle(container) {
             </div>
             <div class="page-header-actions" style="display:flex; gap:12px; align-items:center;">
                 <div id="goog-captcha-container"></div>
-                <div style="display:flex; align-items:center; gap:8px; margin-right:8px;" title="Only works when connected to Local API">
-                    <span style="font-size:13px; font-weight:500; color:var(--text-secondary);">Visible Tab</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="goog-visible-tab-toggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <button class="goog-dl-btn" id="goog-launch-btn" style="background:var(--accent-blue, #3b82f6);color:#fff;border-color:var(--accent-blue, #3b82f6);">
-                    <i data-lucide="play" style="width:13px;height:13px;"></i>
-                    Launch Scraper
-                </button>
                 <button class="goog-dl-btn" id="goog-refresh-btn" style="background:#000;color:#fff;border-color:#000;">
                     <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>
                     Refresh Data
@@ -117,33 +106,6 @@ export async function renderGoogle(container) {
     if (window.lucide) window.lucide.createIcons();
 
     let state = { type: 'all', dateFrom: '', dateTo: '', search: '', keyword: '', sort: 'newest' };
-
-    // ── Launch Scraper ─────────────────────────────────────────────────────
-    document.getElementById('goog-launch-btn')?.addEventListener('click', async () => {
-        const btn = document.getElementById('goog-launch-btn');
-        btn.innerHTML = `<i data-lucide="loader" style="width:13px;height:13px;" class="goog-spin"></i> Launching…`;
-        if (window.lucide) window.lucide.createIcons();
-        
-        const isVisible = document.getElementById('goog-visible-tab-toggle')?.checked;
-        const isHeadless = !isVisible;
-        
-        try {
-            const res = await authFetch(`${API}/sync?headless=${isHeadless}`, { cache: "no-store", method: 'POST' });
-            const d = await res.json();
-            if(d.status === 'already_running') {
-                alert("Scraper is already running in the background!");
-            } else {
-                alert("Scraper launched successfully! It is now running in the background.");
-            }
-            await loadStats(); // update the status panel
-        } catch (e) {
-            console.error(e);
-            alert("Failed to start scraper. Ensure backend is running.");
-        }
-        
-        btn.innerHTML = `<i data-lucide="play" style="width:13px;height:13px;"></i> Launch Scraper`;
-        if (window.lucide) window.lucide.createIcons();
-    });
 
     // ── Refresh Data ───────────────────────────────────────────────────────
     document.getElementById('goog-refresh-btn')?.addEventListener('click', async () => {

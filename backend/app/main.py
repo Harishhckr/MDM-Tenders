@@ -90,6 +90,14 @@ try:
 except Exception as exc:
     logger.warning("AI Chat router failed to load: %s", exc)
 
+# Admin Portal router
+try:
+    from app.api.admin_api import router as admin_router
+    app.include_router(admin_router)              # /api/admin/*
+    logger.info("Admin router loaded")
+except Exception as exc:
+    logger.warning("Admin router failed to load: %s", exc)
+
 
 @app.get("/")
 def root():
