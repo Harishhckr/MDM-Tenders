@@ -4,7 +4,7 @@
 // ============================================
 import { drawDonutChart } from '../components/Chart.js';
 
-import { getApiBase } from '../utils/api.js';
+import { getApiBase, authFetch } from '../utils/api.js';
 const GAP = '20px';
 
 export async function renderOverview(container) {
@@ -173,12 +173,12 @@ export async function renderOverview(container) {
     let recentTenders = [];
     
     try {
-        const statsRes = await fetch(`${getApiBase()}/stats`, { cache: "no-store" });
+        const statsRes = await authFetch(`${getApiBase()}/stats`, { cache: "no-store" });
         stats = await statsRes.json();
     } catch(e) { console.warn('Stats error:', e); }
 
     try {
-        const tRes = await fetch(`${getApiBase()}/tenders?limit=30`, { cache: "no-store" });
+        const tRes = await authFetch(`${getApiBase()}/tenders?limit=30`, { cache: "no-store" });
         const tData = await tRes.json();
         recentTenders = tData.results || [];
     } catch(e) { console.warn('Tenders error:', e); }

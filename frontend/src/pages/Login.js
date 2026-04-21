@@ -1,4 +1,5 @@
 import { navigate } from '../router.js';
+import { saveTokens, getApiBase } from '../utils/api.js';
 
 export function renderLogin(container) {
     container.innerHTML = `
@@ -10,19 +11,21 @@ export function renderLogin(container) {
                     <p style="color: var(--text-secondary); font-size: 13px;">Access your intelligence platform.</p>
                 </div>
                 
+                <div id="login-error" style="display:none; background:#ff3b3b22; border:1px solid #ff3b3b55; color:#ff6b6b; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+
                 <form id="login-form" style="display: flex; flex-direction: column; gap: 20px;">
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Email address</label>
-                        <input type="email" class="input auth-input" placeholder="admin@leonex.net" value="admin@leonex.net" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
+                        <input type="email" id="login-email" class="input auth-input" placeholder="admin@leonex.net" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
                     </div>
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <label style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Password</label>
                             <a href="#/forgot-password" style="font-size: 12px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color 0.2s;" class="auth-link">Forgot password?</a>
                         </div>
-                        <input type="password" class="input auth-input" placeholder="••••••••" value="password" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
+                        <input type="password" id="login-password" class="input auth-input" placeholder="••••••••" required style="width: 100%; height: 42px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0 14px; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s;">
                     </div>
-                    <button type="submit" class="auth-btn" style="width: 100%; height: 44px; background: var(--text-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.2s;">
+                    <button type="submit" id="login-btn" class="auth-btn" style="width: 100%; height: 44px; background: var(--text-primary); color: var(--bg-primary); border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: opacity 0.2s;">
                         Continue
                     </button>
                 </form>
@@ -41,14 +44,53 @@ export function renderLogin(container) {
                 .auth-input:focus { border-color: var(--text-primary) !important; box-shadow: 0 0 0 1px var(--text-primary); }
                 .auth-btn:hover { opacity: 0.8 !important; }
                 .auth-link:hover { color: var(--text-primary) !important; }
+                .auth-btn:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
             </style>
         </div>
     `;
 
-    document.getElementById('login-form').addEventListener('submit', (e) => {
+    const form    = document.getElementById('login-form');
+    const errBox  = document.getElementById('login-error');
+    const btn     = document.getElementById('login-btn');
+
+    function showError(msg) {
+        errBox.textContent = msg;
+        errBox.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // Simulate login
-        // localStorage removed
-        navigate('/portal');
+        errBox.style.display = 'none';
+        btn.disabled    = true;
+        btn.textContent = 'Signing in...';
+
+        const email    = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        try {
+            const res = await fetch(`${getApiBase()}/auth/login`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showError(data.detail || 'Login failed. Please check your credentials.');
+                btn.disabled    = false;
+                btn.textContent = 'Continue';
+                return;
+            }
+
+            // Store tokens and navigate
+            saveTokens(data.access_token, data.refresh_token);
+            navigate('/portal');
+
+        } catch (err) {
+            showError('Cannot connect to server. Make sure the backend is running.');
+            btn.disabled    = false;
+            btn.textContent = 'Continue';
+        }
     });
 }

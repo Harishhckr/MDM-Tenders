@@ -1,4 +1,4 @@
-import { getApiBase } from '../utils/api.js';
+import { getApiBase, authFetch } from '../utils/api.js';
 import { getBookmarks, toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
 export async function renderBookmarks(container) {
@@ -159,7 +159,7 @@ export async function renderBookmarks(container) {
                         ? `${getApiBase()}/google/results/${id}`
                         : `${getApiBase()}/tenders/${id}`;
                         
-                    const res = await fetch(endpoint, { cache: "no-store", method: 'DELETE' });
+                    const res = await authFetch(endpoint, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
                         // Also auto-unbookmark it locally so it permanently drops from view
                         const attrStr = dtype === 'google' ? 'data-google' : 'data-tender';

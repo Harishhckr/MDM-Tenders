@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-import { getApiBase } from '../utils/api.js';
+import { getApiBase, authFetch } from '../utils/api.js';
 
 export async function renderTenderView(container, query) {
     const params = new URLSearchParams(query);
@@ -50,7 +50,7 @@ export async function renderTenderView(container, query) {
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const res = await fetch(`${getApiBase()}/tenders/${tenderUuid}`, { cache: "no-store" });
+        const res = await authFetch(`${getApiBase()}/tenders/${tenderUuid}`, { cache: "no-store" });
         if (!res.ok) throw new Error('Not found');
         const tender = await res.json();
         renderTenderData(container, tender);

@@ -5,7 +5,7 @@
 
 import { toggleBookmark, isBookmarked } from '../utils/BookmarkStore.js';
 
-import { getApiBase } from '../utils/api.js';
+import { getApiBase, authFetch } from '../utils/api.js';
 
 export async function renderMDMTenders(container) {
 
@@ -137,7 +137,7 @@ export async function renderMDMTenders(container) {
 
     // ── Fetch Data ─────────────────────────────
     try {
-        const r = await fetch(`${getApiBase()}/tenders?limit=1000`, { cache: "no-store" });
+        const r = await authFetch(`${getApiBase()}/tenders?limit=1000`, { cache: "no-store" });
         const d = await r.json();
         allTenders = d.results || [];
     } catch(e) { console.warn('Fetch error', e); }
@@ -271,7 +271,7 @@ export async function renderMDMTenders(container) {
                 }
 
                 try {
-                    const res = await fetch(`${getApiBase()}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
+                    const res = await authFetch(`${getApiBase()}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
                         if (card) card.remove();
                         allTenders = allTenders.filter(t => t.id !== id);

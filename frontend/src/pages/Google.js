@@ -1,4 +1,4 @@
-import { getApiBase } from '../utils/api.js';
+import { getApiBase, authFetch } from '../utils/api.js';
 // ============================================
 // LEONEX — Google Search Results Page
 // Displays scraped results stored in the DB
@@ -118,7 +118,7 @@ export async function renderGoogle(container) {
         if (window.lucide) window.lucide.createIcons();
         
         try {
-            const res = await fetch(`${API}/sync`, { cache: "no-store", method: 'POST' });
+            const res = await authFetch(`${API}/sync`, { cache: "no-store", method: 'POST' });
             const d = await res.json();
             if(d.status === 'already_running') {
                 alert("Scraper is already running in the background!");
@@ -205,7 +205,7 @@ export async function renderGoogle(container) {
         if (qs) url += `&${qs}`;
         
         try {
-            const res = await fetch(url, { cache: "no-store" });
+            const res = await authFetch(url, { cache: "no-store" });
             const d = await res.json();
             
             let allItems = [];
@@ -293,7 +293,7 @@ export async function renderGoogle(container) {
 
     async function loadStats() {
         try {
-            const res = await fetch(`${API}/stats`, { cache: "no-store" });
+            const res = await authFetch(`${API}/stats`, { cache: "no-store" });
             const d = await res.json();
             setText('goog-s1', fmtNum(d.today_all));
             setText('goog-s2', fmtNum(d.today_filtered));
@@ -307,7 +307,7 @@ export async function renderGoogle(container) {
 
     async function pollStatusOnly() {
         try {
-            const res = await fetch(`${API}/sync/status`, { cache: "no-store" });
+            const res = await authFetch(`${API}/sync/status`, { cache: "no-store" });
             const st = await res.json();
             checkCaptchaStatus(st);
         } catch (e) { /* ignore network error on fast poll */ }
@@ -359,7 +359,7 @@ export async function renderGoogle(container) {
                     cContainer.innerHTML = '';
 
                     try {
-                        const res = await fetch(`${API}/clear-captcha`, { cache: "no-store", method: 'POST' });
+                        const res = await authFetch(`${API}/clear-captcha`, { cache: "no-store", method: 'POST' });
                         if (res.ok) {
                             setTimeout(loadStats, 1500);
                         }
@@ -401,7 +401,7 @@ export async function renderGoogle(container) {
         if (qs) url += `&${qs}`;
 
         try {
-            const res = await fetch(url, { cache: "no-store" });
+            const res = await authFetch(url, { cache: "no-store" });
             const d = await res.json();
             
             // Re-flatten items to apply JS-side filters (search and keyword)
@@ -480,7 +480,7 @@ export async function renderGoogle(container) {
                         }
 
                         try {
-                            const res = await fetch(`${API}/results/${id}`, { cache: "no-store", method: 'DELETE' });
+                            const res = await authFetch(`${API}/results/${id}`, { cache: "no-store", method: 'DELETE' });
                             if (res.ok) {
                                 if (card) card.remove();
                                 // Optional: Unbookmark if it was saved

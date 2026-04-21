@@ -1,6 +1,7 @@
 // ============================================
 // LEONEX TENDER — Hash-based SPA Router
 // ============================================
+import { isLoggedIn } from './utils/api.js';
 
 const routes = {};
 let currentCleanup = null;
@@ -21,7 +22,23 @@ export function getCurrentRoute() {
 
 export function initRouter(container) {
     async function handleRoute() {
-        const { path, query } = getCurrentRoute();
+        let { path, query } = getCurrentRoute();
+        
+        const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+        const isAuth = isLoggedIn();
+
+        // 1. If not logged in and trying to access a private route -> Go to login
+        if (!isAuth && !publicRoutes.includes(path)) {
+            navigate('/login');
+            return;
+        }
+
+        // 2. If already logged in and trying to access login/register -> Go to portal
+        if (isAuth && (path === '/login' || path === '/register')) {
+            navigate('/portal');
+            return;
+        }
+
         const handler = routes[path] || routes['/login'];
 
         // Cleanup previous page
@@ -66,9 +83,9 @@ export function initRouter(container) {
 
 // Auth guard
 export function isAuthenticated() {
-    return true; // Force true to avoid confusion with localStorage
+    return isLoggedIn();
 }
 
 export function setAuthenticated(value) {
-    // Doing nothing — localStorage removed
+    // Legacy support
 }
