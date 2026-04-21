@@ -44,7 +44,7 @@ _captcha_event = threading.Event()
 
 # ── Scraper thread ────────────────────────────────────────────────────────────
 
-def _run_scraper(db_session_factory):
+def _run_scraper(db_session_factory, headless: bool = True):
     """Run GoogleSearchScraper in a thread; respect _stop_event for clean stop."""
     global _sync_status, _sync_thread
     _sync_status.update(running=True, stopped=False, message="Scraper starting…",
@@ -56,7 +56,7 @@ def _run_scraper(db_session_factory):
     try:
         from app.api.google import GoogleSearchScraper
 
-        scraper = GoogleSearchScraper(headless=False)
+        scraper = GoogleSearchScraper(headless=headless)
 
         def captcha_wait_hook():
             global _captcha_event, _sync_status
@@ -160,7 +160,7 @@ def _save_results(db: Session, results: list, result_type: str) -> int:
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @router.post("/sync")
-def sync_google():
+def sync_google(headless: bool = Query(True)):
     """Start the Google scraper in a background thread."""
     global _sync_thread
     if _sync_status["running"]:
@@ -172,7 +172,7 @@ def sync_google():
     _sync_status["captcha_detected"] = False
     
     _sync_thread = threading.Thread(
-        target=_run_scraper, args=(SessionLocal,), daemon=True, name="google-scraper"
+        target=_run_scraper, args=(SessionLocal, headless), daemon=True, name="google-scraper"
     )
     _sync_thread.start()
     _sync_status["running"] = True

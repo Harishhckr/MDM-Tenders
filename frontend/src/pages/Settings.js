@@ -115,9 +115,15 @@ export async function renderSettings(container) {
                 <div class="settings-row">
                     <div>
                         <div style="font-size:14px; font-weight:500; color:var(--text-primary);">API Endpoint</div>
-                        <div style="font-size:12px; color:var(--text-tertiary); margin-top:2px;">Backend connection URL</div>
+                        <div style="font-size:12px; color:var(--text-tertiary); margin-top:2px;">Switch between Local and Render API</div>
                     </div>
-                    <code style="font-size:12px; padding:6px 14px; background:var(--bg-hover); border-radius:8px; color:var(--text-secondary);">${getApiBase()}</code>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:12px; color:var(--text-secondary);" id="settings-api-label">${getApiBase()}</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="settings-api-toggle" ${localStorage.getItem('api_backend') === 'local' ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
                 <div class="settings-row" style="border-bottom:none;">
                     <div>
@@ -142,6 +148,20 @@ export async function renderSettings(container) {
             document.documentElement.classList.add('theme-transition');
             document.documentElement.setAttribute('data-theme', next);
             setTimeout(() => document.documentElement.classList.remove('theme-transition'), 500);
+        });
+    }
+
+    // API toggle
+    const apiToggle = container.querySelector('#settings-api-toggle');
+    if (apiToggle) {
+        apiToggle.addEventListener('change', async () => {
+            const mode = apiToggle.checked ? 'local' : 'remote';
+            // Important: we need to import setApiBackend dynamically or make sure it's available
+            const { setApiBackend } = await import('../utils/api.js');
+            setApiBackend(mode);
+            
+            // Reload page to apply changes everywhere instantly
+            window.location.reload();
         });
     }
 
