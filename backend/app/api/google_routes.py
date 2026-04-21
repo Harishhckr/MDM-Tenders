@@ -166,13 +166,13 @@ def sync_google():
     if _sync_status["running"]:
         return {"status": "already_running", "message": "Scraper is already running"}
 
-    from app.database import ExternalSessionLocal
+    from app.database import SessionLocal
     _stop_event.clear()
     _captcha_event.clear()
     _sync_status["captcha_detected"] = False
     
     _sync_thread = threading.Thread(
-        target=_run_scraper, args=(ExternalSessionLocal,), daemon=True, name="google-scraper"
+        target=_run_scraper, args=(SessionLocal,), daemon=True, name="google-scraper"
     )
     _sync_thread.start()
     _sync_status["running"] = True

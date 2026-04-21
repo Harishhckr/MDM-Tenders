@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.models import Tender, CrawlLog
 from app.schemas import TenderListResponse, TenderResponse, StatsResponse, ScrapeRequest
 from app.services.scraper_service import (
@@ -93,8 +93,7 @@ def search_and_scrape(
     Triggers a background scrape then returns existing DB results.
     Scraping happens asynchronously — results appear on next /tenders call.
     """
-    from app.database import ExternalSessionLocal
-    scrape_db = ExternalSessionLocal()
+    scrape_db = SessionLocal()
     background_tasks.add_task(_background_scrape, source, scrape_db)
 
     rows = get_tenders_from_db(db, source=source, limit=500)
