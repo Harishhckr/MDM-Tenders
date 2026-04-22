@@ -2,7 +2,7 @@ const STORE_KEY = 'leonex_bookmarks';
 
 export function getBookmarks() {
     try {
-        const data = null; // localStorage removed
+        const data = localStorage.getItem(STORE_KEY);
         return data ? JSON.parse(data) : [];
     } catch (err) {
         console.error("Failed to parse bookmarks", err);
@@ -39,7 +39,7 @@ export function toggleBookmark(itemObj, typeStr = 'tender') {
     }
     
     try {
-        // localStorage removed);
+        localStorage.setItem(STORE_KEY, JSON.stringify(bookmarks));
     } catch(err) {
         console.error("Failed to save bookmark", err);
     }
