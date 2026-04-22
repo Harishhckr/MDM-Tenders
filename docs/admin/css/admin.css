@@ -424,7 +424,7 @@ body {
     .btn-sync-all, .btn-stop-all { width: 100%; justify-content: center; }
 }
 
-.btn-mobile-menu { display: none; }
+/* .btn-mobile-menu { display: none; } */
 
 /* ── Stricter Phone Sizing overrides ─────────────────────────── */
 @media (max-width: 768px) {
@@ -469,3 +469,19 @@ body {
     width: 100% !important;
     max-width: 100% !important;
 }
+
+
+/* Desktop Collapsed Sidebar */
+@media (min-width: 769px) {
+    .admin-sidebar.collapsed { width: 80px !important; }
+    .admin-sidebar.collapsed .nav-label { display: none; }
+    .admin-sidebar.collapsed .nav-section-title { display: none; }
+    .admin-sidebar.collapsed .logo-text { display: none; }
+    .admin-sidebar.collapsed .nav-badge { display: none; }
+    .admin-sidebar.collapsed .sidebar-logo { justify-content: center; margin-left: -8px; }
+    .admin-sidebar.collapsed .nav-item { padding: 12px; justify-content: center; }
+    .admin-sidebar.collapsed .nav-icon { margin-right: 0; }
+}
+
+.btn-mobile-menu { display: flex !important; }
+.nav-item { font-size: 15px !important; }

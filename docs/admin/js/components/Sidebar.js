@@ -13,17 +13,17 @@ const navGroups = [
     {
         section: 'MAIN',
         items: [
-            { icon: 'layout-dashboard', label: 'Overview', route: '/dashboard' },
-            { icon: 'bot', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
-            { icon: 'scroll-text', label: 'Live Logs', route: '/logs' },
-            { icon: 'terminal-square', label: 'Terminal', route: '/terminal' }
+            { icon: 'activity', label: 'Overview', route: '/dashboard' },
+            { icon: 'cpu', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
+            { icon: 'file-clock', label: 'Live Logs', route: '/logs' },
+            { icon: 'terminal', label: 'Terminal', route: '/terminal' }
         ]
     },
     {
         section: 'MANAGEMENT',
         items: [
-            { icon: 'users', label: 'User Access', route: '/users' },
-            { icon: 'settings', label: 'Settings', route: '/settings' }
+            { icon: 'shield-half', label: 'User Access', route: '/users' },
+            { icon: 'sliders-horizontal', label: 'Settings', route: '/settings' }
         ]
     }
 ];

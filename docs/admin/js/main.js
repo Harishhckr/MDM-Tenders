@@ -150,8 +150,12 @@ function renderTopbar() {
         document.getElementById('adm-mobile-menu-btn')?.addEventListener('click', () => {
             const sidebar = document.getElementById('admin-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            if (sidebar) sidebar.classList.toggle('open');
-            if (overlay) overlay.classList.toggle('open');
+            if (window.innerWidth <= 768) {
+                if (sidebar) sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('open');
+            } else {
+                if (sidebar) sidebar.classList.toggle('collapsed');
+            }
         });
         
         // Auto-close sidebar on mobile nav click
@@ -208,8 +212,12 @@ function renderTopbar() {
         document.getElementById('adm-mobile-menu-btn')?.addEventListener('click', () => {
             const sidebar = document.getElementById('admin-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            if (sidebar) sidebar.classList.toggle('open');
-            if (overlay) overlay.classList.toggle('open');
+            if (window.innerWidth <= 768) {
+                if (sidebar) sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('open');
+            } else {
+                if (sidebar) sidebar.classList.toggle('collapsed');
+            }
         });
         
         // Auto-close sidebar on mobile nav click
