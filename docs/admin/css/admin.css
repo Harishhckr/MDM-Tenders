@@ -334,6 +334,7 @@ body {
 
 /* ── Mobile Responsive Overrides ─────────────────────────── */
 @media (max-width: 768px) {
+    .hide-on-mobile { display: none !important; }
     /* Layout */
     .admin-sidebar {
         position: fixed;
@@ -418,6 +419,7 @@ body {
 
 /* ── Stricter Phone Sizing overrides ─────────────────────────── */
 @media (max-width: 768px) {
+    .hide-on-mobile { display: none !important; }
     .admin-content { padding: 16px 12px !important; }
     .stat-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
     .scraper-list { grid-template-columns: 1fr !important; gap: 12px !important; }

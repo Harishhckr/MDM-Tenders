@@ -80,7 +80,7 @@ function renderTopbar() {
             <button class="btn-mobile-menu" id="adm-mobile-menu-btn">
                 <i data-lucide="menu" style="width:18px; height:18px;"></i>
             </button>
-            <div style="display:flex; align-items:center; gap:16px;">
+            <div class="hide-on-mobile" style="display:flex; align-items:center; gap:16px;">
                 <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; border-right:1px solid var(--border-glass); padding-right:16px;">
                     <i data-lucide="clock" style="width:14px;height:14px;"></i>
                     <span id="adm-live-clock">--:--:--</span>
@@ -90,7 +90,7 @@ function renderTopbar() {
                 </div>
             </div>
 
-            <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:20px;">
+            <div class="topbar-actions hide-on-mobile" style="margin-left:auto; display:flex; align-items:center; gap:20px;">
                 
                 <!-- Backend Switcher (Matches User UI) -->
                 <div id="backend-switcher" title="Switch between local (visible browser) and Render server" 
