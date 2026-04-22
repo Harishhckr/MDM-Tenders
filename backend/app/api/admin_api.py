@@ -95,6 +95,7 @@ def scraper_status(db: Session = Depends(get_db), _admin=Depends(require_admin) 
             "last_run": last.started_at.isoformat() if last else None,
             "last_error": last.error_message if last and last.status == "failed" else None,
             "total_tenders": db.query(func.count(Tender.id)).filter(Tender.source == src).scalar() or 0,
+            "last_keyword": last.keyword if last else "None",
         }
 
     try:
