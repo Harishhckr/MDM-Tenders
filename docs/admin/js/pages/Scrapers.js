@@ -193,14 +193,13 @@ async function loadScraperStatus() {
                             </div>
                             
                             ${isCaptcha ? `
-                                <div class="captcha-box" style="max-width:400px; background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.2); padding:16px; border-radius:12px;">
-                                    <div style="color:#f59e0b; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                                        <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Security Check
+                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
+                                    <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                                        <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Security Check Required
                                     </div>
-                                    <div style="display:flex; gap:8px;">
-                                        <input type="text" id="adm-captcha-input" class="captcha-input" placeholder="Enter Captcha / OTP..." style="flex:1;">
-                                        <button class="captcha-btn" onclick="window._submitCaptcha(event)" style="background:#f59e0b; color:#000;">Submit</button>
-                                    </div>
+                                    <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:44px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
+                                        <i data-lucide="check-circle" style="width:16px;height:16px;"></i> I've Cleared the Captcha
+                                    </button>
                                 </div>
                             ` : ''}
                         </div>
@@ -284,16 +283,23 @@ window._stopGoogle = async (event) => {
 };
 
 window._submitCaptcha = async (event) => {
-    const el = document.getElementById('adm-captcha-input');
-    if (!el || !el.value) return;
-    
+    const btn = event.currentTarget;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Resuming...';
+    if (window.lucide) window.lucide.createIcons();
+
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     
-    await adminFetch(`${baseUrl}/admin/scrapers/captcha`, {
-        method: 'POST',
-        body: { answer: el.value }
-    });
-    el.value = '';
-    await loadScraperStatus();
+    try {
+        await adminFetch(`${baseUrl}/admin/scrapers/captcha`, {
+            method: 'POST',
+            body: { answer: 'manual_clear' }
+        });
+    } catch (e) { console.error(e); }
+    
+    setTimeout(async () => {
+        await loadScraperStatus();
+    }, 2000);
 };
