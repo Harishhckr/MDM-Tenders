@@ -462,3 +462,10 @@ body {
     .adm-table-container { padding: 0 !important; overflow: hidden !important; border-radius: 8px !important; }
 
 }
+
+
+.admin-login-box input, .admin-login-box button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
