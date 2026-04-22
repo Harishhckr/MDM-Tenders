@@ -13,17 +13,17 @@ const navGroups = [
     {
         section: 'MAIN',
         items: [
-            { icon: 'layout-dashboard', label: 'Overview', route: '/dashboard' },
-            { icon: 'server-cog', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
-            { icon: 'scroll-text', label: 'Live Logs', route: '/logs' },
-            { icon: 'monitor-play', label: 'Terminal', route: '/terminal' }
+            { icon: 'activity', label: 'Overview', route: '/dashboard' },
+            { icon: 'cpu', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
+            { icon: 'file-clock', label: 'Live Logs', route: '/logs' },
+            { icon: 'terminal', label: 'Terminal', route: '/terminal' }
         ]
     },
     {
         section: 'MANAGEMENT',
         items: [
-            { icon: 'users', label: 'User Access', route: '/users' },
-            { icon: 'settings', label: 'Settings', route: '/settings' }
+            { icon: 'shield-half', label: 'User Access', route: '/users' },
+            { icon: 'sliders-horizontal', label: 'Settings', route: '/settings' }
         ]
     }
 ];
@@ -37,14 +37,14 @@ export function renderAdminSidebar() {
 
     let navHTML = '';
     navGroups.forEach(group => {
-        navHTML += `<div class="nav-section-title" style="font-size: 11px; letter-spacing: 1px;">${group.section}</div>`;
+        navHTML += `<div class="nav-section-title">${group.section}</div>`;
         group.items.forEach(item => {
             const isActive = currentPath.includes(item.route) ? 'active' : '';
             const badge = item.badgeId ? `<span class="nav-badge" id="${item.badgeId}">807</span>` : '';
             navHTML += `
                 <button class="nav-item ${isActive}" onclick="window.location.hash='#${item.route}'">
                     <span class="nav-icon"><i data-lucide="${item.icon}"></i></span>
-                    <span class="nav-label" style="font-size: 14px;">${item.label}</span>
+                    <span class="nav-label">${item.label}</span>
                     ${badge}
                 </button>`;
         });
@@ -72,7 +72,7 @@ export function renderAdminSidebar() {
         <div class="sidebar-footer">
             <button class="nav-item nav-item-logout" id="adm-logout-btn">
                 <span class="nav-icon"><i data-lucide="log-out"></i></span>
-                <span class="nav-label" style="font-size: 14px;">Logout</span>
+                <span class="nav-label">Logout</span>
             </button>
         </div>
     `;
