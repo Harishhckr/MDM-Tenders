@@ -144,7 +144,7 @@ async function loadScraperStatus() {
                                     <i data-lucide="power" style="width:14px;height:14px;"></i> Abort
                                 </button>
                             ` : `
-                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:40px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:40px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="play" style="width:14px;height:14px; fill:currentColor;"></i> Initialize
                                 </button>
                             `}
@@ -216,7 +216,7 @@ async function loadScraperStatus() {
                                     <i data-lucide="power" style="width:12px;height:12px;"></i> Abort Sequence
                                 </button>
                             ` : `
-                                <button onclick="window._startGoogle(event)" style="height:36px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._startGoogle(event)" style="height:36px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="zap" style="width:12px;height:12px; fill:currentColor;"></i> Launch Engine
                                 </button>
                             `}
