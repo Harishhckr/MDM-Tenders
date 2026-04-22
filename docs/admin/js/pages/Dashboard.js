@@ -95,3 +95,4 @@ function statBox(label, value, colorClass = '') {
         </div>
     `;
 }
+

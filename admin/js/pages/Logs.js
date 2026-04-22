@@ -12,7 +12,7 @@ export async function renderLogs(container) {
         </div>
 
         <div style="display:flex; gap:12px; align-items:center; margin-bottom:24px;" class="anim-in anim-d1">
-            <select id="adm-log-source" style="background:var(--bg-card);border:1px solid var(--border-glass);color:var(--text-primary);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;outline:none;">
+            <select id="adm-log-source" style="background:var(--bg-card);border:1px solid var(--border-glass);color:var(--text-primary);padding:10px 16px;border-radius:4px;font-size:14px;font-weight:600;outline:none;">
                 <option value="">All Sources</option>
                 <option value="gem">GEM</option>
                 <option value="tender247">Tender247</option>
@@ -20,12 +20,12 @@ export async function renderLogs(container) {
                 <option value="tenderontime">TenderOnTime</option>
                 <option value="biddetail">BidDetail</option>
             </select>
-            <button class="btn-sync-all" onclick="window._refreshLogs()" style="margin-left:auto; padding:10px 16px; border-radius:12px;">
+            <button class="btn-sync-all" onclick="window._refreshLogs()" style="margin-left:auto; padding:10px 16px; border-radius:4px;">
                 <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh
             </button>
         </div>
 
-        <div class="adm-card anim-in anim-d2" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:16px; overflow:hidden;">
+        <div class="adm-card anim-in anim-d2" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:4px; overflow:hidden;">
             <div style="background:rgba(128,128,128,0.05); padding:12px 20px; font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; display:flex; gap:24px; border-bottom:1px solid var(--border-subtle);">
                 <span style="width:140px;">Timestamp</span>
                 <span style="width:100px;">Source</span>
@@ -128,3 +128,4 @@ async function loadLogs() {
 }
 
 window._refreshLogs = loadLogs;
+

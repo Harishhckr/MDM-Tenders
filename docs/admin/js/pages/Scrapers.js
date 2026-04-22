@@ -131,17 +131,17 @@ async function loadScraperStatus() {
                             </div>
                         </div>
 
-                        <div class="sc-time" style="background:rgba(255,255,255,0.02); padding:8px 12px; border-radius:8px; margin-bottom:16px; font-size:11px;">
+                        <div class="sc-time" style="background:rgba(255,255,255,0.02); padding:8px 12px; border-radius:4px; margin-bottom:16px; font-size:11px;">
                             <strong style="color:var(--text-secondary);">Last Sync:</strong> ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}
                         </div>
 
                         <div class="sc-controls" style="border-top:none; padding-top:0; gap:12px;">
                             ${isRunning ? `
-                                <button onclick="window._stopScraper(event, '${name}')" style="flex:1; height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._stopScraper(event, '${name}')" style="flex:1; height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
                                 </button>
                             ` : `
-                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="play" style="width:14px;height:14px; fill:currentColor;"></i> Initialize Engine
                                 </button>
                             `}
@@ -179,7 +179,7 @@ async function loadScraperStatus() {
             const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
             gPanel.innerHTML = `
-                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:16px; padding:24px; background:var(--bg-card);">
+                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:4px; padding:24px; background:var(--bg-card);">
                     ${isRunning && !isCaptcha ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                     
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -197,7 +197,7 @@ async function loadScraperStatus() {
                             </div>
                             
                             ${isCaptcha ? `
-                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
+                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:4px; animation: pulse 2s infinite;">
                                     <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
                                         <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Security Check Required
                                     </div>
@@ -209,11 +209,11 @@ async function loadScraperStatus() {
                         </div>
                         <div style="display:flex; flex-direction:column; gap:12px; min-width:200px;">
                             ${isRunning ? `
-                                <button onclick="window._stopGoogle(event)" style="height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._stopGoogle(event)" style="height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
                                 </button>
                             ` : `
-                                <button onclick="window._startGoogle(event)" style="height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._startGoogle(event)" style="height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="zap" style="width:14px;height:14px; fill:currentColor;"></i> Launch Engine
                                 </button>
                             `}
@@ -307,3 +307,4 @@ window._submitCaptcha = async (event) => {
         await loadScraperStatus();
     }, 2000);
 };
+
