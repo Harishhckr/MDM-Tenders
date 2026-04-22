@@ -138,9 +138,11 @@ def start_scraper(
         return {"status": "started", "source": source, "message": f"{source} scraper started"}
 
 
+from typing import Any, Dict
+
 # ── Captcha Resolution ────────────────────────────────────────────────────────
 @router.post("/scrapers/captcha")
-def resolve_captcha(_admin=Depends(require_admin)):
+def resolve_captcha(payload: Optional[Dict[str, Any]] = None, _admin=Depends(require_admin)):
     """Signal that a captcha has been solved manually."""
     try:
         from app.api.google_routes import clear_captcha

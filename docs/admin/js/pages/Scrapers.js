@@ -66,7 +66,10 @@ export async function renderScrapers(container) {
 
 async function loadScraperStatus() {
     try {
-        const res = await adminFetch(`${getApiBase()}/admin/scrapers/status`);
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+        
+        const res = await adminFetch(`${baseUrl}/admin/scrapers/status`);
         if (!res.ok) return;
         const d = await res.json();
 
