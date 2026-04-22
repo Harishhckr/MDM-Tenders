@@ -424,7 +424,7 @@ body {
     .btn-sync-all, .btn-stop-all { width: 100%; justify-content: center; }
 }
 
-/* .btn-mobile-menu { display: none; } */
+/* .btn-mobile-menu { display: flex; } /* visible on desktop too */ */
 
 /* ── Stricter Phone Sizing overrides ─────────────────────────── */
 @media (max-width: 768px) {
