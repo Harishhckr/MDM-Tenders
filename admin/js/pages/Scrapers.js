@@ -185,7 +185,7 @@ async function loadScraperStatus() {
                 <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:16px; padding:16px; background:var(--bg-card);">
                     ${isRunning && !isCaptcha ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                     
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
                         <div style="flex:1;">
                             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
                                 <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:14px; color:var(--text-primary);">
@@ -210,7 +210,7 @@ async function loadScraperStatus() {
                                 </div>
                             ` : ''}
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:12px; min-width:200px;">
+                        <div style="display:flex; flex-direction:column; gap:12px; min-width:140px; flex:1;">
                             ${isRunning ? `
                                 <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="power" style="width:12px;height:12px;"></i> Abort Sequence
