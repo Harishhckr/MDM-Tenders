@@ -437,7 +437,7 @@ body {
     .adm-toggle input:checked + .slider:before { transform: translateX(14px) !important; }
     .topbar-actions > div { padding: 4px 8px !important; font-size: 9px !important; }
 
-    .admin-login-box { margin: 16px auto !important; padding: 24px 16px !important; width: calc(100% - 32px) !important; max-width: none !important; }
+    .admin-login-box { margin: 16px auto !important; padding: 32px 24px !important; width: calc(100% - 64px) !important; max-width: 340px !important; }
     .section-title { font-size: 16px !important; margin-bottom: 16px !important; }
     .section-title:not(:first-child) { margin-top: 24px !important; }
     .stat-value { font-size: 18px !important; }
