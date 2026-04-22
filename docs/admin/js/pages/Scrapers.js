@@ -50,10 +50,10 @@ export async function renderScrapers(container) {
         const btn = e.currentTarget;
         const originalHTML = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Syncing...';
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i> Syncing...';
         if (window.lucide) window.lucide.createIcons();
 
-        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isHeadless = true;
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         const sources = ['gem', 'tender247', 'tenderdetail', 'tenderontime', 'biddetail'];
         
@@ -70,7 +70,7 @@ export async function renderScrapers(container) {
     });
 
     container.querySelector('#adm-stop-all')?.addEventListener('click', async () => {
-        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isHeadless = true;
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         try {
             await adminFetch(`${baseUrl}/admin/scrapers/stop?source=all`, { method: 'POST' });
@@ -81,7 +81,7 @@ export async function renderScrapers(container) {
 
 async function loadScraperStatus() {
     try {
-        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isHeadless = true;
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         
         let res = await adminFetch(`${baseUrl}/admin/scrapers/status`).catch(() => null);
@@ -111,23 +111,23 @@ async function loadScraperStatus() {
                 const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
                 return `
-                    <div class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)'}; display:flex; flex-direction:row; align-items:center; justify-content:space-between; padding:24px 32px;">
+                    <div class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)'}; display:flex; flex-direction:row; align-items:center; justify-content:space-between; padding:16px 20px;">
                         ${isRunning ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                         
                         <!-- Left: Status & Name -->
                         <div style="display:flex; flex-direction:column; gap:8px; min-width: 250px;">
-                            <span class="sc-name" style="display:flex; align-items:center; gap:8px; font-size:18px;">
+                            <span class="sc-name" style="display:flex; align-items:center; gap:8px; font-size:15px;">
                                 <div style="width:10px; height:10px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 10px ${statusColor};"></div>
                                 ${name}
                             </span>
-                            <span style="font-size:11px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.05); width:fit-content;">${statusText}</span>
+                            <span style="font-size:11px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05); width:fit-content;">${statusText}</span>
                         </div>
 
                         <!-- Middle: Keywords & Progress -->
                         <div style="flex:1; display:flex; flex-direction:column; gap:4px; padding: 0 32px; border-left:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle);">
                             <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Live Extraction Progress</div>
                             <div style="font-size:14px; font-weight:600; color:var(--text-secondary);">
-                                Processing Keyword: <span style="color:var(--text-primary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px; font-family:var(--font-mono);">${info.last_keyword || 'N/A'}</span>
+                                Processing Keyword: <span style="color:var(--text-primary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px; font-family:var(--font-mono);">${info.last_keyword || 'N/A'}</span>
                             </div>
                             <div class="sc-time" style="margin-top:4px; font-size:11px;">
                                 <strong style="color:var(--text-secondary);">Last Sync:</strong> ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}
@@ -138,19 +138,19 @@ async function loadScraperStatus() {
                         <div style="display:flex; align-items:center; gap:32px; min-width: 300px; justify-content:flex-end;">
                             <div style="text-align:right;">
                                 <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:4px;">Total Tenders</div>
-                                <div style="font-size:32px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-1px;">
+                                <div style="font-size:24px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-1px;">
                                     ${(info.total_tenders || 0).toLocaleString()}
                                 </div>
                             </div>
                             
                             <div class="sc-controls" style="border-top:none; padding-top:0; margin:0; width:160px;">
                                 ${isRunning ? `
-                                    <button onclick="window._stopScraper(event, '${name}')" style="width:100%; height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        <i data-lucide="power" style="width:14px;height:14px;"></i> Abort
+                                    <button onclick="window._stopScraper(event, '${name}')" style="width:100%; height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                        <i data-lucide="power" style="width:12px;height:12px;"></i> Abort
                                     </button>
                                 ` : `
-                                    <button onclick="window._startScraper(event, '${name}')" style="width:100%; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        <i data-lucide="play" style="width:14px;height:14px; fill:currentColor;"></i> Initialize
+                                    <button onclick="window._startScraper(event, '${name}')" style="width:100%; height:36px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                        <i data-lucide="play" style="width:12px;height:12px; fill:currentColor;"></i> Initialize
                                     </button>
                                 `}
                             </div>
@@ -188,17 +188,17 @@ async function loadScraperStatus() {
             const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
             gPanel.innerHTML = `
-                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:4px; padding:24px; background:var(--bg-card);">
+                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:999px; padding:16px; background:var(--bg-card);">
                     ${isRunning && !isCaptcha ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                     
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div style="flex:1;">
                             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                                <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:16px; color:var(--text-primary);">
+                                <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:14px; color:var(--text-primary);">
                                     <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
                                     GOOGLE RESEARCH
                                 </div>
-                                <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
+                                <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
                             </div>
 
                             <div style="font-size:15px; font-weight:500; color:var(--text-secondary); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
@@ -206,11 +206,11 @@ async function loadScraperStatus() {
                             </div>
                             
                             ${isCaptcha ? `
-                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:4px; animation: pulse 2s infinite;">
+                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:999px; animation: pulse 2s infinite;">
                                     <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                                        <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Security Check Required
+                                        <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Security Check Required
                                     </div>
-                                    <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:44px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
+                                    <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:36px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
                                         <i data-lucide="check-circle" style="width:16px;height:16px;"></i> I've Cleared the Captcha
                                     </button>
                                 </div>
@@ -218,12 +218,12 @@ async function loadScraperStatus() {
                         </div>
                         <div style="display:flex; flex-direction:column; gap:12px; min-width:200px;">
                             ${isRunning ? `
-                                <button onclick="window._stopGoogle(event)" style="height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                    <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
+                                <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="power" style="width:12px;height:12px;"></i> Abort Sequence
                                 </button>
                             ` : `
-                                <button onclick="window._startGoogle(event)" style="height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                    <i data-lucide="zap" style="width:14px;height:14px; fill:currentColor;"></i> Launch Engine
+                                <button onclick="window._startGoogle(event)" style="height:36px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="zap" style="width:12px;height:12px; fill:currentColor;"></i> Launch Engine
                                 </button>
                             `}
                         </div>
@@ -239,11 +239,11 @@ window._startScraper = async (event, source) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i>';
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i>';
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isHeadless = true;
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
     } catch (e) { console.error(e); }
@@ -257,7 +257,7 @@ window._startScraper = async (event, source) => {
 };
 
 window._stopScraper = async (event, source) => {
-    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    const isHeadless = true;
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     await adminFetch(`${baseUrl}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
     await loadScraperStatus();
@@ -271,7 +271,7 @@ window._startGoogle = async (event) => {
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isHeadless = true;
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         const res = await adminFetch(`${baseUrl}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
         if (!res.ok) {
@@ -289,7 +289,7 @@ window._startGoogle = async (event) => {
 };
 
 window._stopGoogle = async (event) => {
-    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    const isHeadless = true;
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
     await loadScraperStatus();
@@ -299,10 +299,10 @@ window._submitCaptcha = async (event) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Resuming...';
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i> Resuming...';
     if (window.lucide) window.lucide.createIcons();
 
-    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    const isHeadless = true;
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     
     try {
