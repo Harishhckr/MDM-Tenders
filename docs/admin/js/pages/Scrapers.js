@@ -201,14 +201,18 @@ async function loadScraperStatus() {
 
 window._startScraper = async (source) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
-    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
+    const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+    await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
     await loadScraperStatus();
 };
 window._stopScraper = async (source) => {
-    await adminFetch(`${getApiBase()}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
+    // If they were running locally, stop command should also go locally
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
     await loadScraperStatus();
 };
-window._startGoogle = async () => {
+window._startGoogle = async (event) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
@@ -217,7 +221,8 @@ window._startGoogle = async () => {
 
     try {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
-        const res = await adminFetch(`${getApiBase()}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
+        const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+        const res = await adminFetch(`${baseUrl}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
         if (!res.ok) {
             const d = await res.json().catch(() => ({}));
             alert('Launch Failed: ' + (d.detail || 'Internal Server Error'));
@@ -231,10 +236,20 @@ window._startGoogle = async () => {
         await loadScraperStatus();
     }
 };
+window._stopGoogle = async () => {
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
+    await loadScraperStatus();
+};
 window._submitCaptcha = async () => {
     const el = document.getElementById('adm-captcha-input');
     if (!el || !el.value) return;
-    await adminFetch(`${getApiBase()}/admin/scrapers/captcha`, {
+    
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+    
+    await adminFetch(`${baseUrl}/admin/scrapers/captcha`, {
         method: 'POST',
         body: { answer: el.value }
     });

@@ -90,7 +90,7 @@ def _upsert_tender(db: Session, data: Dict) -> bool:
 
 
 # ── Main orchestrator ─────────────────────────────────────────────────────────
-def run_all_scrapers(db: Session, source_filter: Optional[str] = None) -> Dict:
+def run_all_scrapers(db: Session, source_filter: Optional[str] = None, headless: Optional[bool] = None) -> Dict:
     """
     Run all (or one) scraper(s) over all configured keywords.
     Returns a summary dict.
@@ -114,7 +114,7 @@ def run_all_scrapers(db: Session, source_filter: Optional[str] = None) -> Dict:
     ]
 
     for scraper_cls in scrapers_to_run:
-        scraper = scraper_cls()
+        scraper = scraper_cls(headless=headless)
         log = CrawlLog(source=scraper.SOURCE, status="running")
         db.add(log)
         db.commit()

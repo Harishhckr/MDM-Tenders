@@ -38,10 +38,11 @@ class BaseScraper(ABC):
 
     SOURCE: str = "base"   # override in subclass
 
-    def __init__(self):
+    def __init__(self, headless: Optional[bool] = None):
         self.logger = get_logger(f"scraper.{self.SOURCE}")
         self.driver: Optional[webdriver.Chrome] = None
         self.wait:   Optional[WebDriverWait]    = None
+        self._override_headless = headless
 
     # ── Driver lifecycle ──────────────────────────────────────────────────
     def setup_driver(self) -> None:
@@ -53,9 +54,15 @@ class BaseScraper(ABC):
 
         # Auto-detect environment:
         # - On Linux (Render/Docker) → force headless (no display available)
-        # - On Windows (local dev)   → respect HEADLESS_MODE setting (default False = visible tab)
+        # - On Windows (local dev)   → respect UI override OR HEADLESS_MODE setting
         is_linux = os.name != "nt"  # True on Render/Docker, False on Windows
-        use_headless = True if is_linux else settings.HEADLESS_MODE
+        
+        if is_linux:
+            use_headless = True
+        elif self._override_headless is not None:
+            use_headless = self._override_headless
+        else:
+            use_headless = settings.HEADLESS_MODE
 
         opts = build_stealth_options(proxy=proxy, headless=use_headless)
         self.logger.info("[%s] Running %s (Linux=%s)", self.SOURCE,

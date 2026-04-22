@@ -124,16 +124,16 @@ def start_scraper(
         import threading
         from app.services.scraper_service import run_all_scrapers
 
-        def _bg(src):
+        def _bg(src, is_headless):
             db = SessionLocal()
             try:
-                run_all_scrapers(db, source_filter=src)
+                run_all_scrapers(db, source_filter=src, headless=is_headless)
             except Exception as exc:
                 logger.error("Admin scraper error [%s]: %s", src, exc)
             finally:
                 db.close()
 
-        t = threading.Thread(target=_bg, args=(source,), daemon=True, name=f"admin-{source}")
+        t = threading.Thread(target=_bg, args=(source, headless), daemon=True, name=f"admin-{source}")
         t.start()
         return {"status": "started", "source": source, "message": f"{source} scraper started"}
 
