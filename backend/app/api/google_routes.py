@@ -112,7 +112,12 @@ def _run_scraper(db_session_factory, headless: bool = True):
             logger.info(msg)
         finally:
             db.close()
-
+            # Clear cache for Google results
+            try:
+                from app.services.scraper_service import invalidate_cache
+                invalidate_cache("google")
+            except Exception:
+                pass
     except Exception as exc:
         logger.exception("Google scraper error: %s", exc)
         _sync_status.update(
