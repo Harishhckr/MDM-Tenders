@@ -14,7 +14,7 @@ from sqlalchemy import func, text
 from app.database import get_db, SessionLocal
 from app.models import User, Tender, CrawlLog, GoogleResult
 from app.auth.admin_dep import require_admin
-from app.utils.logger import get_logger
+from app.utils.logger import get_logger, SYSTEM_LOGS
 
 from app.config import settings
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -231,6 +231,6 @@ def update_user_role(
     return {"message": f"User role updated to '{role}'", "user": user.to_dict()}
 
 @router.get("/system-logs")
-def get_system_logs(admin=Depends(get_current_admin)):
+def get_system_logs(_admin=Depends(require_admin)):
     """Returns raw stdout/SQLAlchemy logs for the hacker terminal"""
     return {"logs": list(SYSTEM_LOGS)}
