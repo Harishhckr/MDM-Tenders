@@ -102,7 +102,6 @@ function renderTopbar() {
                     </span>
                 </div>
 
-                ${isLocal ? `
                 <div style="display:flex;align-items:center;gap:10px; background:rgba(255,255,255,0.03); padding:4px 12px; border-radius:20px; border:1px solid var(--border-glass);">
                     <span style="font-size:10px;font-weight:800;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Visible Browser</span>
                     <label class="adm-toggle">
@@ -110,7 +109,6 @@ function renderTopbar() {
                         <span class="slider"></span>
                     </label>
                 </div>
-                ` : ''}
 
                 <div style="display:flex; align-items:center; gap:8px;">
                     <div class="btn-new-project" style="cursor:default; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px; padding:6px 14px; border-radius:12px;">

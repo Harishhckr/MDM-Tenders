@@ -200,7 +200,8 @@ async function loadScraperStatus() {
 }
 
 window._startScraper = async (source) => {
-    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=${source}`, { method: 'POST' });
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+    await adminFetch(`${getApiBase()}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
     await loadScraperStatus();
 };
 window._stopScraper = async (source) => {
