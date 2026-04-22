@@ -90,7 +90,7 @@ function renderTopbar() {
                 </div>
             </div>
 
-            <div class="topbar-actions hide-on-mobile" style="margin-left:auto; display:flex; align-items:center; gap:20px;">
+            <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
                 
                 <!-- Backend Switcher (Matches User UI) -->
                 <div id="backend-switcher" title="Switch between local (visible browser) and Render server" 
@@ -116,7 +116,7 @@ function renderTopbar() {
                 </div>
 
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="btn-new-project" style="cursor:default; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px; padding:6px 14px; border-radius:12px;">
+                    <div class="btn-new-project hide-on-mobile" style="cursor:default; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px; padding:6px 14px; border-radius:12px;">
                         <span style="opacity:0.5; margin-right:6px;">API_URL:</span>
                         <span style="color:var(--text-primary); font-weight:600;">${getApiBase().replace('https://','').replace('http://','')}</span>
                     </div>

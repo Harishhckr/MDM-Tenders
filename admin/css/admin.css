@@ -369,8 +369,11 @@ body {
 
     /* Topbar adjustments */
     .admin-topbar {
-        padding: 0 16px;
+        padding: 8px 16px;
         gap: 12px;
+        height: auto !important;
+        min-height: 56px;
+        flex-wrap: wrap;
     }
     .btn-mobile-menu {
         display: flex !important;
@@ -421,10 +424,19 @@ body {
 @media (max-width: 768px) {
     .hide-on-mobile { display: none !important; }
     .admin-content { padding: 16px 12px !important; }
-    .stat-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
-    .scraper-list { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+    .scraper-list { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; gap: 12px !important; }
     .stat-box { min-height: 80px !important; padding: 12px !important; border-radius: 12px !important; }
     .scraper-item { padding: 14px !important; border-radius: 12px !important; }
+    
+    /* Scale down toggles */
+    #backend-switcher { padding: 4px 6px !important; }
+    #backend-label { font-size: 9px !important; display: inline-block !important; }
+    .adm-toggle { width: 30px !important; height: 16px !important; }
+    .adm-toggle .slider:before { height: 12px !important; width: 12px !important; left: 2px !important; bottom: 2px !important; }
+    .adm-toggle input:checked + .slider:before { transform: translateX(14px) !important; }
+    .topbar-actions > div { padding: 4px 8px !important; font-size: 9px !important; }
+
     .admin-login-box { margin: 16px auto !important; padding: 24px 16px !important; width: calc(100% - 32px) !important; max-width: none !important; }
     .section-title { font-size: 16px !important; margin-bottom: 16px !important; }
     .section-title:not(:first-child) { margin-top: 24px !important; }
