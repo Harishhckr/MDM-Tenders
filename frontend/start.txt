@@ -143,3 +143,33 @@ If the chatbot says "My AI engine is currently offline", follow these steps:
   localhost IPv6 binding bugs. No Docker/CORS configuration is needed for the local setup.
 
 ============================================
+11. ADMIN PORTAL & VISIBLE BROWSER (NEW)
+============================================
+
+The Admin Portal (on GitHub Pages) can now control your local laptop to open
+visible Chrome tabs while still reading live data from the Render server.
+
+  URL: https://harishhckr.github.io/MDM-Tenders/admin/
+
+  A) START LOCAL BACKEND (REQUIRED FOR VISIBLE TABS)
+     cd backend
+     ..\venv\Scripts\python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  B) HYBRID MODE SETUP (HOW IT WORKS)
+     1. Open the Admin Portal link above.
+     2. Top Bar: Set "RENDER / LOCAL" toggle to RENDER (Orange).
+        -> This lets you see the live data from the Render Cloud.
+     3. Top Bar: Set "VISIBLE BROWSER" toggle to ON.
+        -> This tells the UI to send "Scrape" commands to your LAPTOP.
+
+  C) TRIGGER VISIBLE SCRAPING
+     - Go to the "Scrapers" page.
+     - Click "Initialize Engine".
+     - A visible Chrome window will pop open on your laptop!
+     - The scraper will push results directly to the Render Database.
+
+  NOTE: If the data does not load or the button doesn't work, click the red
+  "Not Loading?" button in the top bar and follow the 4 steps to "Allow
+  Insecure Content" in Chrome Site Settings.
+
+============================================

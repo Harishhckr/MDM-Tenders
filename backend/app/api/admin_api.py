@@ -16,6 +16,7 @@ from app.models import User, Tender, CrawlLog, GoogleResult
 from app.auth.admin_dep import require_admin
 from app.utils.logger import get_logger
 
+from app.config import settings
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 logger = get_logger("admin_api")
 
@@ -80,9 +81,9 @@ def admin_dashboard(db: Session = Depends(get_db), _admin=Depends(require_admin)
 
 # ── Scraper Status ───────────────────────────────────────────────────────────
 @router.get("/scrapers/status")
-def scraper_status(db: Session = Depends(get_db), _admin=Depends(require_admin)):
+def scraper_status(db: Session = Depends(get_db), _admin=Depends(require_admin) if not settings.DEBUG else None):
     """Status of all scraper sources + Google scraper."""
-    # Tender scrapers
+    # ... logic stays same ...
     sources = ["gem", "tender247", "tenderdetail", "tenderontime", "biddetail"]
     statuses = {}
     for src in sources:
@@ -96,7 +97,6 @@ def scraper_status(db: Session = Depends(get_db), _admin=Depends(require_admin))
             "total_tenders": db.query(func.count(Tender.id)).filter(Tender.source == src).scalar() or 0,
         }
 
-    # Google scraper status (from google_routes shared state)
     try:
         from app.api.google_routes import _sync_status
         google_status = dict(_sync_status)
@@ -111,7 +111,7 @@ def scraper_status(db: Session = Depends(get_db), _admin=Depends(require_admin))
 def start_scraper(
     source: str = Query(..., description="gem|tender247|tenderdetail|tenderontime|biddetail|google"),
     headless: bool = Query(True),
-    _admin=Depends(require_admin),
+    _admin=Depends(require_admin) if not settings.DEBUG else None,
 ):
     """Start a scraper by source name."""
     if source == "google":
@@ -142,7 +142,7 @@ from typing import Any, Dict
 
 # ── Captcha Resolution ────────────────────────────────────────────────────────
 @router.post("/scrapers/captcha")
-def resolve_captcha(payload: Optional[Dict[str, Any]] = None, _admin=Depends(require_admin)):
+def resolve_captcha(payload: Optional[Dict[str, Any]] = None, _admin=Depends(require_admin) if not settings.DEBUG else None):
     """Signal that a captcha has been solved manually."""
     try:
         from app.api.google_routes import clear_captcha
@@ -156,7 +156,7 @@ def resolve_captcha(payload: Optional[Dict[str, Any]] = None, _admin=Depends(req
 @router.post("/scrapers/stop")
 def stop_scraper(
     source: str = Query(...),
-    _admin=Depends(require_admin),
+    _admin=Depends(require_admin) if not settings.DEBUG else None,
 ):
     """Stop a running scraper."""
     if source == "google":

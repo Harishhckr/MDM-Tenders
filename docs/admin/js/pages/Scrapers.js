@@ -46,19 +46,34 @@ export async function renderScrapers(container) {
     });
     obs.observe(document.body, { childList: true, subtree: true });
 
-    container.querySelector('#adm-sync-all')?.addEventListener('click', async () => {
+    container.querySelector('#adm-sync-all')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Syncing...';
+        if (window.lucide) window.lucide.createIcons();
+
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         const sources = ['gem', 'tender247', 'tenderdetail', 'tenderontime', 'biddetail'];
+        
         try {
             await Promise.all(sources.map(src => 
-                adminFetch(`${getApiBase()}/admin/scrapers/start?source=${src}`, { method: 'POST' })
+                adminFetch(`${baseUrl}/admin/scrapers/start?source=${src}&headless=${isHeadless}`, { method: 'POST' })
             ));
-        } catch (e) { console.error(e); }
+        } catch (err) { console.error(err); }
+        
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        if (window.lucide) window.lucide.createIcons();
         await loadScraperStatus();
     });
 
     container.querySelector('#adm-stop-all')?.addEventListener('click', async () => {
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         try {
-            await adminFetch(`${getApiBase()}/admin/scrapers/stop?source=all`, { method: 'POST' });
+            await adminFetch(`${baseUrl}/admin/scrapers/stop?source=all`, { method: 'POST' });
         } catch (e) { console.error(e); }
         await loadScraperStatus();
     });
@@ -96,7 +111,7 @@ async function loadScraperStatus() {
                 const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
                 return `
-                    <div class="scraper-item" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.2)' : 'var(--border-glass)'};">
+                    <div class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.2)' : 'var(--border-glass)'};">
                         ${isRunning ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                         
                         <div class="sc-info-row" style="margin-bottom:8px;">
@@ -122,11 +137,11 @@ async function loadScraperStatus() {
 
                         <div class="sc-controls" style="border-top:none; padding-top:0; gap:12px;">
                             ${isRunning ? `
-                                <button onclick="window._stopScraper('${name}')" style="flex:1; height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._stopScraper(event, '${name}')" style="flex:1; height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
                                 </button>
                             ` : `
-                                <button onclick="window._startScraper('${name}')" style="flex:1; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="play" style="width:14px;height:14px; fill:currentColor;"></i> Initialize Engine
                                 </button>
                             `}
@@ -184,14 +199,14 @@ async function loadScraperStatus() {
                                     </div>
                                     <div style="display:flex; gap:8px;">
                                         <input type="text" id="adm-captcha-input" class="captcha-input" placeholder="Enter Captcha / OTP..." style="flex:1;">
-                                        <button class="captcha-btn" onclick="window._submitCaptcha()" style="background:#f59e0b; color:#000;">Submit</button>
+                                        <button class="captcha-btn" onclick="window._submitCaptcha(event)" style="background:#f59e0b; color:#000;">Submit</button>
                                     </div>
                                 </div>
                             ` : ''}
                         </div>
                         <div style="display:flex; flex-direction:column; gap:12px; min-width:200px;">
                             ${isRunning ? `
-                                <button onclick="window._stopGoogle()" style="height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                <button onclick="window._stopGoogle(event)" style="height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
                                     <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
                                 </button>
                             ` : `
@@ -208,19 +223,34 @@ async function loadScraperStatus() {
     } catch (e) { console.error(e); }
 }
 
-window._startScraper = async (source) => {
-    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
-    const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-    await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
-    await loadScraperStatus();
+window._startScraper = async (event, source) => {
+    const btn = event.currentTarget;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i>';
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+        await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
+    } catch (e) { console.error(e); }
+    
+    setTimeout(async () => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        if (window.lucide) window.lucide.createIcons();
+        await loadScraperStatus();
+    }, 1000);
 };
-window._stopScraper = async (source) => {
-    // If they were running locally, stop command should also go locally
+
+window._stopScraper = async (event, source) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     await adminFetch(`${baseUrl}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
     await loadScraperStatus();
 };
+
 window._startGoogle = async (event) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
@@ -245,13 +275,15 @@ window._startGoogle = async (event) => {
         await loadScraperStatus();
     }
 };
-window._stopGoogle = async () => {
+
+window._stopGoogle = async (event) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
     await loadScraperStatus();
 };
-window._submitCaptcha = async () => {
+
+window._submitCaptcha = async (event) => {
     const el = document.getElementById('adm-captcha-input');
     if (!el || !el.value) return;
     
