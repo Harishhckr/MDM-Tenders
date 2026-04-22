@@ -74,18 +74,51 @@ async function loadLogs() {
 
         viewer.innerHTML = d.logs.map(l => {
             const time = l.started_at ? new Date(l.started_at).toLocaleString() : '—';
-            let statColor = 'var(--text-primary)';
-            if (l.status === 'failed') statColor = 'var(--text-tertiary)';
-            else if (l.status === 'running') statColor = 'var(--text-secondary)';
+            
+            // Calculate duration
+            let duration = '';
+            if (l.started_at && l.completed_at) {
+                const s = new Date(l.started_at);
+                const e = new Date(l.completed_at);
+                const diff = Math.round((e - s) / 1000);
+                duration = ` <span style="color:var(--text-tertiary); font-size:11px;">(${diff}s)</span>`;
+            }
 
-            const msg = `Found: <strong>${l.tenders_found || 0}</strong>, Saved: <strong>${l.tenders_saved || 0}</strong> ${l.error_message ? ' — <span style="color:var(--text-tertiary);">' + l.error_message + '</span>' : ''}`;
+            // Proper Color Correction for Status
+            let statColor = 'var(--text-primary)';
+            let bgStat = 'rgba(255,255,255,0.1)';
+            if (l.status === 'failed') {
+                statColor = '#ef4444'; // Red
+                bgStat = 'rgba(239, 68, 68, 0.1)';
+            } else if (l.status === 'running') {
+                statColor = '#3b82f6'; // Blue
+                bgStat = 'rgba(59, 130, 246, 0.1)';
+            } else if (l.status === 'completed') {
+                statColor = '#10b981'; // Green
+                bgStat = 'rgba(16, 185, 129, 0.1)';
+            }
+
+            const errorHtml = l.error_message ? `<div style="color:#ef4444; margin-top:4px; font-size:11px; padding:4px 8px; background:rgba(239,68,68,0.05); border-radius:4px; border-left:2px solid #ef4444;">Err: ${l.error_message}</div>` : '';
+            
+            const keywordHtml = l.keyword ? `<span style="color:#8b5cf6; font-weight:600; margin-right:8px;">[${l.keyword}]</span>` : '';
 
             return `
-                <div style="display:flex; gap:24px; color:var(--text-secondary); line-height:1.5;">
-                    <span style="width:140px; color:var(--text-tertiary);">${time}</span>
-                    <span style="width:100px; font-weight:600; text-transform:uppercase; color:var(--text-primary);">${l.source || '?'}</span>
-                    <span style="width:100px; color:${statColor}; text-transform:uppercase; font-weight:700;">[${l.status}]</span>
-                    <span style="flex:1;">${msg}</span>
+                <div style="display:flex; gap:24px; color:var(--text-secondary); line-height:1.5; padding:8px 0; border-bottom:1px dashed var(--border-subtle);">
+                    <span style="width:140px; color:var(--text-tertiary); font-size:12px;">${time}</span>
+                    <span style="width:100px; font-weight:700; text-transform:uppercase; color:var(--text-primary); letter-spacing:0.5px;">${l.source || '?'}</span>
+                    <span style="width:100px;">
+                        <span style="color:${statColor}; background:${bgStat}; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase;">${l.status}</span>
+                        ${duration}
+                    </span>
+                    <span style="flex:1;">
+                        <div style="display:flex; gap:16px;">
+                            ${keywordHtml}
+                            <span style="color:var(--text-primary);">Found: <strong style="color:#22d3ee;">${l.tenders_found || 0}</strong></span>
+                            <span style="color:var(--text-primary);">Saved: <strong style="color:#10b981;">${l.tenders_saved || 0}</strong></span>
+                            <span style="color:var(--text-tertiary);">Pages: ${l.pages_scanned || 0}</span>
+                        </div>
+                        ${errorHtml}
+                    </span>
                 </div>
             `;
         }).join('');

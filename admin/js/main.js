@@ -9,6 +9,7 @@ import { renderDashboard } from './pages/Dashboard.js';
 import { renderScrapers } from './pages/Scrapers.js';
 import { renderLogs } from './pages/Logs.js';
 import { renderUsers } from './pages/Users.js';
+import { renderSettings } from './pages/Settings.js';
 
 console.log('[Main] Booting System...');
 
@@ -18,6 +19,7 @@ registerRoute('/dashboard', renderDashboard);
 registerRoute('/scrapers',  renderScrapers);
 registerRoute('/logs',      renderLogs);
 registerRoute('/users',     renderUsers);
+registerRoute('/settings',  renderSettings);
 
 function initTheme() {
     try {
