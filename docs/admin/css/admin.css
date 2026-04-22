@@ -178,7 +178,7 @@ body {
 .btn-sync-all { background: #fff; color: #000; padding: 10px 20px; border-radius: 999px; font-weight: 700; border: none; display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .btn-stop-all { background: #222; color: #999; padding: 10px 20px; border-radius: 999px; font-weight: 700; border: 1px solid #333; display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
-.scraper-list { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 1200px; }
+.scraper-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; width: 100%; max-width: 1200px; }
 .scraper-item { 
     background: var(--bg-card); border: 1px solid var(--border-glass); 
     border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 8px;

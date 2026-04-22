@@ -112,49 +112,42 @@ async function loadScraperStatus() {
                 const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
                 return `
-                    <div class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)'}; display:flex; flex-direction:row; align-items:center; justify-content:space-between; padding:16px 20px;">
+                    <div class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)'}; display:flex; flex-direction:column; justify-content:space-between; padding:20px; background:var(--bg-card); border-radius:16px; transition:all 0.2s;">
                         ${isRunning ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                         
-                        <!-- Left: Status & Name -->
-                        <div style="display:flex; flex-direction:column; gap:8px; min-width: 250px;">
-                            <span class="sc-name" style="display:flex; align-items:center; gap:8px; font-size:15px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                            <span class="sc-name" style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:800; color:var(--text-primary);">
                                 <div style="width:10px; height:10px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 10px ${statusColor};"></div>
                                 ${name}
                             </span>
-                            <span style="font-size:11px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05); width:fit-content;">${statusText}</span>
+                            <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
                         </div>
 
-                        <!-- Middle: Keywords & Progress -->
-                        <div style="flex:1; display:flex; flex-direction:column; gap:4px; padding: 0 32px; border-left:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle);">
-                            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Live Extraction Progress</div>
-                            <div style="font-size:14px; font-weight:600; color:var(--text-secondary);">
-                                Processing Keyword: <span style="color:var(--text-primary); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:999px; font-family:var(--font-mono);">${info.last_keyword || 'N/A'}</span>
-                            </div>
-                            <div class="sc-time" style="margin-top:4px; font-size:11px;">
-                                <strong style="color:var(--text-secondary);">Last Sync:</strong> ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:4px;">Tenders Extracted</div>
+                            <div style="font-size:32px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-1px;">
+                                ${(info.total_tenders || 0).toLocaleString()}
                             </div>
                         </div>
 
-                        <!-- Right: Total Tenders & Action -->
-                        <div style="display:flex; align-items:center; gap:32px; min-width: 300px; justify-content:flex-end;">
-                            <div style="text-align:right;">
-                                <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:4px;">Total Tenders</div>
-                                <div style="font-size:24px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-1px;">
-                                    ${(info.total_tenders || 0).toLocaleString()}
-                                </div>
+                        <div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:8px; margin-bottom:16px; border:1px solid var(--border-subtle);">
+                            <div style="font-size:10px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:4px;">Live Progress</div>
+                            <div style="font-size:13px; font-weight:600; color:var(--text-secondary); margin-bottom:4px;">
+                                Keyword: <span style="color:var(--text-primary); background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; font-family:var(--font-mono);">${info.last_keyword || 'N/A'}</span>
                             </div>
-                            
-                            <div class="sc-controls" style="border-top:none; padding-top:0; margin:0; width:160px;">
-                                ${isRunning ? `
-                                    <button onclick="window._stopScraper(event, '${name}')" style="width:100%; height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        <i data-lucide="power" style="width:12px;height:12px;"></i> Abort
-                                    </button>
-                                ` : `
-                                    <button onclick="window._startScraper(event, '${name}')" style="width:100%; height:36px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        <i data-lucide="play" style="width:12px;height:12px; fill:currentColor;"></i> Initialize
-                                    </button>
-                                `}
-                            </div>
+                            <div style="font-size:11px; color:var(--text-tertiary);">Last Sync: ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}</div>
+                        </div>
+
+                        <div class="sc-controls" style="border-top:none; padding-top:0; margin:0; display:flex; width:100%;">
+                            ${isRunning ? `
+                                <button onclick="window._stopScraper(event, '${name}')" style="flex:1; height:40px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="power" style="width:14px;height:14px;"></i> Abort
+                                </button>
+                            ` : `
+                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:40px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="play" style="width:14px;height:14px; fill:currentColor;"></i> Initialize
+                                </button>
+                            `}
                         </div>
                     </div>
                 `;
