@@ -448,5 +448,11 @@ body {
     .sc-controls { flex-wrap: wrap; }
     
     /* Make tables responsive */
-    .adm-table { display: block; overflow-x: auto; white-space: nowrap; }
+    
+    /* Fit tables on mobile */
+    .adm-table { display: table !important; width: 100% !important; overflow-x: visible !important; white-space: normal !important; table-layout: fixed !important; word-wrap: break-word !important; }
+    .adm-table th { padding: 8px 4px !important; font-size: 8px !important; letter-spacing: 0 !important; }
+    .adm-table td { padding: 8px 4px !important; font-size: 10px !important; }
+    .adm-table-container { padding: 0 !important; overflow: hidden !important; border-radius: 8px !important; }
+
 }
