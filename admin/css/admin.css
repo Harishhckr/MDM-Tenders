@@ -493,5 +493,5 @@ body {
     .admin-sidebar.collapsed .nav-icon { margin-right: 0; }
 }
 
-.btn-mobile-menu { display: flex !important; }
+.btn-mobile-menu { display: none; }
 .nav-item { font-size: 15px !important; }
