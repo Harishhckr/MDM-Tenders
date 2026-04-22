@@ -415,3 +415,24 @@ body {
 }
 
 .btn-mobile-menu { display: none; }
+
+/* ── Stricter Phone Sizing overrides ─────────────────────────── */
+@media (max-width: 768px) {
+    .admin-content { padding: 16px 12px !important; }
+    .stat-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .scraper-list { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .stat-box { min-height: 80px !important; padding: 12px !important; border-radius: 12px !important; }
+    .scraper-item { padding: 14px !important; border-radius: 12px !important; }
+    .admin-login-box { margin: 16px auto !important; padding: 24px 16px !important; width: calc(100% - 32px) !important; max-width: none !important; }
+    .section-title { font-size: 16px !important; margin-bottom: 16px !important; }
+    .section-title:not(:first-child) { margin-top: 24px !important; }
+    .stat-value { font-size: 18px !important; }
+    .stat-label { font-size: 10px !important; margin-bottom: 4px !important; }
+    .scraper-header h1 { font-size: 20px !important; }
+    .scraper-header p { font-size: 12px !important; }
+    .sc-info-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .sc-controls { flex-wrap: wrap; }
+    
+    /* Make tables responsive */
+    .adm-table { display: block; overflow-x: auto; white-space: nowrap; }
+}
