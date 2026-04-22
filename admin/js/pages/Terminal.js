@@ -44,7 +44,7 @@ export async function renderTerminal(container) {
 
     await loadTerminalLogs();
     if (termTimer) clearInterval(termTimer);
-    termTimer = setInterval(loadTerminalLogs, 3000);
+    termTimer = setInterval(loadTerminalLogs, 1000);
 
     const obs = new MutationObserver(() => {
         if (!document.getElementById('hacker-output')) {
@@ -57,39 +57,40 @@ export async function renderTerminal(container) {
 
 async function loadTerminalLogs() {
     try {
-        const res = await adminFetch(`${getApiBase()}/admin/logs?limit=10`);
+        const res = await adminFetch(`${getApiBase()}/admin/system-logs`);
         if (!res.ok) return;
         const d = await res.json();
-        const logs = (d.logs || []).reverse();
+        const logs = d.logs || [];
 
         const out = document.getElementById('hacker-output');
         if (!out) return;
 
         let added = false;
-        logs.forEach(l => {
-            // Check if we've already printed this log based on ID or we're just rendering the last 10 
-            // We need a way to only print *new* events. But the backend logs are just full crawls.
-            // For a cool effect, we'll just print them randomly styled.
-            const time = l.started_at ? l.started_at.replace('T', ' ').substring(0, 19) : new Date().toISOString().replace('T', ' ').substring(0, 19);
-            const lineId = l.id + '_' + l.status; // status change makes a new line
-            
-            if (lastLogId === lineId) return; // simple deduplication for the demo
-
-            let statColor = '#10b981'; // Green
-            if (l.status === 'failed') statColor = '#ef4444';
-            if (l.status === 'running') statColor = '#3b82f6';
-
-            const err = l.error_message ? ` | ERR: ${l.error_message}` : '';
-            const key = l.keyword ? ` [KW: ${l.keyword}]` : '';
-
-            const str = `> <span style="opacity:0.5;">${time}</span> [<span style="color:${statColor}">${l.status.toUpperCase()}</span>] [SRC: ${l.source.toUpperCase()}]${key} Found: ${l.tenders_found} Saved: ${l.tenders_saved}${err}`;
-            
-            // Just append it if it isn't already there
-            if (!out.innerHTML.includes(l.id)) {
-                out.innerHTML += `<div class="hacker-line" data-id="${l.id}">${str}</div>`;
+        
+        const currentLines = out.querySelectorAll('.hacker-line').length;
+        
+        if (logs.length > currentLines) {
+            const newLogs = logs.slice(currentLines);
+            newLogs.forEach(lineText => {
+                let color = '#10b981'; // Green
+                if (lineText.includes('ERROR')) color = '#ef4444';
+                if (lineText.includes('WARNING')) color = '#f59e0b';
+                
+                const safeText = lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                out.innerHTML += `<div class="hacker-line" style="color:${color}">${safeText}</div>`;
                 added = true;
-            }
-        });
+            });
+        } else if (logs.length < currentLines) {
+            out.innerHTML = '';
+            logs.forEach(lineText => {
+                let color = '#10b981';
+                if (lineText.includes('ERROR')) color = '#ef4444';
+                if (lineText.includes('WARNING')) color = '#f59e0b';
+                const safeText = lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                out.innerHTML += `<div class="hacker-line" style="color:${color}">${safeText}</div>`;
+                added = true;
+            });
+        }
 
         if (added) {
             out.scrollTop = out.scrollHeight;

@@ -10,9 +10,10 @@ from app.config import settings
 from app.database import create_tables, SessionLocal
 from app.models import User
 from app.auth.security import hash_password
-from app.utils.logger import get_logger
+from app.utils.logger import get_logger, setup_global_memory_logger
 
 logger = get_logger("main")
+setup_global_memory_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

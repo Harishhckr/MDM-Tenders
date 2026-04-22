@@ -229,3 +229,8 @@ def update_user_role(
     user.role = role
     db.commit()
     return {"message": f"User role updated to '{role}'", "user": user.to_dict()}
+
+@router.get("/system-logs")
+def get_system_logs(admin=Depends(get_current_admin)):
+    """Returns raw stdout/SQLAlchemy logs for the hacker terminal"""
+    return {"logs": list(SYSTEM_LOGS)}
