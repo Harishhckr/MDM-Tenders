@@ -162,8 +162,12 @@ async function loadScraperStatus() {
             const isCaptcha = (g.message || '').toLowerCase().includes('captcha');
             
             if (isCaptcha && !window._captchaSoundPlayed) {
-                const beep = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-                beep.play().catch(()=>{});
+                // Professional alert sound for captcha
+                const beep = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
+                beep.volume = 0.5;
+                beep.play().catch(()=>{
+                    console.warn("Audio play blocked by browser. User interaction required.");
+                });
                 window._captchaSoundPlayed = true;
             } else if (!isCaptcha) {
                 window._captchaSoundPlayed = false;

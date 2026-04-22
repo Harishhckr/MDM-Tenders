@@ -56,25 +56,40 @@ export async function renderTenders(container) {
 
     // Fetch data
     let allTenders = [];
+    let currentLimit = 500;
+    let currentOffset = 0;
+    let totalAvailable = 0;
     const badge = container.querySelector('#total-tender-badge');
 
-    try {
-        const res = await authFetch(`${getApiBase()}/tenders?limit=500`, { cache: "no-store" });
-        const data = await res.json();
-        allTenders = data.results || [];
-        if (badge) {
-            badge.textContent = (data.total !== undefined ? data.total : allTenders.length).toLocaleString();
+    async function loadData(append = false) {
+        try {
+            const res = await authFetch(`${getApiBase()}/tenders?limit=${currentLimit}&offset=${currentOffset}`, { cache: "no-store" });
+            const data = await res.json();
+            
+            if (append) {
+                allTenders = [...allTenders, ...(data.results || [])];
+            } else {
+                allTenders = data.results || [];
+            }
+            
+            totalAvailable = data.total || 0;
+            if (badge) {
+                badge.textContent = totalAvailable.toLocaleString();
+            }
+            
+            updateKeywordDropdown();
+            applyFilters();
+        } catch (err) {
+            console.error('API error:', err);
+            if (badge) badge.textContent = '—';
         }
-    } catch (err) {
-        console.error('API error:', err);
-        if (badge) badge.textContent = '—';
     }
 
     const renderTable = (dataToRender) => {
         const area = container.querySelector('#all-table-area');
         if (!area) return;
 
-        if (dataToRender.length === 0) {
+        if (dataToRender.length === 0 && allTenders.length === 0) {
            area.innerHTML = `
                <div style="text-align:center;padding:60px;color:var(--text-tertiary);">
                    <i data-lucide="inbox" style="width:40px;height:40px;opacity:0.4;"></i>
@@ -83,6 +98,8 @@ export async function renderTenders(container) {
            if (window.lucide) window.lucide.createIcons();
            return;
         }
+
+        const hasMore = allTenders.length < totalAvailable;
 
         area.innerHTML = `
             <div class="tender-cards-grid">
@@ -132,10 +149,21 @@ export async function renderTenders(container) {
                     </div>`;
                 }).join('')}
             </div>
-            <div class="pagination-area" style="padding:16px 0;">
-                <div class="pagination-info">Showing ${dataToRender.length} tenders</div>
+            <div class="pagination-area" style="padding:24px 0; display:flex; flex-direction:column; align-items:center; gap:12px;">
+                <div class="pagination-info" style="color:var(--text-tertiary); font-size:13px;">Showing <strong>${dataToRender.length}</strong> of <strong>${totalAvailable}</strong> tenders</div>
+                ${hasMore ? `
+                    <button class="btn-secondary" id="load-more-btn" style="padding:10px 24px; font-weight:600;">
+                        <i data-lucide="arrow-down-circle" style="width:16px;height:16px;"></i> Load More Results
+                    </button>
+                ` : ''}
             </div>`;
         if (window.lucide) window.lucide.createIcons();
+
+        // Bind Load More
+        container.querySelector('#load-more-btn')?.addEventListener('click', () => {
+            currentOffset += currentLimit;
+            loadData(true);
+        });
 
         // Bind bookmark buttons
         const bmBtns = area.querySelectorAll('.bookmark-btn');
@@ -160,7 +188,6 @@ export async function renderTenders(container) {
                 const id = b.getAttribute('data-id');
                 if(!confirm("Are you sure you want to permanently delete this tender from the database?")) return;
                 
-                // Optimistically remove from DOM
                 const card = b.closest('.tender-card');
                 if (card) {
                     card.style.opacity = '0.5';
@@ -171,9 +198,9 @@ export async function renderTenders(container) {
                     const res = await authFetch(`${getApiBase()}/tenders/${id}`, { cache: "no-store", method: 'DELETE' });
                     if (res.ok) {
                         if (card) card.remove();
-                        // Also remove from array so it doesn't pop back strictly on pure frontend filter
                         allTenders = allTenders.filter(t => t.id !== id);
-                        if (badge) badge.textContent = allTenders.length.toLocaleString();
+                        totalAvailable--;
+                        if (badge) badge.textContent = totalAvailable.toLocaleString();
                     } else {
                         alert("Failed to delete tender.");
                         if (card) { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
@@ -187,17 +214,15 @@ export async function renderTenders(container) {
         });
     };
 
-    renderTable(allTenders);
-
     const searchInput = container.querySelector('#all-search');
     const filterSourceEl = container.querySelector('#filter-source');
+    const keywordSelect = container.querySelector('#filter-keyword');
     
     let currentKeyword = 'ALL';
 
     function applyFilters() {
         let filtered = [...allTenders];
         
-        // 1. Filter by Keyword Pill
         if (currentKeyword !== 'ALL') {
             filtered = filtered.filter(t => {
                 const tk = (t.keyword || t.matched_keyword || '').toLowerCase().trim();
@@ -205,18 +230,15 @@ export async function renderTenders(container) {
             });
         }
 
-        // 2. Filter by Source
         if (filterSourceEl && filterSourceEl.value !== 'ALL') {
             const src = filterSourceEl.value.toLowerCase();
             filtered = filtered.filter(t => (t.source || '').toLowerCase() === src);
         }
         
-        // 3. Filter by Search Text
         if (searchInput && searchInput.value) {
             const q = searchInput.value.toLowerCase();
             filtered = filtered.filter(t => 
-                (t.title || '').toLowerCase().includes(q) ||
-                (t.description || '').toLowerCase().includes(q) ||
+                (t.title || t.description || '').toLowerCase().includes(q) ||
                 (t.tender_id || '').toLowerCase().includes(q) ||
                 (t.source || '').toLowerCase().includes(q) ||
                 (t.location || '').toLowerCase().includes(q)
@@ -224,16 +246,11 @@ export async function renderTenders(container) {
         }
         
         renderTable(filtered);
-        if (badge) badge.textContent = filtered.length.toLocaleString();
     }
 
-    if (searchInput) searchInput.addEventListener('input', applyFilters);
-    if (filterSourceEl) filterSourceEl.addEventListener('change', applyFilters);
-
-    // Dynamic Keyword Filters Dropdown
-    const keywordSelect = container.querySelector('#filter-keyword');
-    if (keywordSelect) {
-        // Extract unique valid keywords from the fetched data
+    function updateKeywordDropdown() {
+        if (!keywordSelect) return;
+        const previousValue = keywordSelect.value;
         const uniqueKWs = [...new Set(
             allTenders
                 .map(t => t.keyword || t.matched_keyword)
@@ -241,12 +258,22 @@ export async function renderTenders(container) {
                 .map(k => k.trim())
         )].sort();
 
-        // Render ALL + the unique extracted keywords as <option>s
         keywordSelect.innerHTML = `
-            <option value="ALL" selected>All Keywords</option>
+            <option value="ALL">All Keywords</option>
             ${uniqueKWs.map(kw => `<option value="${kw}">${kw}</option>`).join('')}
         `;
+        // Restore selection if it still exists
+        if (uniqueKWs.includes(previousValue)) {
+            keywordSelect.value = previousValue;
+        } else {
+            keywordSelect.value = 'ALL';
+            currentKeyword = 'ALL';
+        }
+    }
 
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (filterSourceEl) filterSourceEl.addEventListener('change', applyFilters);
+    if (keywordSelect) {
         keywordSelect.addEventListener('change', (e) => {
             currentKeyword = e.target.value;
             applyFilters();
@@ -254,22 +281,22 @@ export async function renderTenders(container) {
     }
 
     const refreshBtn = container.querySelector('#all-refresh-btn');
-    if (refreshBtn) refreshBtn.addEventListener('click', () => { renderTenders(container); });
-
-
+    if (refreshBtn) refreshBtn.addEventListener('click', () => { 
+        currentOffset = 0;
+        loadData(false); 
+    });
 
     const exportBtn = container.querySelector('#all-export-btn');
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
-            const a = document.createElement('a');
-            a.href = `${getApiBase()}/export`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            window.open(`${getApiBase()}/export`, '_blank');
         });
     }
+
+    // Initial load
+    await loadData();
 }
 
 function esc(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
