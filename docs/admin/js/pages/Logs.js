@@ -20,13 +20,13 @@ export async function renderLogs(container) {
                 <option value="tenderontime">TenderOnTime</option>
                 <option value="biddetail">BidDetail</option>
             </select>
-            <button class="btn-sync-all" onclick="window._refreshLogs()" style="padding:10px 16px; border-radius:12px;">
+            <button class="btn-sync-all" onclick="window._refreshLogs()" style="margin-left:auto; padding:10px 16px; border-radius:12px;">
                 <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh
             </button>
         </div>
 
-        <div class="adm-card anim-in anim-d2" style="background:#000; border:1px solid var(--border-glass); border-radius:16px; overflow:hidden;">
-            <div style="background:rgba(255,255,255,0.05); padding:12px 20px; font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; display:flex; gap:24px; border-bottom:1px solid var(--border-subtle);">
+        <div class="adm-card anim-in anim-d2" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:16px; overflow:hidden;">
+            <div style="background:rgba(128,128,128,0.05); padding:12px 20px; font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; display:flex; gap:24px; border-bottom:1px solid var(--border-subtle);">
                 <span style="width:140px;">Timestamp</span>
                 <span style="width:100px;">Source</span>
                 <span style="width:100px;">Status</span>

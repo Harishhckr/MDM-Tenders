@@ -81,28 +81,55 @@ async function loadScraperStatus() {
         const grid = document.getElementById('adm-scraper-grid');
         if (grid) {
             grid.innerHTML = Object.entries(tenderScrapers).map(([name, info]) => {
-                const status = info.is_running ? 'RUNNING' : 'COMPLETED';
+                const isRunning = info.is_running;
+                const statusColor = isRunning ? '#10b981' : 'var(--text-tertiary)';
+                const statusText = isRunning ? 'ENGINE ACTIVE' : 'STANDBY';
+                const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
+
                 return `
-                    <div class="scraper-item">
-                        <div class="sc-info-row">
-                            <span class="sc-name"><i data-lucide="server" style="width:14px;height:14px;margin-right:6px;"></i> ${name}</span>
-                            <span class="sc-status-label">${status}</span>
+                    <div class="scraper-item" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.2)' : 'var(--border-glass)'};">
+                        ${isRunning ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
+                        
+                        <div class="sc-info-row" style="margin-bottom:8px;">
+                            <span class="sc-name" style="display:flex; align-items:center; gap:8px;">
+                                <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
+                                ${name}
+                            </span>
+                            <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
                         </div>
-                        <div class="sc-details" style="font-size:24px; font-weight:800; color:var(--text-primary); margin-top:8px;">
-                            ${(info.total_tenders || 0).toLocaleString()} <span style="font-size:12px; font-weight:600; color:var(--text-tertiary);">TOTAL TENDERS</span>
+
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+                            <div>
+                                <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:4px;">Tenders Extracted</div>
+                                <div style="font-size:32px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-1px;">
+                                    ${(info.total_tenders || 0).toLocaleString()}
+                                </div>
+                            </div>
                         </div>
-                        <div class="sc-time">Last run: ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}</div>
-                        <div class="sc-controls">
-                            <button class="btn-icon-sm" onclick="window._startScraper('${name}')" ${info.is_running ? 'disabled' : ''} style="opacity:${info.is_running ? '0.3' : '1'};">
-                                <i data-lucide="play" style="width:18px;height:18px;fill:currentColor;"></i> Start
-                            </button>
-                            <button class="btn-icon-sm" onclick="window._stopScraper('${name}')" ${!info.is_running ? 'disabled' : ''} style="opacity:${!info.is_running ? '0.3' : '1'};">
-                                <i data-lucide="square" style="width:16px;height:16px;fill:currentColor;"></i> Stop
-                            </button>
+
+                        <div class="sc-time" style="background:rgba(255,255,255,0.02); padding:8px 12px; border-radius:8px; margin-bottom:16px; font-size:11px;">
+                            <strong style="color:var(--text-secondary);">Last Sync:</strong> ${info.last_run ? new Date(info.last_run).toLocaleString() : 'Never'}
+                        </div>
+
+                        <div class="sc-controls" style="border-top:none; padding-top:0; gap:12px;">
+                            ${isRunning ? `
+                                <button onclick="window._stopScraper('${name}')" style="flex:1; height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
+                                </button>
+                            ` : `
+                                <button onclick="window._startScraper('${name}')" style="flex:1; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="play" style="width:14px;height:14px; fill:currentColor;"></i> Initialize Engine
+                                </button>
+                            `}
                         </div>
                     </div>
                 `;
-            }).join('');
+            }).join('') + `
+                <style>
+                    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+                    @keyframes scanline { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+                </style>
+            `;
         }
 
         const gPanel = document.getElementById('adm-google-panel');
@@ -111,8 +138,6 @@ async function loadScraperStatus() {
             const isCaptcha = (g.message || '').toLowerCase().includes('captcha');
             
             if (isCaptcha && !window._captchaSoundPlayed) {
-                const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'); // Mock or use simple beep
-                // In a real scenario, use a valid URL like:
                 const beep = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
                 beep.play().catch(()=>{});
                 window._captchaSoundPlayed = true;
@@ -120,22 +145,53 @@ async function loadScraperStatus() {
                 window._captchaSoundPlayed = false;
             }
 
+            const isRunning = g.running;
+            const statusColor = isRunning ? '#10b981' : (isCaptcha ? '#f59e0b' : 'var(--text-tertiary)');
+            const statusText = isRunning ? (isCaptcha ? 'ACTION REQUIRED' : 'ENGINE ACTIVE') : 'STANDBY';
+            const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
+
             gPanel.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                        <div class="sc-status-label" style="display:inline-block; margin-bottom:12px;">${g.running ? 'RUNNING' : 'IDLE'}</div>
-                        <div class="sc-details" style="font-size:16px; font-weight:500;">${g.message || 'Ready for research'}</div>
-                        
-                        ${isCaptcha ? `
-                            <div class="captcha-box">
-                                <input type="text" id="adm-captcha-input" class="captcha-input" placeholder="Enter Captcha / OTP...">
-                                <button class="captcha-btn" onclick="window._submitCaptcha()">Submit</button>
+                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:16px; padding:24px; background:var(--bg-card);">
+                    ${isRunning && !isCaptcha ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                                <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:16px; color:var(--text-primary);">
+                                    <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
+                                    GOOGLE RESEARCH
+                                </div>
+                                <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:4px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
                             </div>
-                        ` : ''}
+
+                            <div style="font-size:15px; font-weight:500; color:var(--text-secondary); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="info" style="width:16px;height:16px;"></i> ${g.message || 'Ready for deep research extraction'}
+                            </div>
+                            
+                            ${isCaptcha ? `
+                                <div class="captcha-box" style="max-width:400px; background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.2); padding:16px; border-radius:12px;">
+                                    <div style="color:#f59e0b; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                                        <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i> Security Check
+                                    </div>
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="adm-captcha-input" class="captcha-input" placeholder="Enter Captcha / OTP..." style="flex:1;">
+                                        <button class="captcha-btn" onclick="window._submitCaptcha()" style="background:#f59e0b; color:#000;">Submit</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:12px; min-width:200px;">
+                            ${isRunning ? `
+                                <button onclick="window._stopGoogle()" style="height:44px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="power" style="width:14px;height:14px;"></i> Abort Sequence
+                                </button>
+                            ` : `
+                                <button onclick="window._startGoogle(event)" style="height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                    <i data-lucide="zap" style="width:14px;height:14px; fill:currentColor;"></i> Launch Engine
+                                </button>
+                            `}
+                        </div>
                     </div>
-                    <button class="btn-sync-all" onclick="window._startGoogle()" ${g.running ? 'disabled' : ''} style="margin-top:0;">
-                        <i data-lucide="zap" style="width:16px;height:16px;"></i> Launch Engine
-                    </button>
                 </div>
             `;
         }

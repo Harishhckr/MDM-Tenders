@@ -75,6 +75,16 @@ function renderTopbar() {
         const isLocal = mode === 'local';
 
         topbar.innerHTML = `
+            <div style="display:flex; align-items:center; gap:16px;">
+                <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; border-right:1px solid var(--border-glass); padding-right:16px;">
+                    <i data-lucide="clock" style="width:14px;height:14px;"></i>
+                    <span id="adm-live-clock">--:--:--</span>
+                </div>
+                <div style="font-size:12px; font-weight:600; color:var(--text-tertiary);">
+                    ${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                </div>
+            </div>
+
             <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:20px;">
                 
                 <!-- Backend Switcher (Matches User UI) -->
@@ -114,6 +124,12 @@ function renderTopbar() {
         `;
         
         if (window.lucide) window.lucide.createIcons();
+
+        // Start clock
+        setInterval(() => {
+            const clock = document.getElementById('adm-live-clock');
+            if (clock) clock.innerText = new Date().toLocaleTimeString();
+        }, 1000);
 
         document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
         document.getElementById('adm-headless-toggle')?.addEventListener('change', (e) => {

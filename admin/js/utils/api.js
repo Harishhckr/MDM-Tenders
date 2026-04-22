@@ -3,7 +3,7 @@
 // ============================================================
 
 const REMOTE_URL = 'https://mdm-tenders.onrender.com/api';
-const LOCAL_URL  = 'http://localhost:8000/api';
+const LOCAL_URL  = 'http://127.0.0.1:8000/api'; // Use 127.0.0.1 instead of localhost to avoid IPv6 issues
 const KEY        = 'admin_api_backend';
 const TOKEN_KEY  = 'admin_token';
 
@@ -36,10 +36,21 @@ export async function adminFetch(url, opts = {}) {
         headers['Content-Type'] = 'application/json';
         opts.body = JSON.stringify(opts.body);
     }
-    const res = await fetch(url, { ...opts, headers });
-    if (res.status === 401 || res.status === 403) {
-        clearToken();
-        window.location.hash = '#/login';
+    
+    try {
+        const res = await fetch(url, { ...opts, headers });
+        if (res.status === 401 || res.status === 403) {
+            clearToken();
+            window.location.hash = '#/login';
+        }
+        return res;
+    } catch (e) {
+        console.error('Fetch Error:', e);
+        if (getApiMode() === 'local' && window.location.protocol === 'https:') {
+            alert('Mixed Content Error: You cannot connect to the local server (http) while hosting the UI on GitHub Pages (https). Please run the frontend locally (e.g., using Live Server) to use Local Mode.');
+        } else {
+            alert(`Connection Error: Could not reach the API at ${url}. Ensure the backend is running.`);
+        }
+        throw e;
     }
-    return res;
 }
