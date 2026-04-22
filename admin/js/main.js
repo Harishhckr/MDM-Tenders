@@ -135,6 +135,25 @@ function renderTopbar() {
         
         if (window.lucide) window.lucide.createIcons();
 
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+        // init theme
+        const saved = localStorage.getItem('admin-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        themeBtn.innerHTML = saved === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
+        if (window.lucide) window.lucide.createIcons();
+
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin-theme', next);
+            themeBtn.innerHTML = next === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
+
         if (!document.getElementById('sidebar-overlay')) {
             const overlay = document.createElement('div');
             overlay.className = 'sidebar-overlay';
@@ -196,6 +215,25 @@ function renderTopbar() {
             `;
             document.body.appendChild(modal);
             if (window.lucide) window.lucide.createIcons();
+
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+        // init theme
+        const saved = localStorage.getItem('admin-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        themeBtn.innerHTML = saved === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
+        if (window.lucide) window.lucide.createIcons();
+
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('admin-theme', next);
+            themeBtn.innerHTML = next === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
+            if (window.lucide) window.lucide.createIcons();
+        });
+    }
+
 
         if (!document.getElementById('sidebar-overlay')) {
             const overlay = document.createElement('div');
