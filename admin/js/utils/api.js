@@ -40,8 +40,11 @@ export async function adminFetch(url, opts = {}) {
     try {
         const res = await fetch(url, { ...opts, headers });
         if (res.status === 401 || res.status === 403) {
-            clearToken();
-            window.location.hash = '#/login';
+            // Only redirect if this failure happened on the PRIMARY backend we are logged into
+            if (url.startsWith(getApiBase())) {
+                clearToken();
+                window.location.hash = '#/login';
+            }
         }
         return res;
     } catch (e) {
