@@ -15,7 +15,8 @@ const navGroups = [
         items: [
             { icon: 'layout-dashboard', label: 'Overview', route: '/dashboard' },
             { icon: 'bot', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
-            { icon: 'scroll-text', label: 'Live Logs', route: '/logs' }
+            { icon: 'scroll-text', label: 'Live Logs', route: '/logs' },
+            { icon: 'terminal-square', label: 'Terminal', route: '/terminal' }
         ]
     },
     {

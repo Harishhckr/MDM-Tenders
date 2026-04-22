@@ -10,6 +10,7 @@ import { renderScrapers } from './pages/Scrapers.js';
 import { renderLogs } from './pages/Logs.js';
 import { renderUsers } from './pages/Users.js';
 import { renderSettings } from './pages/Settings.js';
+import { renderTerminal } from './pages/Terminal.js';
 
 console.log('[Main] Booting System...');
 
@@ -20,6 +21,7 @@ registerRoute('/scrapers',  renderScrapers);
 registerRoute('/logs',      renderLogs);
 registerRoute('/users',     renderUsers);
 registerRoute('/settings',  renderSettings);
+registerRoute('/terminal',  renderTerminal);
 
 function initTheme() {
     try {
