@@ -23,6 +23,7 @@ export async function renderLogs(container) {
             <button class="btn-sync-all" onclick="window._refreshLogs()" style="margin-left:auto; padding:10px 16px; border-radius:4px;">
                 <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh
             </button>
+            </div>
         </div>
 
         <div class="adm-card anim-in anim-d2" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:4px; overflow:hidden;">

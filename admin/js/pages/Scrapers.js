@@ -7,17 +7,18 @@ let pollTimer = null;
 
 export async function renderScrapers(container) {
     container.innerHTML = `
-        <div class="section-title anim-in">
-            <i data-lucide="shield"></i> Scraper Control Panel
-        </div>
-
-        <div class="scraper-actions anim-in anim-d1">
-            <button class="btn-stop-all" id="adm-stop-all" disabled>
-                <i data-lucide="x-circle" style="width:16px;height:16px;"></i> Stop All Engines
-            </button>
-            <button class="btn-sync-all" id="adm-sync-all">
-                <i data-lucide="zap" style="width:16px;height:16px;"></i> Sync All Sources
-            </button>
+        <div class="section-header anim-in">
+            <div class="section-title">
+                <i data-lucide="shield"></i> Scraper Control Panel
+            </div>
+            <div class="scraper-actions" style="margin-bottom:0;">
+                <button class="btn-stop-all" id="adm-stop-all" disabled>
+                    <i data-lucide="x-circle" style="width:16px;height:16px;"></i> Stop All Engines
+                </button>
+                <button class="btn-sync-all" id="adm-sync-all">
+                    <i data-lucide="zap" style="width:16px;height:16px;"></i> Sync All Sources
+                </button>
+            </div>
         </div>
 
         <div class="section-title anim-in anim-d2">
@@ -188,7 +189,7 @@ async function loadScraperStatus() {
             const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
             gPanel.innerHTML = `
-                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:999px; padding:16px; background:var(--bg-card);">
+                <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:16px; padding:16px; background:var(--bg-card);">
                     ${isRunning && !isCaptcha ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                     
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -206,7 +207,7 @@ async function loadScraperStatus() {
                             </div>
                             
                             ${isCaptcha ? `
-                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:999px; animation: pulse 2s infinite;">
+                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
                                     <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
                                         <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Security Check Required
                                     </div>
