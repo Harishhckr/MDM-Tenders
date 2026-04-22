@@ -328,3 +328,87 @@ body {
 .section-header .section-title { margin-bottom: 0; }
 
 .btn-theme-toggle { display: none !important; }
+
+/* ── Mobile Responsive Overrides ─────────────────────────── */
+@media (max-width: 768px) {
+    /* Layout */
+    .admin-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: none;
+    }
+    .admin-sidebar.open {
+        transform: translateX(0);
+        box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+    }
+    
+    /* Overlay background when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(2px);
+        z-index: 99;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .sidebar-overlay.open {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Topbar adjustments */
+    .admin-topbar {
+        padding: 0 16px;
+        gap: 12px;
+    }
+    .btn-mobile-menu {
+        display: flex !important;
+        background: transparent;
+        border: 1px solid var(--border-glass);
+        color: var(--text-primary);
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .search-bar { display: none; } /* Hide search bar on mobile */
+    .topbar-actions { gap: 12px; }
+    
+    /* Content Padding */
+    .admin-content {
+        padding: 12px;
+    }
+    
+    /* Login Box */
+    .admin-login-box {
+        margin: 16px;
+        padding: 32px 24px;
+    }
+    
+    /* Topbar Info */
+    #adm-live-clock { display: none; }
+    #backend-label { display: none; }
+    
+    /* Typography / Scaling */
+    .section-title { font-size: 18px; }
+    .stat-value { font-size: 20px; }
+    
+    /* Scraper Items */
+    .scraper-item { padding: 16px; }
+    .sc-info-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+    
+    .section-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .scraper-actions { width: 100%; display: flex; flex-direction: column; }
+    .btn-sync-all, .btn-stop-all { width: 100%; justify-content: center; }
+}
+
+.btn-mobile-menu { display: none; }

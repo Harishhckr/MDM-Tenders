@@ -77,6 +77,9 @@ function renderTopbar() {
         const isLocal = mode === 'local';
 
         topbar.innerHTML = `
+            <button class="btn-mobile-menu" id="adm-mobile-menu-btn">
+                <i data-lucide="menu" style="width:18px; height:18px;"></i>
+            </button>
             <div style="display:flex; align-items:center; gap:16px;">
                 <div style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; border-right:1px solid var(--border-glass); padding-right:16px;">
                     <i data-lucide="clock" style="width:14px;height:14px;"></i>
@@ -132,6 +135,36 @@ function renderTopbar() {
         
         if (window.lucide) window.lucide.createIcons();
 
+        if (!document.getElementById('sidebar-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            overlay.id = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', () => {
+                document.getElementById('admin-sidebar')?.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
+
+        document.getElementById('adm-mobile-menu-btn')?.addEventListener('click', () => {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar) sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('open');
+        });
+        
+        // Auto-close sidebar on mobile nav click
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById('admin-sidebar')?.classList.remove('open');
+                    document.getElementById('sidebar-overlay')?.classList.remove('open');
+                }
+            });
+        });
+        
+
         // Inject Help Modal
         if (isLocal && !document.getElementById('adm-local-help-modal')) {
             const modal = document.createElement('div');
@@ -159,6 +192,36 @@ function renderTopbar() {
             `;
             document.body.appendChild(modal);
             if (window.lucide) window.lucide.createIcons();
+
+        if (!document.getElementById('sidebar-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            overlay.id = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', () => {
+                document.getElementById('admin-sidebar')?.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
+
+        document.getElementById('adm-mobile-menu-btn')?.addEventListener('click', () => {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar) sidebar.classList.toggle('open');
+            if (overlay) overlay.classList.toggle('open');
+        });
+        
+        // Auto-close sidebar on mobile nav click
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    document.getElementById('admin-sidebar')?.classList.remove('open');
+                    document.getElementById('sidebar-overlay')?.classList.remove('open');
+                }
+            });
+        });
+        
         }
 
         document.getElementById('adm-local-help-btn')?.addEventListener('click', () => {
