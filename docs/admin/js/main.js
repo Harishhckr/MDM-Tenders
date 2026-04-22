@@ -112,9 +112,16 @@ function renderTopbar() {
                 </div>
                 ` : ''}
 
-                <div class="btn-new-project" style="cursor:default; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px; padding:6px 14px; border-radius:12px;">
-                    <span style="opacity:0.5; margin-right:6px;">API_URL:</span>
-                    <span style="color:var(--text-primary); font-weight:600;">${getApiBase().replace('https://','').replace('http://','')}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="btn-new-project" style="cursor:default; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px; padding:6px 14px; border-radius:12px;">
+                        <span style="opacity:0.5; margin-right:6px;">API_URL:</span>
+                        <span style="color:var(--text-primary); font-weight:600;">${getApiBase().replace('https://','').replace('http://','')}</span>
+                    </div>
+                    ${isLocal ? `
+                    <button id="adm-local-help-btn" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); padding:6px 10px; border-radius:10px; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="help-circle" style="width:14px;height:14px;"></i> Not Loading?
+                    </button>
+                    ` : ''}
                 </div>
 
                 <button class="btn-theme-toggle" id="adm-theme-toggle" style="background:rgba(255,255,255,0.03); border:1px solid var(--border-glass);">
@@ -124,6 +131,40 @@ function renderTopbar() {
         `;
         
         if (window.lucide) window.lucide.createIcons();
+
+        // Inject Help Modal
+        if (isLocal && !document.getElementById('adm-local-help-modal')) {
+            const modal = document.createElement('div');
+            modal.id = 'adm-local-help-modal';
+            modal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);';
+            modal.innerHTML = `
+                <div style="background:var(--bg-card); border:1px solid var(--border-glass); width:500px; border-radius:20px; padding:32px; position:relative;">
+                    <h2 style="font-size:20px; font-weight:800; margin-bottom:16px; color:#ef4444; display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="alert-triangle"></i> Why is Data Not Loading?
+                    </h2>
+                    <p style="color:var(--text-secondary); font-size:14px; line-height:1.6; margin-bottom:20px;">
+                        Your web browser is strictly blocking the GitHub Pages website from talking to your local Python server. This is a built-in security feature called <strong>Mixed Content</strong> (HTTPS trying to fetch HTTP). Since I cannot override your browser's security via code, you must manually allow it:
+                    </p>
+                    <ol style="color:var(--text-primary); font-size:14px; line-height:1.8; margin-left:20px; margin-bottom:24px;">
+                        <li>Click the <strong>Settings icon (Lock/Tune)</strong> on the left side of your URL bar.</li>
+                        <li>Click <strong>Site settings</strong>.</li>
+                        <li>Scroll down to <strong>Insecure content</strong> and change it from <em>Block</em> to <strong>Allow</strong>.</li>
+                        <li>Come back to this page and reload.</li>
+                    </ol>
+                    <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:12px; margin-bottom:24px; font-size:13px; color:var(--text-secondary);">
+                        <strong>Note:</strong> Make sure your python backend is actually running in your terminal! (<code style="background:#000; padding:2px 6px; border-radius:4px; color:#10b981;">uvicorn app.main:app</code>)
+                    </div>
+                    <button onclick="document.getElementById('adm-local-help-modal').style.display='none'" style="width:100%; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-weight:700; cursor:pointer;">Got it, Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        document.getElementById('adm-local-help-btn')?.addEventListener('click', () => {
+            const m = document.getElementById('adm-local-help-modal');
+            if (m) m.style.display = 'flex';
+        });
 
         // Start clock
         setInterval(() => {
