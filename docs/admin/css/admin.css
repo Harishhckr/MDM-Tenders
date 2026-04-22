@@ -1,3 +1,9 @@
+
+/* Fix Box Sizing for Login Box */
+.admin-login-wrapper, .admin-login-box, .admin-login-box * {
+    box-sizing: border-box !important;
+}
+
 /* ============================================================
    LEONEX ADMIN — Premium Unified Architecture
    Floating Panel Design System (Matches Reference Image)
