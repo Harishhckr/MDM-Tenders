@@ -70,21 +70,29 @@ function renderTopbar() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const mode = getApiMode();
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isLocal = mode === 'local';
 
         topbar.innerHTML = `
-            <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:16px;">
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <span style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">API</span>
-                    <label class="adm-toggle">
-                        <input type="checkbox" id="adm-api-toggle" ${mode === 'local' ? 'checked' : ''}>
-                        <span class="slider"></span>
-                    </label>
-                    <span style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;">${mode}</span>
+            <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:20px;">
+                
+                <!-- Backend Switcher (Matches User UI) -->
+                <div id="backend-switcher" title="Switch between local (visible browser) and Render server" 
+                    style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px 8px;cursor:pointer;"
+                    onclick="(function(){
+                        const nextMode = localStorage.getItem('admin_api_backend') === 'local' ? 'remote' : 'local';
+                        localStorage.setItem('admin_api_backend', nextMode);
+                        window.location.reload();
+                    })()">
+                    <span id="backend-dot" style="width:8px;height:8px;border-radius:50%;background:${isLocal ? '#22c55e' : '#f97316'};flex-shrink:0;"></span>
+                    <i data-lucide="${isLocal ? 'monitor' : 'cloud'}" style="width:14px;height:14px;opacity:0.8;"></i>
+                    <span id="backend-label" style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--text-secondary);padding-right:4px;text-transform:uppercase;">
+                        ${isLocal ? 'Local' : 'Render'}
+                    </span>
                 </div>
 
-                ${mode === 'local' ? `
-                <div style="display:flex;align-items:center;gap:6px; margin-left: 12px;">
-                    <span style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">Visible Tab</span>
+                ${isLocal ? `
+                <div style="display:flex;align-items:center;gap:10px; background:rgba(255,255,255,0.03); padding:4px 12px; border-radius:20px; border:1px solid var(--border-glass);">
+                    <span style="font-size:10px;font-weight:800;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Visible Browser</span>
                     <label class="adm-toggle">
                         <input type="checkbox" id="adm-headless-toggle" ${!isHeadless ? 'checked' : ''}>
                         <span class="slider"></span>
@@ -92,12 +100,12 @@ function renderTopbar() {
                 </div>
                 ` : ''}
 
-                <div class="btn-new-project" style="cursor:default; margin-left: 12px; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px;">
-                    <div class="status-dot"></div>
-                    <span>${getApiBase()}</span>
+                <div class="btn-new-project" style="cursor:default; background:var(--bg-card); border:1px solid var(--border-glass); color:var(--text-primary); font-family:monospace; font-size:11px; padding:6px 14px; border-radius:12px;">
+                    <span style="opacity:0.5; margin-right:6px;">API_URL:</span>
+                    <span style="color:var(--text-primary); font-weight:600;">${getApiBase().replace('https://','').replace('http://','')}</span>
                 </div>
 
-                <button class="btn-theme-toggle" id="adm-theme-toggle">
+                <button class="btn-theme-toggle" id="adm-theme-toggle" style="background:rgba(255,255,255,0.03); border:1px solid var(--border-glass);">
                     <i data-lucide="${currentTheme === 'dark' ? 'sun' : 'moon'}" style="width:18px;height:18px;"></i>
                 </button>
             </div>
@@ -106,10 +114,6 @@ function renderTopbar() {
         if (window.lucide) window.lucide.createIcons();
 
         document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
-        document.getElementById('adm-api-toggle')?.addEventListener('change', (e) => {
-            setApiBackend(e.target.checked ? 'local' : 'remote');
-            window.location.reload();
-        });
         document.getElementById('adm-headless-toggle')?.addEventListener('change', (e) => {
             localStorage.setItem('admin_headless', e.target.checked ? 'false' : 'true');
         });

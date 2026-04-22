@@ -36,6 +36,12 @@ from app.utils.human_behavior import (
     random_between_page_delay, random_mouse_move, micro_delay, get_random_proxy
 )
 
+# Force UTF-8 for Windows console support
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 
 class GoogleSearchScraper:
     """
@@ -74,13 +80,13 @@ class GoogleSearchScraper:
         self.date_to = date_to if date_to else None
         
         if self.date_from and self.date_to:
-            print(f"📅 Date Range: {self.date_from} to {self.date_to}")
+            print(f"[DATE] Range: {self.date_from} to {self.date_to}")
         else:
-            print("📅 No date filter")
+            print("[DATE] No date filter")
         
-        print(f"🔍 Total Keywords: {len(self.mdm_keywords)}")
-        print(f"📋 Total Suffixes per Keyword: {len(self.suffixes)}")
-        print(f"📊 Total Searches: {len(self.mdm_keywords) * len(self.suffixes)}")
+        print(f"[INFO] Total Keywords: {len(self.mdm_keywords)}")
+        print(f"[INFO] Total Suffixes per Keyword: {len(self.suffixes)}")
+        print(f"[INFO] Total Searches: {len(self.mdm_keywords) * len(self.suffixes)}")
         
         self._setup_driver()
     
@@ -96,12 +102,12 @@ class GoogleSearchScraper:
         # Inject JS stealth patches immediately
         inject_stealth_scripts(self.driver)
 
-        print(f"\u2705 Browser opened with stealth mode (proxy={'yes' if proxy else 'no'})!")
+        print(f"[OK] Browser opened with stealth mode (proxy={'yes' if proxy else 'no'})!")
 
         # Warm up session: visit a neutral page first
-        print("🌐 Warming up browser session...")
+        print("[INIT] Warming up browser session...")
         warmup_session(self.driver)
-        print("✅ Session warmed up!")
+        print("[OK] Session warmed up!")
     
     def _build_search_url(self, base_phrase: str, suffix: str, page: int = 0) -> str:
         """Build Google search URL with exact phrase quotes"""
