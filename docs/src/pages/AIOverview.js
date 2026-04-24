@@ -1,79 +1,57 @@
 import { getApiBase, authFetch } from '../utils/api.js';
+
 function parseMarkdown(text) {
     if (!text) return '';
     let html = text
-        // Bold
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        // Italics
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        // Links
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
-        ;
-    
-    // Split by double newline to create paragraphs/lists
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
     const blocks = html.split(/\n\n+/);
     return blocks.map(block => {
-        // If it looks like a list
         if (block.trim().startsWith('•') || block.trim().startsWith('-')) {
             const listItems = block.split('\n').filter(l => l.trim().length > 0)
                 .map(l => `<li>${l.replace(/^[-•]\s*/, '')}</li>`).join('');
             return `<ul>${listItems}</ul>`;
         }
-        // Normal paragraph (convert single newlines to <br>)
         return `<p>${block.replace(/\n/g, '<br>')}</p>`;
     }).join('');
 }
 
 export function renderAIOverview(container) {
     container.classList.add('no-scroll-panel');
-    let sessionId = null; // localStorage removed || null;
+    let sessionId = null;
 
     container.innerHTML = `
         <div class="ai-chat-layout is-empty anim-in" id="ai-chat-layout">
+
+            <!-- Robot 3D Background with cursor-following head -->
+            <div class="spline-bg-wrapper" id="spline-bg-wrapper">
+                <div class="robo-bg-scene" id="robo-bg-scene">
+                    <img
+                        src="./src/assets/roboo.png"
+                        id="robo-bg-img"
+                        class="robo-bg-img"
+                        alt="AI Robot"
+                        draggable="false"
+                    />
+                </div>
+            </div>
+
             <div class="ai-chat-history" id="ai-chat-history">
                 <div class="chat-history-inner" id="chat-messages-container">
-
-                    <!-- Immersive Spline Hero Card -->
+                    <!-- Original Empty State — unchanged -->
                     <div class="chat-hero-empty anim-in anim-d1" id="chat-hero">
-                        <div class="spline-hero-card">
-
-                            <!-- Spotlight Beam -->
-                            <svg class="spline-spotlight" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3787 2842" fill="none">
-                                <g filter="url(#sp-filter)">
-                                    <ellipse cx="1924.71" cy="273.501" rx="1924.71" ry="273.501"
-                                        transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3631.88 2291.09)"
-                                        fill="white" fill-opacity="0.21"/>
-                                </g>
-                                <defs>
-                                    <filter id="sp-filter" x="0.86" y="0.84" width="3785.16" height="2840.26"
-                                        filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                                        <feGaussianBlur stdDeviation="151" result="effect1_foregroundBlur"/>
-                                    </filter>
-                                </defs>
-                            </svg>
-
-                            <!-- Left: Text + Quick Actions -->
-                            <div class="spline-hero-left">
-                                <h1 class="spline-hero-title">Interactive AI<br>for Tenders</h1>
-                                <p class="spline-hero-desc">Ask me anything. Uncover opportunities, analyze tenders, and get deep insights powered by AI.</p>
-                                <div class="chat-quick-actions anim-in anim-d2" id="quick-actions">
-                                    <button class="chat-pill" data-prompt="Find fast tenders"><i data-lucide="zap" style="width:14px; height:14px;"></i> Fast</button>
-                                    <button class="chat-pill" data-prompt="Show in-depth analysis"><i data-lucide="lightbulb" style="width:14px; height:14px;"></i> In-depth</button>
-                                    <button class="chat-pill" data-prompt="Show technical tenders"><i data-lucide="code-xml" style="width:14px; height:14px;"></i> Technical</button>
-                                    <button class="chat-pill" data-prompt="Holistic view of tenders"><i data-lucide="box" style="width:14px; height:14px;"></i> Holistic</button>
-                                </div>
-                            </div>
-
-                            <!-- Right: AI Robot Image -->
-                            <div class="spline-hero-right">
-                                <img src="./src/assets/ai-robot.png" alt="Leonex AI Robot" class="hero-robot-img" />
-                            </div>
-
+                        <div class="chat-hero-header">
+                            <h1>✦ Hi, I'm Leonex AI</h1>
+                        </div>
+                        <p>How can I help you today?</p>
+                        <div class="chat-quick-actions anim-in anim-d2" id="quick-actions">
+                            <button class="chat-pill" data-prompt="Find fast tenders"><i data-lucide="zap" style="width:14px; height:14px;"></i> Fast</button>
+                            <button class="chat-pill" data-prompt="Show in-depth analysis"><i data-lucide="lightbulb" style="width:14px; height:14px;"></i> In-depth</button>
+                            <button class="chat-pill" data-prompt="Show technical tenders"><i data-lucide="code-xml" style="width:14px; height:14px;"></i> Technical</button>
+                            <button class="chat-pill" data-prompt="Holistic view of tenders"><i data-lucide="box" style="width:14px; height:14px;"></i> Holistic</button>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -83,7 +61,6 @@ export function renderAIOverview(container) {
                         <textarea id="chat-input" placeholder="Ask anything..." rows="1"></textarea>
                         <div class="chat-status-dot" style="display:none;"></div>
                     </div>
-                    
                     <div class="chat-prompt-actions">
                         <button class="chat-action-btn icon-only" aria-label="Attach File">
                             <i data-lucide="paperclip" style="width:16px;" stroke-width="1.5"></i>
@@ -101,44 +78,81 @@ export function renderAIOverview(container) {
                     </div>
                 </div>
                 <div class="chat-disclaimer">Leonex AI can make mistakes. Consider verifying important information.</div>
-             </div>
+            </div>
         </div>
     `;
 
     lucide.createIcons({ root: container });
 
-    // ── Robot image loads instantly, no CDN needed ──────────────────
+    // ── Cursor-Tracking Robot Head Effect ────────────────────────────
+    const layout  = document.getElementById('ai-chat-layout');
+    const roboImg = document.getElementById('robo-bg-img');
+    const splineBg = document.getElementById('spline-bg-wrapper');
 
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+    const MAX_TILT = 14; // degrees
+
+    function onMouseMove(e) {
+        const rect = layout.getBoundingClientRect();
+        // Normalize -1 to 1 relative to container center
+        const nx = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
+        const ny = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
+        targetX =  ny * MAX_TILT;  // tilt up/down
+        targetY = -nx * MAX_TILT;  // tilt left/right
+    }
+
+    layout.addEventListener('mousemove', onMouseMove);
+
+    // Smooth lerp animation
+    let rafId;
+    function animateRobo() {
+        currentX += (targetX - currentX) * 0.06;
+        currentY += (targetY - currentY) * 0.06;
+        if (roboImg) {
+            roboImg.style.transform = `perspective(800px) rotateX(${currentX}deg) rotateY(${currentY}deg) scale(1.04)`;
+        }
+        rafId = requestAnimationFrame(animateRobo);
+    }
+    animateRobo();
+
+    // ── Chat Logic ────────────────────────────────────────────────────
     const msgContainer = document.getElementById('chat-messages-container');
-    const heroEl = document.getElementById('chat-hero');
-    const inputEl = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('chat-send-btn');
+    const heroEl       = document.getElementById('chat-hero');
+    const inputEl      = document.getElementById('chat-input');
+    const sendBtn      = document.getElementById('chat-send-btn');
     const historyPanel = document.getElementById('ai-chat-history');
-    const layoutEl = document.getElementById('ai-chat-layout');
+    const layoutEl     = document.getElementById('ai-chat-layout');
     let isWaiting = false;
 
     // Check backend health
-    authFetch('${getApiBase()}/ai/health', { cache: "no-store" })
-        .then(res => res.json())
+    authFetch('${getApiBase()}/ai/health', { cache: 'no-store' })
+        .then(r => r.json())
         .then(data => {
             const statusEl = document.getElementById('ai-status-indicator');
+            if (!statusEl) return;
             if (data.ollama_connected) {
-                statusEl.innerHTML = `<div style="width:8px; height:8px; border-radius:50%; background:var(--accent-google-blue);"></div> DeepSeek Active`;
+                statusEl.innerHTML = `<div style="width:8px;height:8px;border-radius:50%;background:var(--accent-google-blue);"></div> DeepSeek Active`;
             } else {
-                statusEl.innerHTML = `<div style="width:8px; height:8px; border-radius:50%; background:var(--accent-orange);"></div> Basic Mode`;
+                statusEl.innerHTML = `<div style="width:8px;height:8px;border-radius:50%;background:var(--accent-orange);"></div> Basic Mode`;
             }
         }).catch(() => {});
 
     function scrollToBottom() {
-        requestAnimationFrame(() => {
-            historyPanel.scrollTop = historyPanel.scrollHeight;
-        });
+        requestAnimationFrame(() => { historyPanel.scrollTop = historyPanel.scrollHeight; });
     }
 
     function removeHero() {
         if (heroEl && heroEl.parentNode) {
             heroEl.parentNode.removeChild(heroEl);
-            layoutEl.classList.remove('is-empty'); // Triggers the Gemini-style move down
+            layoutEl.classList.remove('is-empty');
+            cancelAnimationFrame(rafId);
+            layout.removeEventListener('mousemove', onMouseMove);
+            // Fade and hide robot bg
+            if (splineBg) {
+                splineBg.style.opacity = '0';
+                setTimeout(() => { splineBg.style.display = 'none'; }, 600);
+            }
         }
     }
 
@@ -146,15 +160,9 @@ export function renderAIOverview(container) {
         removeHero();
         const row = document.createElement('div');
         row.className = `chat-msg-row ${role} anim-in`;
-        
-        let content = '';
-        if (role === 'assistant') {
-            content = parseMarkdown(text);
-        } else {
-            // User messages escape simple HTML
-            content = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
+        const content = role === 'assistant'
+            ? parseMarkdown(text)
+            : text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         row.innerHTML = `<div class="chat-bubble">${content}</div>`;
         msgContainer.appendChild(row);
         scrollToBottom();
@@ -165,14 +173,13 @@ export function renderAIOverview(container) {
         const row = document.createElement('div');
         row.className = 'chat-msg-row assistant typing-indicator-row';
         row.innerHTML = `
-            <div class="chat-bubble" style="padding: 10px 16px;">
+            <div class="chat-bubble" style="padding:10px 16px;">
                 <div class="typing-indicator">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
-            </div>
-        `;
+            </div>`;
         msgContainer.appendChild(row);
         scrollToBottom();
         return row;
@@ -180,25 +187,21 @@ export function renderAIOverview(container) {
 
     async function sendMessage(text) {
         if (!text.trim() || isWaiting) return;
-        
         isWaiting = true;
         inputEl.value = '';
-        inputEl.style.height = 'auto'; // Reset size
-        
+        inputEl.style.height = 'auto';
         appendMessage('user', text);
         const typingEl = appendTypingIndicator();
 
         try {
-            const response = await authFetch('${getApiBase()}/ai/chat', { cache: "no-store", method: 'POST',
+            const response = await authFetch('${getApiBase()}/ai/chat', {
+                cache: 'no-store', method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text, session_id: sessionId })
             });
-
             typingEl.remove();
-            
-            if (!response.body) throw new Error("ReadableStream not supported");
-            
-            // Create target bubble for streaming response
+            if (!response.body) throw new Error('ReadableStream not supported');
+
             const row = document.createElement('div');
             row.className = 'chat-msg-row assistant anim-in';
             const bubble = document.createElement('div');
@@ -207,48 +210,30 @@ export function renderAIOverview(container) {
             row.appendChild(bubble);
             msgContainer.appendChild(row);
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder("utf-8");
-            let accumulatedText = "";
-            let buffer = "";
+            const reader  = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let accumulatedText = '', buffer = '';
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
                 buffer += decoder.decode(value, { stream: true });
-                // SSE chunks are separated by double newline
                 let parts = buffer.split('\n\n');
-                
-                // Keep the last part in buffer because it might be incomplete
                 buffer = parts.pop();
-
                 for (let line of parts) {
                     if (line.trim().startsWith('data:')) {
                         try {
-                            // Extract JSON payload explicitly
-                            const jsonStr = line.substring(line.indexOf('{'));
-                            const payload = JSON.parse(jsonStr);
-                            
-                            if (payload.type === 'meta') {
-                                if (payload.session_id) {
-                                    sessionId = payload.session_id;
-                                    // localStorage removed
-                                }
-                            } else if (payload.type === 'chunk') {
+                            const payload = JSON.parse(line.substring(line.indexOf('{')));
+                            if (payload.type === 'meta' && payload.session_id) sessionId = payload.session_id;
+                            else if (payload.type === 'chunk') {
                                 accumulatedText += payload.text;
                                 bubble.innerHTML = parseMarkdown(accumulatedText);
                                 scrollToBottom();
-                            } else if (payload.type === 'done') {
-                                // Streaming completely finished
                             }
-                        } catch(e) { 
-                            console.error('Stream parse error:', e, line);
-                        }
+                        } catch(e) { console.error('Stream parse error:', e); }
                     }
                 }
             }
-            
         } catch (error) {
             console.error('Chat error:', error);
             if (typingEl && typingEl.parentNode) typingEl.remove();
@@ -259,28 +244,17 @@ export function renderAIOverview(container) {
         }
     }
 
-    // Auto-resize textarea
     inputEl.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
+        this.style.height = this.scrollHeight + 'px';
         if (this.value === '') this.style.height = 'auto';
     });
-
-    // Enter to send (Shift+Enter for new line)
     inputEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage(inputEl.value);
-        }
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(inputEl.value); }
     });
+    sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
 
-    sendBtn.addEventListener('click', () => {
-        sendMessage(inputEl.value);
-    });
-
-    // Quick actions
-    const pills = container.querySelectorAll('.chat-pill');
-    pills.forEach(pill => {
+    container.querySelectorAll('.chat-pill').forEach(pill => {
         pill.addEventListener('click', () => {
             const prompt = pill.getAttribute('data-prompt');
             if (prompt) sendMessage(prompt);
