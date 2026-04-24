@@ -2,7 +2,7 @@
 // Admin Portal — Main Entry Point (Robust Version)
 // ============================================================
 import { registerRoute, handleRoute } from './router.js';
-import { isLoggedIn, getApiBase, getApiMode, setApiBackend } from './utils/api.js';
+import { isLoggedIn, getApiBase, getApiMode } from './utils/api.js';
 import { renderAdminSidebar } from './components/Sidebar.js';
 import { renderLogin } from './pages/Login.js';
 import { renderDashboard } from './pages/Dashboard.js';
@@ -92,7 +92,7 @@ function renderTopbar() {
 
             <div class="topbar-actions" style="margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
                 
-                <!-- Backend Switcher (Matches User UI) -->
+                <!-- Backend Switcher -->
                 <div id="backend-switcher" title="Switch between local (visible browser) and Render server" 
                     style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px 8px;cursor:pointer;"
                     onclick="(function(){
@@ -135,25 +135,9 @@ function renderTopbar() {
         
         if (window.lucide) window.lucide.createIcons();
 
-    const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-        // init theme
-        const saved = localStorage.getItem('admin-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', saved);
-        themeBtn.innerHTML = saved === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
-        if (window.lucide) window.lucide.createIcons();
-
-        themeBtn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('admin-theme', next);
-            themeBtn.innerHTML = next === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
-            if (window.lucide) window.lucide.createIcons();
-        });
-    }
-
-
+        // ── Event Listeners ──────────────────────────────────────────
+        
+        // Sidebar Overlay handling
         if (!document.getElementById('sidebar-overlay')) {
             const overlay = document.createElement('div');
             overlay.className = 'sidebar-overlay';
@@ -166,6 +150,7 @@ function renderTopbar() {
             });
         }
 
+        // Hamburger Menu click
         document.getElementById('adm-mobile-menu-btn')?.addEventListener('click', () => {
             const sidebar = document.getElementById('admin-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
@@ -186,105 +171,59 @@ function renderTopbar() {
                 }
             });
         });
-        
 
-        // Inject Help Modal
-        if (isLocal && !document.getElementById('adm-local-help-modal')) {
-            const modal = document.createElement('div');
-            modal.id = 'adm-local-help-modal';
-            modal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);';
-            modal.innerHTML = `
-                <div style="background:var(--bg-card); border:1px solid var(--border-glass); width:500px; border-radius:20px; padding:32px; position:relative;">
-                    <h2 style="font-size:20px; font-weight:800; margin-bottom:16px; color:#ef4444; display:flex; align-items:center; gap:8px;">
-                        <i data-lucide="alert-triangle"></i> Why is Data Not Loading?
-                    </h2>
-                    <p style="color:var(--text-secondary); font-size:14px; line-height:1.6; margin-bottom:20px;">
-                        Your web browser is strictly blocking the GitHub Pages website from talking to your local Python server. This is a built-in security feature called <strong>Mixed Content</strong> (HTTPS trying to fetch HTTP). Since I cannot override your browser's security via code, you must manually allow it:
-                    </p>
-                    <ol style="color:var(--text-primary); font-size:14px; line-height:1.8; margin-left:20px; margin-bottom:24px;">
-                        <li>Click the <strong>Settings icon (Lock/Tune)</strong> on the left side of your URL bar.</li>
-                        <li>Click <strong>Site settings</strong>.</li>
-                        <li>Scroll down to <strong>Insecure content</strong> and change it from <em>Block</em> to <strong>Allow</strong>.</li>
-                        <li>Come back to this page and reload.</li>
-                    </ol>
-                    <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:12px; margin-bottom:24px; font-size:13px; color:var(--text-secondary);">
-                        <strong>Note:</strong> Make sure your python backend is actually running in your terminal! (<code style="background:#000; padding:2px 6px; border-radius:4px; color:#10b981;">uvicorn app.main:app</code>)
-                    </div>
-                    <button onclick="document.getElementById('adm-local-help-modal').style.display='none'" style="width:100%; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-weight:700; cursor:pointer;">Got it, Close</button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            if (window.lucide) window.lucide.createIcons();
-
-    const themeBtn = document.getElementById('theme-toggle');
-    if (themeBtn) {
-        // init theme
-        const saved = localStorage.getItem('admin-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', saved);
-        themeBtn.innerHTML = saved === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
-        if (window.lucide) window.lucide.createIcons();
-
-        themeBtn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('admin-theme', next);
-            themeBtn.innerHTML = next === 'light' ? '<i data-lucide="sun" style="width:16px;height:16px;"></i>' : '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
-            if (window.lucide) window.lucide.createIcons();
-        });
-    }
-
-
-        if (!document.getElementById('sidebar-overlay')) {
-            const overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            overlay.id = 'sidebar-overlay';
-            document.body.appendChild(overlay);
-            
-            overlay.addEventListener('click', () => {
-                document.getElementById('admin-sidebar')?.classList.remove('open');
-                overlay.classList.remove('open');
-            });
-        }
-
-        document.getElementById('adm-mobile-menu-btn')?.addEventListener('click', () => {
-            const sidebar = document.getElementById('admin-sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            if (window.innerWidth <= 768) {
-                if (sidebar) sidebar.classList.toggle('open');
-                if (overlay) overlay.classList.toggle('open');
-            } else {
-                if (sidebar) sidebar.classList.toggle('collapsed');
-            }
-        });
-        
-        // Auto-close sidebar on mobile nav click
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    document.getElementById('admin-sidebar')?.classList.remove('open');
-                    document.getElementById('sidebar-overlay')?.classList.remove('open');
-                }
-            });
-        });
-        
-        }
-
-        document.getElementById('adm-local-help-btn')?.addEventListener('click', () => {
-            const m = document.getElementById('adm-local-help-modal');
-            if (m) m.style.display = 'flex';
-        });
-
-        // Start clock
-        setInterval(() => {
-            const clock = document.getElementById('adm-live-clock');
-            if (clock) clock.innerText = new Date().toLocaleTimeString();
-        }, 1000);
-
+        // Theme Toggle click
         document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
+
+        // Headless (Visible Browser) Toggle click
         document.getElementById('adm-headless-toggle')?.addEventListener('change', (e) => {
             localStorage.setItem('admin_headless', e.target.checked ? 'false' : 'true');
         });
+
+        // Help Button handling
+        if (isLocal) {
+            if (!document.getElementById('adm-local-help-modal')) {
+                const modal = document.createElement('div');
+                modal.id = 'adm-local-help-modal';
+                modal.style.cssText = 'display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);';
+                modal.innerHTML = `
+                    <div style="background:var(--bg-card); border:1px solid var(--border-glass); width:500px; border-radius:20px; padding:32px; position:relative;">
+                        <h2 style="font-size:20px; font-weight:800; margin-bottom:16px; color:#ef4444; display:flex; align-items:center; gap:8px;">
+                            <i data-lucide="alert-triangle"></i> Why is Data Not Loading?
+                        </h2>
+                        <p style="color:var(--text-secondary); font-size:14px; line-height:1.6; margin-bottom:20px;">
+                            Your web browser is strictly blocking the GitHub Pages website from talking to your local Python server. This is a built-in security feature called <strong>Mixed Content</strong> (HTTPS trying to fetch HTTP). Since I cannot override your browser's security via code, you must manually allow it:
+                        </p>
+                        <ol style="color:var(--text-primary); font-size:14px; line-height:1.8; margin-left:20px; margin-bottom:24px;">
+                            <li>Click the <strong>Settings icon (Lock/Tune)</strong> on the left side of your URL bar.</li>
+                            <li>Click <strong>Site settings</strong>.</li>
+                            <li>Scroll down to <strong>Insecure content</strong> and change it from <em>Block</em> to <strong>Allow</strong>.</li>
+                            <li>Come back to this page and reload.</li>
+                        </ol>
+                        <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:12px; margin-bottom:24px; font-size:13px; color:var(--text-secondary);">
+                            <strong>Note:</strong> Make sure your python backend is actually running in your terminal! (<code style="background:#000; padding:2px 6px; border-radius:4px; color:#10b981;">uvicorn app.main:app</code>)
+                        </div>
+                        <button onclick="document.getElementById('adm-local-help-modal').style.display='none'" style="width:100%; height:44px; background:var(--text-primary); color:var(--bg-page); border:none; border-radius:10px; font-weight:700; cursor:pointer;">Got it, Close</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                if (window.lucide) window.lucide.createIcons();
+            }
+
+            document.getElementById('adm-local-help-btn')?.addEventListener('click', () => {
+                const m = document.getElementById('adm-local-help-modal');
+                if (m) m.style.display = 'flex';
+            });
+        }
+
+        // Live Clock
+        setInterval(() => {
+            const clock = document.getElementById('adm-live-clock');
+            if (clock) {
+                clock.innerText = new Date().toLocaleTimeString();
+            }
+        }, 1000);
+
     } catch (e) { console.error('[Topbar] Render Error:', e); }
 }
 

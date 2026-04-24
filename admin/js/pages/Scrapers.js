@@ -54,7 +54,7 @@ export async function renderScrapers(container) {
         btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i> Syncing...';
         if (window.lucide) window.lucide.createIcons();
 
-        const isHeadless = true;
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         const sources = ['gem', 'tender247', 'tenderdetail', 'tenderontime', 'biddetail'];
         
@@ -71,7 +71,7 @@ export async function renderScrapers(container) {
     });
 
     container.querySelector('#adm-stop-all')?.addEventListener('click', async () => {
-        const isHeadless = true;
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         try {
             await adminFetch(`${baseUrl}/admin/scrapers/stop?source=all`, { method: 'POST' });
@@ -82,7 +82,7 @@ export async function renderScrapers(container) {
 
 async function loadScraperStatus() {
     try {
-        const isHeadless = true;
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         
         let res = await adminFetch(`${baseUrl}/admin/scrapers/status`).catch(() => null);
@@ -237,7 +237,7 @@ window._startScraper = async (event, source) => {
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const isHeadless = true;
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
     } catch (e) { console.error(e); }
@@ -251,7 +251,7 @@ window._startScraper = async (event, source) => {
 };
 
 window._stopScraper = async (event, source) => {
-    const isHeadless = true;
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     await adminFetch(`${baseUrl}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
     await loadScraperStatus();
@@ -265,7 +265,7 @@ window._startGoogle = async (event) => {
     if (window.lucide) window.lucide.createIcons();
 
     try {
-        const isHeadless = true;
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
         const res = await adminFetch(`${baseUrl}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
         if (!res.ok) {
@@ -283,7 +283,7 @@ window._startGoogle = async (event) => {
 };
 
 window._stopGoogle = async (event) => {
-    const isHeadless = true;
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
     await loadScraperStatus();
@@ -296,7 +296,7 @@ window._submitCaptcha = async (event) => {
     btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i> Resuming...';
     if (window.lucide) window.lucide.createIcons();
 
-    const isHeadless = true;
+    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
     
     try {
@@ -310,4 +310,3 @@ window._submitCaptcha = async (event) => {
         await loadScraperStatus();
     }, 2000);
 };
-
