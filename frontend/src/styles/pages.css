@@ -570,9 +570,11 @@
 
 /* ── GEMINI EMPTY STATE STYLING ── */
 .ai-chat-layout.is-empty {
-  justify-content: center;
+  justify-content: flex-end; /* Pushes everything to the bottom */
+  padding-bottom: 50px;
   position: relative;
 }
+
 
 /* Hero text must be above the background */
 .ai-chat-layout.is-empty .ai-chat-history,
