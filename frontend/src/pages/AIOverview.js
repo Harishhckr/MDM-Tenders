@@ -23,20 +23,6 @@ export function renderAIOverview(container) {
 
     container.innerHTML = `
         <div class="ai-chat-layout is-empty anim-in" id="ai-chat-layout">
-
-            <!-- Robot 3D Background with cursor-following head -->
-            <div class="spline-bg-wrapper" id="spline-bg-wrapper">
-                <div class="robo-bg-scene" id="robo-bg-scene">
-                    <img
-                        src="./src/assets/roboo.png"
-                        id="robo-bg-img"
-                        class="robo-bg-img"
-                        alt="AI Robot"
-                        draggable="false"
-                    />
-                </div>
-            </div>
-
             <div class="ai-chat-history" id="ai-chat-history">
                 <div class="chat-history-inner" id="chat-messages-container">
                     <!-- Original Empty State — unchanged -->
@@ -84,38 +70,6 @@ export function renderAIOverview(container) {
 
     lucide.createIcons({ root: container });
 
-    // ── Cursor-Tracking Robot Head Effect ────────────────────────────
-    const layout  = document.getElementById('ai-chat-layout');
-    const roboImg = document.getElementById('robo-bg-img');
-    const splineBg = document.getElementById('spline-bg-wrapper');
-
-    let targetX = 0, targetY = 0;
-    let currentX = 0, currentY = 0;
-    const MAX_TILT = 14; // degrees
-
-    function onMouseMove(e) {
-        const rect = layout.getBoundingClientRect();
-        // Normalize -1 to 1 relative to container center
-        const nx = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
-        const ny = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
-        targetX =  ny * MAX_TILT;  // tilt up/down
-        targetY = -nx * MAX_TILT;  // tilt left/right
-    }
-
-    layout.addEventListener('mousemove', onMouseMove);
-
-    // Smooth lerp animation
-    let rafId;
-    function animateRobo() {
-        currentX += (targetX - currentX) * 0.06;
-        currentY += (targetY - currentY) * 0.06;
-        if (roboImg) {
-            roboImg.style.transform = `perspective(800px) rotateX(${currentX}deg) rotateY(${currentY}deg) scale(1.04)`;
-        }
-        rafId = requestAnimationFrame(animateRobo);
-    }
-    animateRobo();
-
     // ── Chat Logic ────────────────────────────────────────────────────
     const msgContainer = document.getElementById('chat-messages-container');
     const heroEl       = document.getElementById('chat-hero');
@@ -146,13 +100,6 @@ export function renderAIOverview(container) {
         if (heroEl && heroEl.parentNode) {
             heroEl.parentNode.removeChild(heroEl);
             layoutEl.classList.remove('is-empty');
-            cancelAnimationFrame(rafId);
-            layout.removeEventListener('mousemove', onMouseMove);
-            // Fade and hide robot bg
-            if (splineBg) {
-                splineBg.style.opacity = '0';
-                setTimeout(() => { splineBg.style.display = 'none'; }, 600);
-            }
         }
     }
 
