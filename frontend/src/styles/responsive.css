@@ -676,7 +676,10 @@
   }
   .robo-bg-img {
     height: 70% !important;
-    opacity: 0.22 !important; /* Slightly more visible on mobile */
+    opacity: 0.22 !important; /* Subtle in light mode mobile */
+  }
+  [data-theme="dark"] .robo-bg-img {
+    opacity: 1 !important; /* Fully visible in dark mode mobile */
   }
   .hero-robot-img {
     width: 60% !important;

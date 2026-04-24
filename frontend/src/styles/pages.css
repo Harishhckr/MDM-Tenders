@@ -562,6 +562,10 @@
   background-color: rgba(0,0,0,0.2);
 }
 
+[data-theme="dark"] .robo-bg-img {
+  opacity: 1 !important; /* Fully visible in dark mode */
+}
+
 
 
 /* ── GEMINI EMPTY STATE STYLING ── */
