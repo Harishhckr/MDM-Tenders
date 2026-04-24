@@ -663,25 +663,20 @@
   .chat-hero-empty {
     margin: auto 0 !important;
     padding: 0 !important;
-    text-align: left !important;
+    text-align: center !important;
     display: flex !important;
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: center !important;
     justify-content: center !important;
     max-width: 100% !important;
   }
-  .spline-hero-card {
-    flex-direction: column !important;
-    min-height: auto !important;
-    border-radius: 16px !important;
+  .robo-bg-scene {
+    justify-content: center !important;
+    padding: 0 !important;
   }
-  .spline-hero-left {
-    padding: 28px 20px 20px !important;
-  }
-  .spline-hero-title { font-size: 28px !important; }
-  .spline-hero-desc { font-size: 13px !important; max-width: 100% !important; }
-  .spline-hero-right {
-    min-height: 200px !important;
+  .robo-bg-img {
+    height: 70% !important;
+    opacity: 0.22 !important; /* Slightly more visible on mobile */
   }
   .hero-robot-img {
     width: 60% !important;
