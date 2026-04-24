@@ -24,18 +24,6 @@ export function renderAIOverview(container) {
     container.innerHTML = `
         <div class="ai-chat-layout is-empty anim-in" id="ai-chat-layout">
             
-            <!-- Static Robot Background (ai.png) -->
-            <div class="spline-bg-wrapper" id="spline-bg-wrapper">
-                <div class="robo-bg-scene">
-                    <img
-                        src="src/assets/ai.png"
-                        id="robo-bg-img"
-                        class="robo-bg-img"
-                        alt="AI Robot"
-                        draggable="false"
-                    />
-                </div>
-            </div>
 
             <div class="ai-chat-history" id="ai-chat-history">
                 <div class="chat-history-inner" id="chat-messages-container">

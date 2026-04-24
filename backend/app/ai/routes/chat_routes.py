@@ -14,6 +14,7 @@ from app.ai.services.intent_parser import get_intent_parser
 from app.ai.services.tender_agent import TenderAgent
 from app.ai.memory.conversation_store import get_conversation_store
 from app.ai.llm.ollama_client import get_ollama_client
+from app.ai.llm.blackbox_client import get_blackbox_client
 from app.utils.logger import get_logger
 
 router = APIRouter(prefix="/api/ai", tags=["ai-chat"])
@@ -80,6 +81,7 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
     store  = get_conversation_store()
     parser = get_intent_parser()
     ollama = get_ollama_client()
+    blackbox = get_blackbox_client()
 
     session_id = req.session_id or store.create_session()
     store.add_message(session_id, "user", req.message)
@@ -138,22 +140,35 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
 
         # 2. Stream AI generation
         full_response = ""
-        if not ollama.is_available:
-            err = "My AI engine (Ollama / DeepSeek) is currently offline. Please ensure it's running."
-            yield f"data: {json.dumps({'type': 'chunk', 'text': err})}\n\n"
-            full_response = err
-        else:
-            try:
-                async for chunk in ollama.generate_stream(prompt=full_prompt, system_prompt=None):
-                    if chunk:
-                        # We will stream the raw chunk
-                        full_response += chunk
-                        yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
-            except Exception as exc:
-                logger.error("Ollama streaming error: %s", exc)
-                err = f"An error occurred during AI generation: {str(exc)}"
+        used_provider = "blackbox"
+        
+        try:
+            # TRY BLACKBOX FIRST
+            logger.info("Attempting Blackbox AI generation...")
+            async for chunk in blackbox.generate_stream(prompt=full_prompt):
+                if chunk:
+                    full_response += chunk
+                    yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+        except Exception as bb_exc:
+            logger.warning("Blackbox AI failed: %s. Falling back to Ollama/DeepSeek.", bb_exc)
+            used_provider = "ollama"
+            
+            # FALLBACK TO OLLAMA
+            if not ollama.is_available:
+                err = "Both AI engines (Blackbox and local DeepSeek) are currently unavailable. Please check your connection."
                 yield f"data: {json.dumps({'type': 'chunk', 'text': err})}\n\n"
-                full_response += err # Append error to full_response for storage
+                full_response = err
+            else:
+                try:
+                    async for chunk in ollama.generate_stream(prompt=full_prompt, system_prompt=None):
+                        if chunk:
+                            full_response += chunk
+                            yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+                except Exception as oll_exc:
+                    logger.error("Ollama fallback also failed: %s", oll_exc)
+                    err = f"Primary and fallback AI engines failed: {str(oll_exc)}"
+                    yield f"data: {json.dumps({'type': 'chunk', 'text': err})}\n\n"
+                    full_response += err
 
             # Post process: Remove <think> tags from the stored history
             if "<think>" in full_response:
@@ -171,7 +186,15 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
 @router.get("/health")
 def ai_health():
     ollama = get_ollama_client()
-    return {**ollama.status(), "status": "online" if ollama.is_available else "offline - start Ollama"}
+    blackbox = get_blackbox_client()
+    # For health check, we don't call Blackbox to save tokens, just assume it's up if configured
+    return {
+        "ollama": ollama.status(),
+        "blackbox": {"status": "configured", "model": blackbox.model},
+        "primary": "blackbox",
+        "fallback": "ollama"
+    }
+
 
 
 @router.get("/suggest")
