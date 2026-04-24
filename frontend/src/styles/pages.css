@@ -543,22 +543,22 @@
   inset: 0;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
-  perspective: 1000px;
+  justify-content: flex-end; /* Move to right side */
+  padding-right: 5%;
   overflow: hidden;
 }
 
 .robo-bg-img {
   width: auto;
-  height: 100%;
-  max-height: 800px;
+  height: 80%;
+  max-height: 700px;
   object-fit: contain;
-  filter: drop-shadow(0 0 50px rgba(14,165,233,0.2));
+  opacity: 0.1; /* Very subtle background */
+  filter: none; /* No glow */
   pointer-events: none;
-  transform-style: preserve-3d;
-  will-change: transform;
-  transform-origin: center center;
+  transform: none !important;
 }
+
 
 
 /* ── GEMINI EMPTY STATE STYLING ── */

@@ -24,7 +24,7 @@ export function renderAIOverview(container) {
     container.innerHTML = `
         <div class="ai-chat-layout is-empty anim-in" id="ai-chat-layout">
             
-            <!-- Fullscreen Interactive Robot Background -->
+            <!-- Static Robot Background (ai.png) -->
             <div class="spline-bg-wrapper" id="spline-bg-wrapper">
                 <div class="robo-bg-scene">
                     <img
@@ -39,7 +39,7 @@ export function renderAIOverview(container) {
 
             <div class="ai-chat-history" id="ai-chat-history">
                 <div class="chat-history-inner" id="chat-messages-container">
-                    <!-- Centered Hero UI -->
+                    <!-- Original Empty State -->
                     <div class="chat-hero-empty anim-in anim-d1" id="chat-hero">
                         <div class="chat-hero-header">
                             <h1>✦ Hi, I'm Leonex AI</h1>
@@ -84,39 +84,6 @@ export function renderAIOverview(container) {
 
     lucide.createIcons({ root: container });
 
-    // ── Cursor-Tracking Effect ────────────────────────────────────────
-    const layout  = document.getElementById('ai-chat-layout');
-    const roboImg = document.getElementById('robo-bg-img');
-    const splineBg = document.getElementById('spline-bg-wrapper');
-
-    let targetX = 0, targetY = 0;
-    let currentX = 0, currentY = 0;
-    const MAX_TILT = 15; 
-
-    function onMouseMove(e) {
-        if (!layout) return;
-        const rect = layout.getBoundingClientRect();
-        // Calculate center relative coordinates
-        const nx = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
-        const ny = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
-        targetX =  ny * MAX_TILT; 
-        targetY = -nx * MAX_TILT; 
-    }
-
-    layout.addEventListener('mousemove', onMouseMove);
-
-    let rafId;
-    function animateRobo() {
-        currentX += (targetX - currentX) * 0.08;
-        currentY += (targetY - currentY) * 0.08;
-        if (roboImg) {
-            // Apply 3D rotation based on mouse position
-            roboImg.style.transform = `perspective(1000px) rotateX(${currentX}deg) rotateY(${currentY}deg) scale(1.05)`;
-        }
-        rafId = requestAnimationFrame(animateRobo);
-    }
-    animateRobo();
-
     // ── Chat Logic ────────────────────────────────────────────────────
     const msgContainer = document.getElementById('chat-messages-container');
     const heroEl       = document.getElementById('chat-hero');
@@ -124,6 +91,7 @@ export function renderAIOverview(container) {
     const sendBtn      = document.getElementById('chat-send-btn');
     const historyPanel = document.getElementById('ai-chat-history');
     const layoutEl     = document.getElementById('ai-chat-layout');
+    const splineBg     = document.getElementById('spline-bg-wrapper');
     let isWaiting = false;
 
     // Check backend health
@@ -147,8 +115,6 @@ export function renderAIOverview(container) {
         if (heroEl && heroEl.parentNode) {
             heroEl.parentNode.removeChild(heroEl);
             layoutEl.classList.remove('is-empty');
-            cancelAnimationFrame(rafId);
-            layout.removeEventListener('mousemove', onMouseMove);
             if (splineBg) {
                 splineBg.style.opacity = '0';
                 setTimeout(() => { splineBg.style.display = 'none'; }, 600);
