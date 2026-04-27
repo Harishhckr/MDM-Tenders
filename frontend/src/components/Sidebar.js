@@ -5,12 +5,13 @@ const navItems = [
     {
         section: 'MAIN',
         items: [
-            { icon: 'layout-dashboard', label: 'Overview', route: '/overview' },
-            { icon: 'folder', label: 'Tenders', route: '/tenders', badgeId: 'tender-count' },
-            { icon: 'database', label: 'MDM Tenders', route: '/mdm-tenders' },
-            { icon: 'sparkles', label: 'AI Insights', route: '/ai-overview' },
-            { icon: 'bookmark', label: 'Bookmarks', route: '/bookmarks' },
-            { icon: 'search', label: 'Google', route: '/google' }
+            { icon: 'layout-grid', label: 'Overview', route: '/overview' },
+            { icon: 'briefcase', label: 'Tenders', route: '/tenders', badgeId: 'tender-count' },
+            { icon: 'database-backup', label: 'MDM Tenders', route: '/mdm-tenders' },
+            { icon: 'bot-message-square', label: 'AI Insights', route: '/ai-overview' },
+            { icon: 'star', label: 'Bookmarks', route: '/bookmarks' },
+            { icon: 'search-code', label: 'Google', route: '/google' }
+
         ]
     },
     {
