@@ -13,20 +13,21 @@ const navGroups = [
     {
         section: 'MAIN',
         items: [
-            { icon: 'activity', label: 'Overview', route: '/dashboard' },
-            { icon: 'cpu', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
-            { icon: 'file-clock', label: 'Live Logs', route: '/logs' },
+            { icon: 'layout-dashboard', label: 'Overview', route: '/dashboard' },
+            { icon: 'bot', label: 'Scrapers', route: '/scrapers', badgeId: 'sc-badge' },
+            { icon: 'scroll-text', label: 'Live Logs', route: '/logs' },
             { icon: 'terminal', label: 'Terminal', route: '/terminal' }
         ]
     },
     {
         section: 'MANAGEMENT',
         items: [
-            { icon: 'shield-half', label: 'User Access', route: '/users' },
-            { icon: 'sliders-horizontal', label: 'Settings', route: '/settings' }
+            { icon: 'users-round', label: 'User Access', route: '/users' },
+            { icon: 'settings-2', label: 'Settings', route: '/settings' }
         ]
     }
 ];
+
 
 export function renderAdminSidebar() {
     const sidebar = document.getElementById('admin-sidebar');

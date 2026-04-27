@@ -70,6 +70,7 @@ class Settings(BaseSettings):
         "Supply and implementation of Vendor data",
         "data catalogue",
         "Data Validation ",
+        "data management and governance",
         "Deduplication, Cleansing and Standardization",
         "Data Cleansing",
         "Enrichment services",
