@@ -1,5 +1,6 @@
 import { getApiBase, clearTokens, authFetch } from '../utils/api.js';
 import { navigate, getCurrentRoute } from '../router.js';
+import { resetBookmarks } from '../utils/BookmarkStore.js';
 
 const navItems = [
     {
@@ -104,6 +105,7 @@ export function initSidebarEvents() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             clearTokens();
+            resetBookmarks();
             navigate('/login');
         });
     }

@@ -2,17 +2,26 @@ import { authFetch, getApiBase } from './api.js';
 
 const STORE_KEY = 'leonex_bookmarks';
 
+let hasSynced = false;
+
 // Sync bookmarks from backend on app load
-export async function syncBookmarks() {
+export async function syncBookmarks(force = false) {
+    if (hasSynced && !force) return;
     try {
         const res = await authFetch(`${getApiBase()}/bookmarks`);
         if (res.ok) {
             const data = await res.json();
             localStorage.setItem(STORE_KEY, JSON.stringify(data));
+            hasSynced = true;
         }
     } catch(err) {
         console.error("Failed to sync bookmarks", err);
     }
+}
+
+export function resetBookmarks() {
+    hasSynced = false;
+    localStorage.removeItem(STORE_KEY);
 }
 
 export function getBookmarks() {
