@@ -64,10 +64,13 @@ class GoogleSearchScraper:
             "Data Cataloguing",
             "Master data management",
             "Data Enrichment",
-            "codification of material",
+            "physical verification",
+            "asset valuation",
+            "material cataloguing",
             "Asset Verification",
             "bill of material",
-            "sap master data"
+            "sap master data",
+            "Material Data Governance"
         ]
         
         # Suffixes to append to each keyword
