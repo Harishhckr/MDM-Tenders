@@ -83,7 +83,11 @@ class Settings(BaseSettings):
         "Asset Verification",
         "bill of material",
         "Material master",
-        "data codification"
+        "data codification",
+        "physical verification",
+        "asset valuation",
+        "material catalogue",
+        "material verification"
     ]
 
 
