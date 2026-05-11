@@ -212,3 +212,44 @@ def reset_database(db: Session = Depends(get_db)):
     db.commit()
     invalidate_cache()
     return {"message": "Database cleared"}
+
+
+# ── GET /bookmarks ────────────────────────────────────────────────────────────
+@router.get("/bookmarks")
+def get_bookmarks(db: Session = Depends(get_db), user = Depends(get_current_user)):
+    from app.models import Bookmark
+    import json
+    bms = db.query(Bookmark).filter(Bookmark.user_id == user.id).order_by(Bookmark.created_at.desc()).all()
+    results = []
+    for b in bms:
+        try:
+            results.append(json.loads(b.data_json))
+        except:
+            pass
+    return results
+
+
+# ── POST /bookmarks ───────────────────────────────────────────────────────────
+@router.post("/bookmarks")
+def toggle_bookmark(payload: dict, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    from app.models import Bookmark
+    import json
+    identifier = payload.get("tender_id") or payload.get("link")
+    if not identifier:
+        raise HTTPException(status_code=400, detail="Missing identifier")
+    
+    existing = db.query(Bookmark).filter(Bookmark.user_id == user.id, Bookmark.identifier == str(identifier)).first()
+    if existing:
+        db.delete(existing)
+        db.commit()
+        return {"bookmarked": False}
+    else:
+        new_bm = Bookmark(
+            user_id=user.id,
+            item_type=payload.get("_bookType", "tender"),
+            identifier=str(identifier),
+            data_json=json.dumps(payload)
+        )
+        db.add(new_bm)
+        db.commit()
+        return {"bookmarked": True}

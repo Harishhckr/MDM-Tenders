@@ -20,6 +20,7 @@ import { renderBookmarks } from './pages/Bookmarks.js';
 import { renderGoogle } from './pages/Google.js';
 import { renderTenderView } from './pages/TenderView.js';
 import { renderPortal } from './pages/Portal.js';
+import { syncBookmarks } from './utils/BookmarkStore.js';
 
 initTheme();
 
@@ -36,13 +37,16 @@ function withAuthLayout(renderFn) {
         requestAnimationFrame(initIcons);
     };
 }
-
 function withAppLayout(renderFn) {
     return (container, query) => {
         if (!isAuthenticated()) {
             navigate('/login');
             return;
         }
+
+        // Sync bookmarks from backend
+        syncBookmarks();
+
 
         let pageContent = document.getElementById('page-content');
         

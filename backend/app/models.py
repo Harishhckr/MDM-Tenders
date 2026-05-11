@@ -124,3 +124,18 @@ class GoogleResult(Base):
             "is_pdf":       self.is_pdf == "true",
             "scraped_at":   self.scraped_at.isoformat() if self.scraped_at else None,
         }
+
+class Bookmark(Base):
+    """Stores bookmarks per user for persistence."""
+    __tablename__ = "bookmarks"
+    
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id     = Column(UUID(as_uuid=True), index=True, nullable=False)
+    item_type   = Column(String(20), default="tender")
+    identifier  = Column(String(500), index=True, nullable=False)
+    data_json   = Column(Text, nullable=False)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "identifier", name="uq_user_bookmark"),
+    )
