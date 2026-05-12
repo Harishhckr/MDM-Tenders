@@ -6,12 +6,12 @@
 const THEME_KEY = 'leonex-theme';
 
 export function initTheme() {
-    const saved = null; // localStorage removed
+    const saved = localStorage.getItem(THEME_KEY);
     if (saved) {
         document.documentElement.setAttribute('data-theme', saved);
     } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        // Default to dark mode instead of light
+        document.documentElement.setAttribute('data-theme', 'dark');
     }
 }
 
@@ -25,7 +25,9 @@ export function toggleTheme() {
     // setTimeout(0) fires AFTER the browser has painted the new theme.
     root.classList.add('no-transition');
     root.setAttribute('data-theme', next);
-    // localStorage removed
+    
+    // Save to localStorage so preference is remembered
+    localStorage.setItem(THEME_KEY, next);
 
     // Give the browser enough time to fully repaint before re-enabling transitions
     setTimeout(() => {
