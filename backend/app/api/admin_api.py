@@ -157,6 +157,7 @@ def resolve_captcha(payload: Optional[Dict[str, Any]] = None, _admin=Depends(req
 @router.post("/scrapers/stop")
 def stop_scraper(
     source: str = Query(...),
+    db: Session = Depends(get_db),
     _admin=Depends(require_admin) if not settings.DEBUG else None,
 ):
     """Stop a running scraper."""
@@ -169,7 +170,15 @@ def stop_scraper(
     else:
         from app.services.sync_manager import sync_manager
         sync_manager.set_stop_flag(source)
-        return {"status": "stopping", "source": source}
+        
+        # Forcibly update any 'running' DB rows so the UI clears immediately
+        # (Handles cases where the thread crashed and left a stale 'running' row)
+        from app.models import CrawlLog
+        stale = db.query(CrawlLog).filter(CrawlLog.status == "running", CrawlLog.source == source)
+        count = stale.update({"status": "stopped", "error_message": "Force stopped by admin"})
+        db.commit()
+        
+        return {"status": "stopping", "source": source, "cleared_stale": count}
 
 
 # ── Crawl Logs ───────────────────────────────────────────────────────────────
