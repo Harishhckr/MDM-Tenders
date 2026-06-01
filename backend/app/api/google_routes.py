@@ -86,6 +86,21 @@ def _run_scraper(db_session_factory, headless: bool = True):
 
         scraper.search_with_suffix = stoppable_search
 
+        def on_new_results(new_results, result_type="all"):
+            db = db_session_factory()
+            try:
+                saved = _save_results(db, new_results, result_type)
+                db.commit()
+                # Update status
+                _sync_status[f"saved_{result_type}"] += saved
+                logger.debug(f"Progressive save: +{saved} {result_type} results")
+            except Exception as exc:
+                logger.error(f"Error during progressive save: {exc}")
+            finally:
+                db.close()
+
+        scraper.on_new_results = on_new_results
+
         _sync_status["message"] = "Searching Google pages…"
         results_all, results_filtered = scraper.run_full_search(max_pages=7)
 
@@ -95,19 +110,21 @@ def _run_scraper(db_session_factory, headless: bool = True):
 
         db = db_session_factory()
         try:
-            saved_all      = _save_results(db, results_all, "all")
-            saved_filtered = _save_results(db, results_filtered, "filtered")
+            # We already saved progressively, but we'll do one final save just in case
+            _save_results(db, results_all, "all")
+            _save_results(db, results_filtered, "filtered")
             db.commit()
+            
             stopped = _stop_event.is_set()
             msg = (
-                f"Stopped — saved {saved_all} all-results, {saved_filtered} filtered"
+                f"Stopped — saved {_sync_status['saved_all']} all-results, {_sync_status['saved_filtered']} filtered"
                 if stopped else
-                f"Done — saved {saved_all} all-results, {saved_filtered} filtered"
+                f"Done — saved {_sync_status['saved_all']} all-results, {_sync_status['saved_filtered']} filtered"
             )
             _sync_status.update(
                 running=False, stopped=stopped,
                 last_run=datetime.utcnow().isoformat(),
-                message=msg, saved_all=saved_all, saved_filtered=saved_filtered,
+                message=msg,
             )
             logger.info(msg)
         finally:

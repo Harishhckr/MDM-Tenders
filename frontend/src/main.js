@@ -38,14 +38,14 @@ function withAuthLayout(renderFn) {
     };
 }
 function withAppLayout(renderFn) {
-    return (container, query) => {
+    return async (container, query) => {
         if (!isAuthenticated()) {
             navigate('/login');
             return;
         }
 
         // Sync bookmarks from backend
-        syncBookmarks();
+        await syncBookmarks();
 
 
         let pageContent = document.getElementById('page-content');

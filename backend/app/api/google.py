@@ -467,6 +467,9 @@ class GoogleSearchScraper:
             if found:
                 filtered_results.append(result)
                 print(f"            ✅ KEEPING")
+                # Progressive save logic
+                if hasattr(self, "on_new_results") and callable(self.on_new_results):
+                    self.on_new_results([result], "filtered")
             else:
                 print(f"            ❌ FILTERING OUT")
             
@@ -510,14 +513,20 @@ class GoogleSearchScraper:
                     results = self.search_with_suffix(keyword, suffix, max_pages)
 
                     new_count = 0
+                    new_results = []
                     for result in results:
                         if result['link'] not in seen_links:
                             seen_links.add(result['link'])
                             all_results.append(result)
+                            new_results.append(result)
                             new_count += 1
 
                     print(f"\n   📊 New unique results: {new_count}")
                     print(f"   📈 Total unique so far: {len(all_results)}")
+                    
+                    # Stream all unique results to DB immediately
+                    if hasattr(self, "on_new_results") and callable(self.on_new_results) and new_results:
+                        self.on_new_results(new_results, "all")
 
                     # Human-like delay between keyword searches (8–18s Gaussian)
                     if search_count < total_searches:
