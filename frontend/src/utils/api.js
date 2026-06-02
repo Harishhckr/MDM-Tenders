@@ -3,12 +3,20 @@
 // ============================================
 
 const REMOTE_URL = 'https://mdm-tenders.onrender.com/api';
-const LOCAL_URL  = 'http://localhost:8000/api';
-const KEY        = 'api_backend';
+const LOCAL_URL = 'http://localhost:8000/api';
+const KEY = 'api_backend';
 
 // ── Backend switcher ──────────────────────────────────────────────────────────
 export function getApiBase() {
-    return localStorage.getItem(KEY) === 'local' ? LOCAL_URL : REMOTE_URL;
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'local') return LOCAL_URL;
+    if (saved === 'remote') return REMOTE_URL;
+
+    // Auto-detect if running locally
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return LOCAL_URL;
+    }
+    return REMOTE_URL;
 }
 
 export function setApiBackend(mode) {
@@ -20,15 +28,15 @@ export function getApiBackendMode() {
 }
 
 export function isLocalMode() {
-    return localStorage.getItem(KEY) === 'local';
+    return getApiBase() === LOCAL_URL;
 }
 
 // ── Token storage ─────────────────────────────────────────────────────────────
-const ACCESS_KEY  = 'access_token';
+const ACCESS_KEY = 'access_token';
 const REFRESH_KEY = 'refresh_token';
 
 export function saveTokens(accessToken, refreshToken) {
-    localStorage.setItem(ACCESS_KEY,  accessToken);
+    localStorage.setItem(ACCESS_KEY, accessToken);
     localStorage.setItem(REFRESH_KEY, refreshToken);
 }
 
