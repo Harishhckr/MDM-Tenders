@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # Database
     # Render server → set DATABASE_URL env var to internal URL in Render dashboard
     # Local dev     → .env uses external URL (oregon-postgres.render.com)
-    DATABASE_URL: str = "postgresql://mdm_db_tp32_user:MX8J4VpCJb5fjsZRCU6JH1GLtAuzctqz@dpg-d7isi8faqgkc73a4jgr0-a.oregon-postgres.render.com/mdm_db_tp32?sslmode=require"
+    DATABASE_URL: str = "postgresql://mdm_scrap_user:osR0pNkPT6kuiUp7peLcLFPqNnDcEf8W@dpg-d8f73599rddc73ccibb0-a.oregon-postgres.render.com/mdm_scrap?sslmode=require"
 
     # Redis
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
