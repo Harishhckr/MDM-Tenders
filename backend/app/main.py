@@ -19,43 +19,32 @@ setup_global_memory_logger()
 async def lifespan(app: FastAPI):
     """Startup: create DB tables and default user."""
     logger.info("Starting %s v%s", settings.APP_NAME, settings.APP_VERSION)
-    import time
     
-    max_retries = 5
-    for attempt in range(1, max_retries + 1):
-        try:
-            # 1. Create tables
-            create_tables()
-            logger.info("Database tables ready")
-            
-            # 2. Create default user if none exists
-            db = SessionLocal()
-            try:
-                user_count = db.query(User).count()
-                if user_count == 0:
-                    logger.info("No users found. Creating default admin user...")
-                    default_user = User(
-                        email="admin@leonex.net",
-                        username="admin",
-                        hashed_password=hash_password("password123"),
-                        full_name="System Admin",
-                        role="admin",
-                        is_active=True
-                    )
-                    db.add(default_user)
-                    db.commit()
-                    logger.info("Default user created: admin@leonex.net / password123")
-            finally:
-                db.close()
-            break # Success, exit retry loop
-            
-        except Exception as e:
-            logger.warning("DB connection failed on attempt %d: %s", attempt, e)
-            if attempt < max_retries:
-                time.sleep(3)
-            else:
-                logger.error("Failed to connect to the database after %d retries.", max_retries)
-                # optionally raise e here, but skipping to avoid crash loops if DB is entirely down
+    # 1. Create tables
+    create_tables()
+    logger.info("Database tables ready")
+    
+    # 2. Create default user if none exists
+    db = SessionLocal()
+    try:
+        user_count = db.query(User).count()
+        if user_count == 0:
+            logger.info("No users found. Creating default admin user...")
+            default_user = User(
+                email="admin@leonex.net",
+                username="admin",
+                hashed_password=hash_password("password123"),
+                full_name="System Admin",
+                role="admin",
+                is_active=True
+            )
+            db.add(default_user)
+            db.commit()
+            logger.info("Default user created: admin@leonex.net / password123")
+    except Exception as e:
+        logger.error("Failed to create default user: %s", e)
+    finally:
+        db.close()
         
     yield
     logger.info("Shutting down")
