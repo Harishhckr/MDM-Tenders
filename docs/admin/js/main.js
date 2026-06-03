@@ -89,10 +89,9 @@ function renderTopbar() {
                 <div class="bb-nav-group hide-on-mobile">
                     <button class="bb-nav-item ${isActive('/dashboard')}" onclick="window.location.hash='#/dashboard'">Overview</button>
                     <button class="bb-nav-item ${isActive('/scrapers')}" onclick="window.location.hash='#/scrapers'">Scrapers</button>
-                    <button class="bb-nav-item ${isActive('/logs')}" onclick="window.location.hash='#/logs'">Logs</button>
                     <button class="bb-nav-item ${isActive('/users')}" onclick="window.location.hash='#/users'">Users</button>
                     <button class="bb-nav-item ${isActive('/settings')}" onclick="window.location.hash='#/settings'">Settings</button>
-                    <button class="bb-nav-item ${isActive('/terminal')}" onclick="window.location.hash='#/terminal'">Terminal</button>
+                    <button class="bb-nav-item ${isActive('/terminal')}" onclick="window.location.hash='#/terminal'">Logs</button>
                 </div>
 
                 <!-- Right: Profile & Actions -->

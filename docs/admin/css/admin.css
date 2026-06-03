@@ -254,7 +254,7 @@ body {
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0s, color 0s, box-shadow 0s;
     letter-spacing: 0.3px;
 }
 
