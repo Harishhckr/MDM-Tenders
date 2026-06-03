@@ -204,8 +204,8 @@ body {
 
 /* ── Topbar / Blackbox Navigation ──────────────────────── */
 .admin-topbar {
-    height: 64px;
-    min-height: 64px;
+    height: 54px;
+    min-height: 54px;
     background: transparent;
     border-bottom: 2px solid rgba(255, 255, 255, 0.03);
     display: flex;
@@ -236,7 +236,7 @@ body {
 
 .bb-nav-group {
     background: #171717;
-    border-radius: 12px;
+    border-radius: 999px;
     padding: 4px;
     display: flex;
     align-items: center;
@@ -247,12 +247,12 @@ body {
 .bb-nav-item {
     background: transparent;
     border: none;
-    padding: 8px 20px;
-    border-radius: 10px;
+    padding: 6px 16px;
+    border-radius: 999px;
     color: var(--text-secondary);
     font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     letter-spacing: 0.3px;
