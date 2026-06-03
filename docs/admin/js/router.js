@@ -47,6 +47,13 @@ export async function handleRoute() {
         const handler = routes[path] || (loggedIn ? routes['/dashboard'] : routes['/login']);
         const content = document.getElementById('admin-content');
 
+        // Highlight active topbar nav pills synchronously before awaiting the handler
+        document.querySelectorAll('.bb-nav-item').forEach(el => {
+            const onClickAttr = el.getAttribute('onclick') || '';
+            const isMatch = onClickAttr.includes(`'#${path}'`) || (path === '/dashboard' && onClickAttr.includes('Overview'));
+            el.classList.toggle('active', isMatch);
+        });
+
         if (content && handler) {
             content.innerHTML = `<div style="text-align:center;padding:100px;color:#666;font-family:monospace;font-size:13px;">SYNCHRONIZING ${path.toUpperCase()}...</div>`;
             try {
@@ -61,12 +68,7 @@ export async function handleRoute() {
             else window.location.hash = '#/login';
         }
 
-        // Highlight active topbar nav pills
-        document.querySelectorAll('.bb-nav-item').forEach(el => {
-            const onClickAttr = el.getAttribute('onclick') || '';
-            const isMatch = onClickAttr.includes(`'#${path}'`) || (path === '/dashboard' && onClickAttr.includes('Overview'));
-            el.classList.toggle('active', isMatch);
-        });
+
     } catch (err) {
         console.error('[Router] Fatal Error:', err);
         const content = document.getElementById('admin-content');

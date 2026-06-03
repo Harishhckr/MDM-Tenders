@@ -77,12 +77,9 @@ function renderTopbar() {
         topbar.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; height:100%;">
                 
-                <!-- Left: Title & Theme Toggle -->
+                <!-- Left: Title -->
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <span style="font-weight:900; font-size:16px; letter-spacing:1px; margin-right:8px;">ADMIN</span>
-                    <button class="bb-theme-toggle" id="adm-theme-toggle" title="Toggle Theme">
-                        <i data-lucide="${currentTheme === 'dark' ? 'moon' : 'sun'}" style="width:16px;height:16px;"></i>
-                    </button>
+                    <span style="font-weight:900; font-size:16px; letter-spacing:1px; margin-right:8px;">LEONEX</span>
                 </div>
 
                 <!-- Center: Navigation Pills -->
@@ -97,6 +94,10 @@ function renderTopbar() {
                 <!-- Right: Profile & Actions -->
                 <div style="display:flex; align-items:center; gap:16px;">
                     
+                    <button class="bb-theme-toggle" id="adm-theme-toggle" title="Toggle Theme">
+                        <i data-lucide="${currentTheme === 'dark' ? 'moon' : 'sun'}" style="width:16px;height:16px;"></i>
+                    </button>
+
                     <!-- Headless / Visible Toggle -->
                     <div style="display:flex;align-items:center;gap:10px; background:var(--bg-card); padding:4px 12px; border-radius:20px; border:1px solid var(--border-glass);" class="hide-on-mobile">
                         <span style="font-size:10px;font-weight:800;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Visible Browser</span>
