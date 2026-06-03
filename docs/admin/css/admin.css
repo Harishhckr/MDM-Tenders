@@ -207,8 +207,8 @@ body {
 
 /* ── Topbar / Blackbox Navigation ──────────────────────── */
 .admin-topbar {
-    height: 54px;
-    min-height: 54px;
+    height: 72px;
+    min-height: 72px;
     background: transparent;
     border-bottom: 2px solid rgba(255, 255, 255, 0.03);
     display: flex;

@@ -81,8 +81,6 @@ function renderTopbar() {
                 <div style="display:flex; align-items:center; gap:24px;">
                     <span style="font-weight:900; font-size:16px; letter-spacing:1px; color:var(--text-primary);">LEONEX</span>
                     
-                    <button class="bb-profile-bubble" id="adm-profile-btn" title="Logout" style="margin-left:-8px;">AD</button>
-                    
                     <div id="backend-switcher" title="Switch between local and Render server" class="bb-backend-badge"
                         style="cursor:pointer;"
                         onclick="(function(){
@@ -96,7 +94,7 @@ function renderTopbar() {
 
                     <!-- Headless / Visible Toggle -->
                     <div style="display:flex;align-items:center;gap:10px; background:var(--bg-card); padding:6px 14px; border-radius:20px; border:1px solid var(--border-glass);" class="hide-on-mobile">
-                        <span style="font-size:11px;font-weight:800;color:var(--text-tertiary);letter-spacing:0.5px;">IMAGE</span>
+                        <span style="font-size:11px;font-weight:800;color:var(--text-tertiary);letter-spacing:0.5px;">VISIBLE BROWSER</span>
                         <label class="adm-toggle">
                             <input type="checkbox" id="adm-headless-toggle" ${!isHeadless ? 'checked' : ''}>
                             <span class="slider" style="background-color: var(--accent-blue);"></span>
@@ -117,6 +115,8 @@ function renderTopbar() {
                         <button class="bb-nav-item ${isActive('/settings')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/settings'">Settings</button>
                         <button class="bb-nav-item ${isActive('/terminal')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/terminal'">Logs</button>
                     </div>
+
+                    <button class="bb-profile-bubble" id="adm-profile-btn" title="Logout" style="margin-left:8px;">AD</button>
                 </div>
             </div>
         `;
