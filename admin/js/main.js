@@ -67,22 +67,21 @@ function renderTopbar() {
     try {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const mode = getApiMode();
-        const isLocal = mode === 'local';
-
-        const currentRoute = getCurrentRoute();
-        const currentPath = currentRoute ? currentRoute.path : '#/dashboard';
-        const isActive = (path) => currentPath.includes(path) ? 'active' : '';
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
 
         topbar.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; height:100%;">
                 
-                <!-- Left: Theme Toggle -->
-                <button class="bb-theme-toggle" id="adm-theme-toggle" title="Toggle Theme">
-                    <i data-lucide="${currentTheme === 'dark' ? 'moon' : 'sun'}" style="width:16px;height:16px;"></i>
-                </button>
+                <!-- Left: Title & Theme Toggle -->
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span style="font-weight:900; font-size:16px; letter-spacing:1px; margin-right:8px;">ADMIN</span>
+                    <button class="bb-theme-toggle" id="adm-theme-toggle" title="Toggle Theme">
+                        <i data-lucide="${currentTheme === 'dark' ? 'moon' : 'sun'}" style="width:16px;height:16px;"></i>
+                    </button>
+                </div>
 
                 <!-- Center: Navigation Pills -->
-                <div class="bb-nav-group">
+                <div class="bb-nav-group hide-on-mobile">
                     <button class="bb-nav-item ${isActive('/dashboard')}" onclick="window.location.hash='#/dashboard'">Overview</button>
                     <button class="bb-nav-item ${isActive('/scrapers')}" onclick="window.location.hash='#/scrapers'">Scrapers</button>
                     <button class="bb-nav-item ${isActive('/logs')}" onclick="window.location.hash='#/logs'">Logs</button>
@@ -93,6 +92,16 @@ function renderTopbar() {
 
                 <!-- Right: Profile & Actions -->
                 <div style="display:flex; align-items:center; gap:16px;">
+                    
+                    <!-- Headless / Visible Toggle -->
+                    <div style="display:flex;align-items:center;gap:10px; background:var(--bg-card); padding:4px 12px; border-radius:20px; border:1px solid var(--border-glass);" class="hide-on-mobile">
+                        <span style="font-size:10px;font-weight:800;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;">Visible Browser</span>
+                        <label class="adm-toggle">
+                            <input type="checkbox" id="adm-headless-toggle" ${!isHeadless ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
                     <div id="backend-switcher" title="Switch between local and Render server" class="bb-backend-badge"
                         onclick="(function(){
                             const nextMode = localStorage.getItem('admin_api_backend') === 'local' ? 'remote' : 'local';
@@ -114,6 +123,11 @@ function renderTopbar() {
 
         // Theme Toggle click
         document.getElementById('adm-theme-toggle')?.addEventListener('click', toggleTheme);
+
+        // Headless (Visible Browser) Toggle click
+        document.getElementById('adm-headless-toggle')?.addEventListener('change', (e) => {
+            localStorage.setItem('admin_headless', e.target.checked ? 'false' : 'true');
+        });
 
         // Logout handling
         document.getElementById('adm-profile-btn')?.addEventListener('click', () => {
