@@ -152,7 +152,7 @@ body {
     padding: 0;
     gap: 0;
     background: var(--bg-page);
-    transition: background 0.3s;
+    transition: none;
 }
 
 #admin-app.logged-out {
@@ -229,7 +229,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    
 }
 
 .bb-theme-toggle:hover {
@@ -257,7 +257,7 @@ body {
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0s, color 0s, box-shadow 0s;
+    
     letter-spacing: 0.3px;
 }
 
@@ -297,7 +297,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    
 }
 
 .bb-profile-bubble:hover {
@@ -383,7 +383,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    transition: all 0.2s;
+    
 }
 
 .scraper-item:hover {
@@ -444,7 +444,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s;
+    
 }
 
 .btn-icon-sm:hover:not(:disabled) {
@@ -627,7 +627,7 @@ body {
     border: 1px solid var(--border-glass);
     border-radius: 12px;
     padding: 16px;
-    transition: all 0.2s;
+    
 }
 
 .stat-box:hover {
@@ -739,7 +739,7 @@ body {
     color: var(--text-primary);
     font-size: 13px;
     font-family: inherit;
-    transition: all 0.2s;
+    
     outline: none;
 }
 
@@ -759,7 +759,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     margin-top: 8px;
-    transition: all 0.2s;
+    
 }
 
 .admin-login-box .login-btn:hover {
