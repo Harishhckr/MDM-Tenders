@@ -1,4 +1,4 @@
-import { getApiBase, authFetch } from '../utils/api.js';
+﻿import { getApiBase, authFetch } from '../utils/api.js';
 
 function parseMarkdown(text) {
     if (!text) return '';
@@ -8,9 +8,9 @@ function parseMarkdown(text) {
         .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
     const blocks = html.split(/\n\n+/);
     return blocks.map(block => {
-        if (block.trim().startsWith('•') || block.trim().startsWith('-')) {
+        if (block.trim().startsWith('â€¢') || block.trim().startsWith('-')) {
             const listItems = block.split('\n').filter(l => l.trim().length > 0)
-                .map(l => `<li>${l.replace(/^[-•]\s*/, '')}</li>`).join('');
+                .map(l => `<li>${l.replace(/^[-â€¢]\s*/, '')}</li>`).join('');
             return `<ul>${listItems}</ul>`;
         }
         return `<p>${block.replace(/\n/g, '<br>')}</p>`;
@@ -30,7 +30,7 @@ export function renderAIOverview(container) {
                     <!-- Original Empty State -->
                     <div class="chat-hero-empty anim-in anim-d1" id="chat-hero">
                         <div class="chat-hero-header">
-                            <h1>✦ Hi, I'm Leonex AI</h1>
+                            <h1>âœ¦ Hi, I'm Leonex AI</h1>
                         </div>
                         <p>How can I help you today?</p>
                         <div class="chat-quick-actions anim-in anim-d2" id="quick-actions">
@@ -61,7 +61,7 @@ export function renderAIOverview(container) {
                         </button>
                         <div style="flex:1;"></div>
                         <button class="cw-send-btn" id="chat-send-btn" aria-label="Send Message">
-                            <i data-lucide="arrow-up" style="width:16px; color:white;" stroke-width="1.5"></i>
+                            <i data-lucide="arrow-up" style="width:16px;" stroke-width="1.5"></i>
                         </button>
                     </div>
                 </div>
@@ -72,7 +72,7 @@ export function renderAIOverview(container) {
 
     lucide.createIcons({ root: container });
 
-    // ── Chat Logic ────────────────────────────────────────────────────
+    // â”€â”€ Chat Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const msgContainer = document.getElementById('chat-messages-container');
     const heroEl       = document.getElementById('chat-hero');
     const inputEl      = document.getElementById('chat-input');
@@ -191,7 +191,7 @@ export function renderAIOverview(container) {
         } catch (error) {
             console.error('Chat error:', error);
             if (typingEl && typingEl.parentNode) typingEl.remove();
-            appendMessage('assistant', '⚠️ Sorry, I encountered an error communicating with the AI. Ensure the engine is running.');
+            appendMessage('assistant', 'âš ï¸ Sorry, I encountered an error communicating with the AI. Ensure the engine is running.');
         } finally {
             isWaiting = false;
             inputEl.focus();

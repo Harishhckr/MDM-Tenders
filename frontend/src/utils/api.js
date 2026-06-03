@@ -8,15 +8,7 @@ const KEY = 'api_backend';
 
 // ── Backend switcher ──────────────────────────────────────────────────────────
 export function getApiBase() {
-    const saved = localStorage.getItem(KEY);
-    if (saved === 'local') return LOCAL_URL;
-    if (saved === 'remote') return REMOTE_URL;
-
-    // Auto-detect if running locally
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return LOCAL_URL;
-    }
-    return REMOTE_URL;
+    return localStorage.getItem(KEY) === 'local' ? LOCAL_URL : REMOTE_URL;
 }
 
 export function setApiBackend(mode) {
@@ -28,7 +20,7 @@ export function getApiBackendMode() {
 }
 
 export function isLocalMode() {
-    return getApiBase() === LOCAL_URL;
+    return localStorage.getItem(KEY) === 'local';
 }
 
 // ── Token storage ─────────────────────────────────────────────────────────────

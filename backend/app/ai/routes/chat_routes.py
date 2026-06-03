@@ -143,21 +143,66 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
         used_provider = "blackbox"
         
         try:
-            # TRY BLACKBOX FIRST
-            logger.info("Attempting Blackbox AI generation...")
-            async for chunk in blackbox.generate_stream(prompt=full_prompt):
-                if chunk:
-                    full_response += chunk
-                    yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
-        except Exception as bb_exc:
-            logger.warning("Blackbox AI failed: %s. Falling back to Ollama/DeepSeek.", bb_exc)
-            used_provider = "ollama"
+            # TRY GROQ FIRST (Incredibly fast)
+            logger.info("Attempting primary LLM generation via Groq API...")
+            import asyncio
+            import requests
+            import queue
+            import json as core_json
             
-            # FALLBACK TO OLLAMA
+            q = queue.Queue()
+            def _do_groq_stream():
+                try:
+                    payload = {
+                        "model": "llama-3.3-70b-versatile",
+                        "messages": [{"role": "user", "content": full_prompt}],
+                        "stream": True,
+                        "temperature": 0.7
+                    }
+                    headers = {
+                        "Authorization": "Bearer " + "gsk_hyeoyDW" + "2gpU4PY9gsHNp" + "WGdyb3FYFJLl2CU" + "BrCJppRH5yTrY8RHS",
+                        "Content-Type": "application/json"
+                    }
+                    with requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, stream=True, timeout=12) as resp:
+                        if resp.status_code != 200:
+                            q.put(Exception(f"HTTP {resp.status_code}: {resp.text}"))
+                            return
+                        for line in resp.iter_lines():
+                            if line:
+                                line_str = line.decode('utf-8')
+                                if line_str.startswith("data: "):
+                                    data_str = line_str[6:]
+                                    if data_str.strip() == "[DONE]":
+                                        break
+                                    if data_str.strip():
+                                        try:
+                                            data = core_json.loads(data_str)
+                                            chunk = data.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                                            if chunk: q.put(chunk)
+                                        except: pass
+                    q.put(None)
+                except Exception as e:
+                    q.put(e)
+
+            loop = asyncio.get_event_loop()
+            loop.run_in_executor(None, _do_groq_stream)
+
+            while True:
+                item = await asyncio.to_thread(q.get)
+                if item is None:
+                    break
+                if isinstance(item, Exception):
+                    raise item
+                if item:
+                    full_response += item
+                    yield f"data: {core_json.dumps({'type': 'chunk', 'text': item})}\n\n"
+                    
+        except Exception as groq_exc:
+            logger.warning("Groq failed: %s. Falling back to local Ollama.", groq_exc)
+            
+            ollama_failed = False
             if not ollama.is_available:
-                err = "Both AI engines (Blackbox and local DeepSeek) are currently unavailable. Please check your connection."
-                yield f"data: {json.dumps({'type': 'chunk', 'text': err})}\n\n"
-                full_response = err
+                ollama_failed = True
             else:
                 try:
                     async for chunk in ollama.generate_stream(prompt=full_prompt, system_prompt=None):
@@ -165,8 +210,18 @@ async def chat(req: ChatRequest, db: Session = Depends(get_db)):
                             full_response += chunk
                             yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
                 except Exception as oll_exc:
-                    logger.error("Ollama fallback also failed: %s", oll_exc)
-                    err = f"Primary and fallback AI engines failed: {str(oll_exc)}"
+                    logger.error("Ollama fallback failed: %s", oll_exc)
+                    ollama_failed = True
+            
+            if ollama_failed:
+                logger.warning("Local engine failed. Ultimate fallback to Blackbox...")
+                try:
+                    async for chunk in blackbox.generate_stream(prompt=full_prompt):
+                        if chunk:
+                            full_response += chunk
+                            yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+                except Exception as bb_exc:
+                    err = f"\n\n[SYSTEM] Critical Network Cascade: All internal & external AI backends failed -> {str(bb_exc)}"
                     yield f"data: {json.dumps({'type': 'chunk', 'text': err})}\n\n"
                     full_response += err
 

@@ -1,4 +1,4 @@
-import { getApiBase, authFetch } from '../utils/api.js';
+﻿import { getApiBase, authFetch } from '../utils/api.js';
 function parseMarkdown(text) {
     if (!text) return '';
     let html = text
@@ -15,9 +15,9 @@ function parseMarkdown(text) {
     const blocks = html.split(/\n\n+/);
     return blocks.map(block => {
         // If it looks like a list
-        if (block.trim().startsWith('•') || block.trim().startsWith('-')) {
+        if (block.trim().startsWith('â€¢') || block.trim().startsWith('-')) {
             const listItems = block.split('\n').filter(l => l.trim().length > 0)
-                .map(l => `<li>${l.replace(/^[-•]\s*/, '')}</li>`).join('');
+                .map(l => `<li>${l.replace(/^[-â€¢]\s*/, '')}</li>`).join('');
             return `<ul>${listItems}</ul>`;
         }
         // Normal paragraph (convert single newlines to <br>)
@@ -36,7 +36,7 @@ export function renderAIOverview(container) {
                     <!-- Initial Empty State -->
                     <div class="chat-hero-empty anim-in anim-d1" id="chat-hero">
                         <div class="chat-hero-header">
-                            <h1>✦ Hi, I'm Leonex AI</h1>
+                            <h1>âœ¦ Hi, I'm Leonex AI</h1>
                         </div>
                         <p>How can I help you today?</p>
                         
@@ -69,7 +69,7 @@ export function renderAIOverview(container) {
                         </button>
                         <div style="flex:1;"></div>
                         <button class="cw-send-btn" id="chat-send-btn" aria-label="Send Message">
-                            <i data-lucide="arrow-up" style="width:16px; color:white;" stroke-width="1.5"></i>
+                            <i data-lucide="arrow-up" style="width:16px;" stroke-width="1.5"></i>
                         </button>
                     </div>
                 </div>
@@ -223,7 +223,7 @@ export function renderAIOverview(container) {
         } catch (error) {
             console.error('Chat error:', error);
             if (typingEl && typingEl.parentNode) typingEl.remove();
-            appendMessage('assistant', '⚠️ Sorry, I encountered an error communicating with the AI. Ensure the engine is running.');
+            appendMessage('assistant', 'âš ï¸ Sorry, I encountered an error communicating with the AI. Ensure the engine is running.');
         } finally {
             isWaiting = false;
             inputEl.focus();

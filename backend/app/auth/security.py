@@ -14,8 +14,7 @@ import bcrypt
 def hash_password(plain: str) -> str:
     """Return bcrypt hash of the plain-text password."""
     # bcrypt requires bytes, and returns bytes. We store it as a string.
-    # We use a lower work factor (rounds=4) for faster login responses.
-    salt = bcrypt.gensalt(rounds=4)
+    salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(plain.encode('utf-8'), salt)
     return hashed.decode('utf-8')
 
