@@ -1,15 +1,15 @@
 // ============================================================
 // Admin Portal — Main Entry Point (Robust Version)
 // ============================================================
-import { registerRoute, handleRoute, getCurrentRoute } from './router.js';
-import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js';
-import { renderLogin } from './pages/Login.js';
-import { renderDashboard } from './pages/Dashboard.js';
-import { renderScrapers } from './pages/Scrapers.js';
-import { renderLogs } from './pages/Logs.js';
-import { renderUsers } from './pages/Users.js';
-import { renderSettings } from './pages/Settings.js';
-import { renderTerminal } from './pages/Terminal.js';
+import { registerRoute, handleRoute, getCurrentRoute } from './router.js?v=2.2';
+import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js?v=2.2';
+import { renderLogin } from './pages/Login.js?v=2.2';
+import { renderDashboard } from './pages/Dashboard.js?v=2.2';
+import { renderScrapers } from './pages/Scrapers.js?v=2.2';
+import { renderLogs } from './pages/Logs.js?v=2.2';
+import { renderUsers } from './pages/Users.js?v=2.2';
+import { renderSettings } from './pages/Settings.js?v=2.2';
+import { renderTerminal } from './pages/Terminal.js?v=2.2';
 
 console.log('[Main] Booting System...');
 
