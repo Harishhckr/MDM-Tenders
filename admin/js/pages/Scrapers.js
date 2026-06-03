@@ -116,125 +116,202 @@ async function loadScraperStatus() {
 
         const grid = document.getElementById('adm-scraper-grid');
         if (grid) {
-            grid.innerHTML = Object.entries(tenderScrapers).map(([name, info]) => {
+            // First time render checker
+            const requiresInitialRender = grid.children.length === 0;
+
+            let htmlBuffer = '';
+
+            Object.entries(tenderScrapers).forEach(([name, info]) => {
                 const isRunning = info.is_running;
                 const statusColor = isRunning ? '#10b981' : 'var(--text-tertiary)';
                 const statusText = isRunning ? 'ENGINE ACTIVE' : 'STANDBY';
                 const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
-                return `
-                    <div class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)'}; display:flex; flex-direction:column; justify-content:space-between; padding:16px; background:var(--bg-card); border-radius:12px; transition:all 0.2s;">
-                        ${isRunning ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
+                const safeId = 'adm-sc-' + name.replace(/[^a-zA-Z0-9]/g, '');
+                const existing = document.getElementById(safeId);
+
+                if (existing) {
+                    // Soft Update
+                    existing.style.borderColor = isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)';
+
+                    const scanline = existing.querySelector('.soft-scanline');
+                    if (isRunning && !scanline) {
+                        existing.insertAdjacentHTML('afterbegin', `<div class="soft-scanline" style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>`);
+                    } else if (!isRunning && scanline) {
+                        scanline.remove();
+                    }
+
+                    const dot = existing.querySelector('.soft-dot');
+                    if (dot) {
+                        dot.style.background = statusColor;
+                        dot.style.boxShadow = `0 0 8px ${statusColor}`;
+                        dot.style.animation = isRunning ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : '';
+                    }
+
+                    const badge = existing.querySelector('.soft-badge');
+                    if (badge) {
+                        badge.innerText = statusText;
+                        badge.style.color = statusColor;
+                    }
+
+                    const extCount = existing.querySelector('.soft-ext');
+                    if (extCount) extCount.innerText = (info.total_tenders || 0).toLocaleString();
+
+                    const kwd = existing.querySelector('.soft-kwd');
+                    if (kwd) kwd.innerText = info.last_keyword || 'N/A';
+
+                    const syncNode = existing.querySelector('.soft-sync');
+                    if (syncNode) syncNode.innerText = 'Sync: ' + (info.last_run ? new Date(info.last_run).toLocaleTimeString() : 'Never');
+
+                    const startBtn = existing.querySelector('.sc-start');
+                    const stopBtn = existing.querySelector('.sc-stop');
+
+                    if (startBtn && stopBtn) {
+                        if (isRunning) {
+                            startBtn.disabled = true;
+                            startBtn.style.background = 'rgba(255,255,255,0.02)';
+                            startBtn.style.color = 'var(--text-tertiary)';
+                            startBtn.style.cursor = 'not-allowed';
+
+                            stopBtn.disabled = false;
+                            stopBtn.style.background = 'rgba(239,68,68,0.1)';
+                            stopBtn.style.color = '#ef4444';
+                            stopBtn.style.cursor = 'pointer';
+                        } else {
+                            startBtn.disabled = false;
+                            startBtn.style.background = 'var(--accent-blue)';
+                            startBtn.style.color = '#fff';
+                            startBtn.style.boxShadow = '0 4px 14px var(--accent-blue-dim)';
+                            startBtn.style.cursor = 'pointer';
+
+                            stopBtn.disabled = true;
+                            stopBtn.style.background = 'rgba(255,255,255,0.02)';
+                            stopBtn.style.color = 'var(--text-tertiary)';
+                            stopBtn.style.cursor = 'not-allowed';
+                        }
+                    }
+
+                } else {
+                    // Initial Render
+                    htmlBuffer += `
+                    <div id="${safeId}" class="scraper-item anim-in" style="position:relative; overflow:hidden; border-color:${isRunning ? 'rgba(16,185,129,0.4)' : 'var(--border-glass)'}; display:flex; flex-direction:column; justify-content:space-between; padding:16px; background:var(--bg-card); border-radius:12px; transition:all 0.2s;">
+                        ${isRunning ? `<div class="soft-scanline" style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
                         
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span class="sc-name" style="display:flex; align-items:center; gap:8px; font-size:14px; font-weight:800; color:var(--text-primary);">
-                                <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
+                                <div class="soft-dot" style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
                                 ${name}
                             </span>
-                            <span style="font-size:9px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
+                            <span class="soft-badge" style="font-size:9px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
                         </div>
 
                         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
                             <div>
                                 <div style="font-size:10px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.5px; font-weight:700; margin-bottom:4px;">Extracted</div>
-                                <div style="font-size:24px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-0.5px;">
+                                <div class="soft-ext" style="font-size:24px; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-0.5px;">
                                     ${(info.total_tenders || 0).toLocaleString()}
                                 </div>
                             </div>
                             <div style="text-align:right;">
                                 <div style="font-size:11px; font-weight:600; color:var(--text-secondary); margin-bottom:4px;">
-                                    KWD: <span style="color:var(--text-primary); background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; font-family:var(--font-mono);">${info.last_keyword || 'N/A'}</span>
+                                    KWD: <span class="soft-kwd" style="color:var(--text-primary); background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; font-family:var(--font-mono);">${info.last_keyword || 'N/A'}</span>
                                 </div>
-                                <div style="font-size:9px; color:var(--text-tertiary);">Sync: ${info.last_run ? new Date(info.last_run).toLocaleTimeString() : 'Never'}</div>
+                                <div class="soft-sync" style="font-size:9px; color:var(--text-tertiary);">Sync: ${info.last_run ? new Date(info.last_run).toLocaleTimeString() : 'Never'}</div>
                             </div>
                         </div>
 
-                        <div class="sc-controls" style="border-top:none; padding-top:0; margin:0; display:flex; width:100%;">
-                            ${isRunning ? `
-                                <button onclick="window._stopScraper(event, '${name}')" style="flex:1; height:32px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                    <i data-lucide="power" style="width:12px;height:12px;"></i> Abort
-                                </button>
-                            ` : `
-                                <button onclick="window._startScraper(event, '${name}')" style="flex:1; height:32px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                    <i data-lucide="play" style="width:12px;height:12px; fill:currentColor;"></i> Start
-                                </button>
-                            `}
+                        <div class="sc-controls" style="border-top:none; padding-top:0; margin:0; display:flex; width:100%; gap:8px;">
+                            <button onclick="window._startScraper(event, '${name}')" class="sc-start" style="flex:1; height:32px; background:${isRunning ? 'rgba(255,255,255,0.02)' : 'var(--accent-blue)'}; color:${isRunning ? 'var(--text-tertiary)' : '#fff'}; border:none; ${!isRunning ? 'box-shadow: 0 4px 14px var(--accent-blue-dim);' : ''} border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:${isRunning ? 'not-allowed' : 'pointer'}; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;" ${isRunning ? 'disabled' : ''}>
+                                <i data-lucide="play" style="width:12px;height:12px; fill:currentColor;"></i> Start
+                            </button>
+                            <button onclick="window._stopScraper(event, '${name}')" class="sc-stop" style="flex:1; height:32px; background:${!isRunning ? 'rgba(255,255,255,0.02)' : 'rgba(239,68,68,0.1)'}; color:${!isRunning ? 'var(--text-tertiary)' : '#ef4444'}; border:${!isRunning ? 'none' : '1px solid rgba(239,68,68,0.2)'}; border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:${!isRunning ? 'not-allowed' : 'pointer'}; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;" ${!isRunning ? 'disabled' : ''}>
+                                <i data-lucide="power" style="width:12px;height:12px;"></i> Abort
+                            </button>
                         </div>
-                    </div>
-                `;
-            }).join('') + `
+                    </div>`;
+                }
+            });
+
+            if (requiresInitialRender && htmlBuffer) {
+                grid.innerHTML = htmlBuffer + `
                 <style>
                     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
                     @keyframes scanline { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-                </style>
-            `;
+                </style>`;
+            }
         }
 
         const gPanel = document.getElementById('adm-google-panel');
         if (gPanel) {
             const g = d.google || {};
             const isCaptcha = (g.message || '').toLowerCase().includes('captcha');
+            const isRunning = g.running;
 
             if (isCaptcha && !window._captchaSoundPlayed) {
-                // Professional alert sound for captcha
                 const beep = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
                 beep.volume = 0.5;
-                beep.play().catch(() => {
-                    console.warn("Audio play blocked by browser. User interaction required.");
-                });
+                beep.play().catch(() => { });
                 window._captchaSoundPlayed = true;
             } else if (!isCaptcha) {
                 window._captchaSoundPlayed = false;
             }
 
-            const isRunning = g.running;
-            const statusColor = isRunning ? '#10b981' : (isCaptcha ? '#f59e0b' : 'var(--text-tertiary)');
-            const statusText = isRunning ? (isCaptcha ? 'ACTION REQUIRED' : 'ENGINE ACTIVE') : 'STANDBY';
-            const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
+            // For Google Panel, we can afford innerHTML rebuilds ONLY if the HTML content fundamentally changes (e.g. captcha state).
+            // But soft updates are better. Let's do a simple full innerHTML only if it's strictly necessary.
+            // Since it's a single block, doing a targeted update is trivial via a hidden data attribute.
+            const currentStateId = gPanel.getAttribute('data-state-id');
+            const newStateId = `${isRunning}-${isCaptcha}-${g.message}`;
 
-            gPanel.innerHTML = `
+            if (currentStateId !== newStateId) {
+                const statusColor = isRunning ? '#10b981' : (isCaptcha ? '#f59e0b' : 'var(--text-tertiary)');
+                const statusText = isRunning ? (isCaptcha ? 'ACTION REQUIRED' : 'ENGINE ACTIVE') : 'STANDBY';
+                const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
+
+                gPanel.setAttribute('data-state-id', newStateId);
+                gPanel.innerHTML = `
                 <div style="position:relative; overflow:hidden; border:1px solid ${isRunning ? (isCaptcha ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)') : 'var(--border-glass)'}; border-radius:16px; padding:16px; background:var(--bg-card);">
                     ${isRunning && !isCaptcha ? `<div style="position:absolute; top:0; left:0; width:100%; height:2px; background: linear-gradient(90deg, transparent, #10b981, transparent); animation: scanline 2s linear infinite;"></div>` : ''}
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
-                        <div style="flex:1;">
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                                <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:14px; color:var(--text-primary);">
-                                    <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
-                                    GOOGLE RESEARCH
-                                </div>
-                                <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
-                            </div>
 
-                            <div style="font-size:15px; font-weight:500; color:var(--text-secondary); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
-                                <i data-lucide="info" style="width:16px;height:16px;"></i> ${g.message || 'Ready for deep research extraction'}
-                            </div>
-                            
-                            ${isCaptcha ? `
-                                <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
-                                    <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                                        <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Security Check Required
-                                    </div>
-                                    <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:36px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
-                                        <i data-lucide="check-circle" style="width:16px;height:16px;"></i> I've Cleared the Captcha
-                                    </button>
-                                </div>
-                            ` : ''}
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                <div style="flex:1;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:14px; color:var(--text-primary);">
+                            <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}; ${pulseAnim} box-shadow: 0 0 8px ${statusColor};"></div>
+                            GOOGLE RESEARCH
                         </div>
-                        <div style="display:flex; flex-direction:column; gap:12px; min-width:140px; flex:1;">
-                            ${isRunning ? `
-                                <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                    <i data-lucide="power" style="width:12px;height:12px;"></i> Abort Sequence
-                                </button>
-                            ` : `
-                                <button onclick="window._startGoogle(event)" style="height:36px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                    <i data-lucide="zap" style="width:12px;height:12px; fill:currentColor;"></i> Launch Engine
-                                </button>
-                            `}
-                        </div>
+                        <span style="font-size:10px; font-weight:800; letter-spacing:1px; color:${statusColor}; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.05);">${statusText}</span>
                     </div>
+
+                    <div style="font-size:15px; font-weight:500; color:var(--text-secondary); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="info" style="width:16px;height:16px;"></i> ${g.message || 'Ready for deep research extraction'}
+                    </div>
+
+                    ${isCaptcha ? `
+                                    <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
+                                        <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                                            <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Security Check Required
+                                        </div>
+                                        <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:36px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
+                                            <i data-lucide="check-circle" style="width:16px;height:16px;"></i> I've Cleared the Captcha
+                                        </button>
+                                    </div>
+                                ` : ''}
                 </div>
-            `;
+                <div style="display:flex; flex-direction:column; gap:12px; min-width:140px; flex:1;">
+                    ${isRunning ? `
+                                    <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                        <i data-lucide="power" style="width:12px;height:12px;"></i> Abort Sequence
+                                    </button>
+                                ` : `
+                                    <button onclick="window._startGoogle(event)" style="height:36px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                        <i data-lucide="zap" style="width:12px;height:12px; fill:currentColor;"></i> Launch Engine
+                                    </button>
+                                `}
+                </div>
+            </div>
+                    </div >
+                `;
+            }
         }
         if (window.lucide) window.lucide.createIcons();
     } catch (e) { console.error(e); }
@@ -250,7 +327,7 @@ window._startScraper = async (event, source) => {
     try {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-        await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
+        await adminFetch(`${baseUrl} /admin/scrapers / start ? source = ${source}& headless=${isHeadless} `, { method: 'POST' });
     } catch (e) { console.error(e); }
 
     setTimeout(async () => {
@@ -264,7 +341,7 @@ window._startScraper = async (event, source) => {
 window._stopScraper = async (event, source) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
+    await adminFetch(`${baseUrl} /admin/scrapers / stop ? source = ${source} `, { method: 'POST' });
     await loadScraperStatus();
 };
 
@@ -278,7 +355,7 @@ window._startGoogle = async (event) => {
     try {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-        const res = await adminFetch(`${baseUrl}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
+        const res = await adminFetch(`${baseUrl} /admin/scrapers / start ? source = google & headless=${isHeadless} `, { method: 'POST' });
         if (!res.ok) {
             const d = await res.json().catch(() => ({}));
             alert('Launch Failed: ' + (d.detail || 'Internal Server Error'));
@@ -296,7 +373,7 @@ window._startGoogle = async (event) => {
 window._stopGoogle = async (event) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
+    await adminFetch(`${baseUrl} /admin/scrapers / stop ? source = google`, { method: 'POST' });
     await loadScraperStatus();
 };
 
@@ -311,7 +388,7 @@ window._submitCaptcha = async (event) => {
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
 
     try {
-        await adminFetch(`${baseUrl}/admin/scrapers/captcha`, {
+        await adminFetch(`${baseUrl} /admin/scrapers / captcha`, {
             method: 'POST',
             body: { answer: 'manual_clear' }
         });
