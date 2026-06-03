@@ -18,10 +18,23 @@ export async function renderDashboard(container) {
         </div>
 
         <div class="section-title anim-in anim-d2"><i data-lucide="bar-chart-3"></i> Tenders by Source</div>
-        <div id="adm-source-grid" class="stat-grid anim-in anim-d2"></div>
+        <div id="adm-source-grid" class="stat-grid anim-in anim-d2">
+            ${statBox('dash-src-gem', 'GEM', '...', 'cyan')}
+            ${statBox('dash-src-tender247', 'TENDER247', '...', 'cyan')}
+            ${statBox('dash-src-tenderdetail', 'TENDERDETAIL', '...', 'cyan')}
+            ${statBox('dash-src-tenderontime', 'TENDERONTIME', '...', 'cyan')}
+            ${statBox('dash-src-biddetail', 'BIDDETAIL', '...', 'cyan')}
+        </div>
 
         <div class="section-title anim-in anim-d3"><i data-lucide="scroll-text"></i> Recent Activity</div>
-        <div class="adm-card anim-in anim-d3" id="adm-recent-logs"></div>
+        <div class="adm-card anim-in anim-d3" id="adm-recent-logs" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:12px; overflow:hidden;">
+            <table class="adm-table" style="margin-top:0;">
+                <thead><tr><th>Source</th><th>Status</th><th>Found</th><th>Saved</th><th>Started</th></tr></thead>
+                <tbody>
+                    <tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px;">Loading activity...</td></tr>
+                </tbody>
+            </table>
+        </div>
     `;
     if (window.lucide) window.lucide.createIcons();
 
@@ -80,7 +93,7 @@ async function loadDashboard() {
                 let tbody = logsEl.querySelector('tbody');
                 if (!tbody) {
                     logsEl.innerHTML = `
-                        <table class="adm-table">
+                        <table class="adm-table" style="margin-top:0;">
                             <thead><tr><th>Source</th><th>Status</th><th>Found</th><th>Saved</th><th>Started</th></tr></thead>
                             <tbody></tbody>
                         </table>
