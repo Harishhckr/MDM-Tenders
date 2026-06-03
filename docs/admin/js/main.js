@@ -104,8 +104,8 @@ function renderTopbar() {
 
                 <!-- Right Side: Navigation & Theme -->
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <button class="bb-theme-toggle" id="adm-theme-toggle" title="Toggle Theme" style="margin-right:8px;">
-                        <i data-lucide="${currentTheme === 'dark' ? 'moon' : 'sun'}" style="width:16px;height:16px;"></i>
+                    <button class="bb-theme-toggle" id="adm-theme-toggle" title="Toggle Theme" style="margin-right:8px; font-weight:800; font-size:11px; padding:0 8px; width:auto; border-radius:12px;">
+                        ${currentTheme === 'dark' ? 'LIGHT' : 'DARK'}
                     </button>
 
                     <div class="bb-nav-group hide-on-mobile" style="background:var(--bg-card); border-radius:12px; border:1px solid var(--border-glass); padding:4px;">
@@ -151,3 +151,4 @@ if (document.readyState === 'loading') {
 } else {
     boot();
 }
+

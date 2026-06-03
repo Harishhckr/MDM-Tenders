@@ -5,7 +5,7 @@ import { getApiBase, adminFetch } from '../utils/api.js';
 
 export async function renderUsers(container) {
     container.innerHTML = `
-        <div class="section-title anim-in"><i data-lucide="users"></i> User Management</div>
+        <div class="section-title anim-in">User Management</div>
         <div class="adm-card anim-in anim-d1" id="adm-users-table">
             <div style="color:var(--text-tertiary);font-size:12px;font-family:var(--font-mono);padding:16px;">Loading users…</div>
         </div>
@@ -78,3 +78,4 @@ window._toggleRole = async (userId, newRole) => {
         alert('Error: ' + e.message);
     }
 };
+

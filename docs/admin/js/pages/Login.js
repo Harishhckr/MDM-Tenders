@@ -11,7 +11,7 @@ export async function renderLogin(container) {
         <div class="admin-login-wrap">
             <div class="admin-login-box anim-in">
                 <div class="login-brand">
-                    <div class="brand-icon"><i data-lucide="shield-check"></i></div>
+                    <div class="brand-icon"></div>
                     <span>Leonex Admin</span>
                 </div>
                 
@@ -95,4 +95,5 @@ export async function renderLogin(container) {
         }
     });
 }
+
 

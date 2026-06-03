@@ -9,17 +9,17 @@ export async function renderScrapers(container) {
     container.innerHTML = `
         <div class="section-header anim-in">
             <div class="section-title">
-                <i data-lucide="shield"></i> Scraper Control Panel
+                Scraper Control Panel
             </div>
             <div class="scraper-actions" style="margin-bottom:0; display:flex; align-items:center; gap:10px;">
                 <button class="btn-refresh" id="adm-refresh" style="background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid rgba(255,255,255,0.1); border-radius:999px; padding:6px 12px; cursor:pointer; font-size:12px; display:flex; align-items:center; gap:6px;" title="Refresh Data">
-                    <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh
+                    Refresh
                 </button>
                 <button class="btn-stop-all" id="adm-stop-all" disabled>
-                    <i data-lucide="x-circle" style="width:16px;height:16px;"></i> Stop All Engines
+                    Stop All Engines
                 </button>
                 <button class="btn-sync-all" id="adm-sync-all">
-                    <i data-lucide="zap" style="width:16px;height:16px;"></i> Sync All Sources
+                    Sync All Sources
                 </button>
             </div>
         </div>
@@ -30,7 +30,7 @@ export async function renderScrapers(container) {
         </div>
 
         <div class="section-title anim-in anim-d3">
-            <i data-lucide="search"></i> Google Research Scraper
+            Google Research Scraper
         </div>
         <div class="adm-card anim-in anim-d3" id="adm-google-panel">
             <div style="padding: 32px; text-align:center; color:var(--text-tertiary); font-size:12px; font-family:var(--font-mono); border:1px dashed var(--border-glass); border-radius:12px;">Initializing google engine core...</div>
@@ -63,7 +63,7 @@ export async function renderScrapers(container) {
         const btn = e.currentTarget;
         const originalHTML = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i> Syncing...';
+        btn.innerHTML = 'Syncing...';
         if (window.lucide) window.lucide.createIcons();
 
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
@@ -224,10 +224,10 @@ async function loadScraperStatus() {
 
                         <div class="sc-controls" style="border-top:none; padding-top:0; margin:0; display:flex; width:100%; gap:8px;">
                             <button onclick="window._startScraper(event, '${name}')" class="sc-start" style="flex:1; height:32px; background:${isRunning ? 'rgba(255,255,255,0.02)' : 'var(--accent-blue)'}; color:${isRunning ? 'var(--text-tertiary)' : '#fff'}; border:none; ${!isRunning ? 'box-shadow: 0 4px 14px var(--accent-blue-dim);' : ''} border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:${isRunning ? 'not-allowed' : 'pointer'}; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;" ${isRunning ? 'disabled' : ''}>
-                                <i data-lucide="play" style="width:12px;height:12px; fill:currentColor;"></i> Start
+                                Start
                             </button>
                             <button onclick="window._stopScraper(event, '${name}')" class="sc-stop" style="flex:1; height:32px; background:${!isRunning ? 'rgba(255,255,255,0.02)' : 'rgba(239,68,68,0.1)'}; color:${!isRunning ? 'var(--text-tertiary)' : '#ef4444'}; border:${!isRunning ? 'none' : '1px solid rgba(239,68,68,0.2)'}; border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:${!isRunning ? 'not-allowed' : 'pointer'}; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;" ${!isRunning ? 'disabled' : ''}>
-                                <i data-lucide="power" style="width:12px;height:12px;"></i> Abort
+                                Abort
                             </button>
                         </div>
                     </div>`;
@@ -285,16 +285,16 @@ async function loadScraperStatus() {
                     </div>
 
                     <div style="font-size:15px; font-weight:500; color:var(--text-secondary); margin-bottom:16px; display:flex; align-items:center; gap:8px;">
-                        <i data-lucide="info" style="width:16px;height:16px;"></i> ${g.message || 'Ready for deep research extraction'}
+                        ${g.message || 'Ready for deep research extraction'}
                     </div>
 
                     ${isCaptcha ? `
                                     <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
                                         <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                                            <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i> Security Check Required
+                                            Security Check Required
                                         </div>
                                         <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:36px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
-                                            <i data-lucide="check-circle" style="width:16px;height:16px;"></i> I've Cleared the Captcha
+                                            I've Cleared the Captcha
                                         </button>
                                     </div>
                                 ` : ''}
@@ -302,11 +302,11 @@ async function loadScraperStatus() {
                 <div style="display:flex; flex-direction:column; gap:12px; min-width:140px; flex:1;">
                     ${isRunning ? `
                                     <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        <i data-lucide="power" style="width:12px;height:12px;"></i> Abort Sequence
+                                        Abort Sequence
                                     </button>
                                 ` : `
                                     <button onclick="window._startGoogle(event)" style="height:36px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        <i data-lucide="zap" style="width:12px;height:12px; fill:currentColor;"></i> Launch Engine
+                                        Launch Engine
                                     </button>
                                 `}
                 </div>
@@ -323,7 +323,7 @@ window._startScraper = async (event, source) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i>';
+    btn.innerHTML = '';
     if (window.lucide) window.lucide.createIcons();
 
     try {
@@ -351,7 +351,7 @@ window._startGoogle = async (event) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:16px;height:16px;"></i> Launching...';
+    btn.innerHTML = 'Launching...';
     if (window.lucide) window.lucide.createIcons();
 
     try {
@@ -383,7 +383,7 @@ window._submitCaptcha = async (event) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:12px;height:12px;"></i> Resuming...';
+    btn.innerHTML = 'Resuming...';
     if (window.lucide) window.lucide.createIcons();
 
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
@@ -400,3 +400,4 @@ window._submitCaptcha = async (event) => {
         await loadScraperStatus();
     }, 2000);
 };
+

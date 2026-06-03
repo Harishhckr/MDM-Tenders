@@ -18,7 +18,7 @@ export async function renderLogs(container) {
                 <option value="biddetail">BidDetail</option>
             </select>
             <button class="btn-sync-all" onclick="window._refreshLogs()" style="margin-left:auto; padding:10px 16px; border-radius:4px;">
-                <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh
+                Refresh
             </button>
             </div>
         </div>
@@ -126,4 +126,5 @@ async function loadLogs() {
 }
 
 window._refreshLogs = loadLogs;
+
 

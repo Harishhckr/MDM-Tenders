@@ -10,11 +10,11 @@ export async function renderTerminal(container) {
     container.innerHTML = `
         <div class="section-header anim-in">
             <div class="section-title">
-                <i data-lucide="terminal-square"></i> System Terminal
+                System Terminal
             </div>
             <div class="scraper-actions" style="margin-bottom:0;">
                 <button class="btn-sync-all" onclick="document.getElementById('hacker-output').innerHTML=''" style="background:transparent; border:1px solid #10b981; color:#10b981;">
-                    <i data-lucide="trash-2" style="width:16px;height:16px;"></i> Clear Buffer
+                    Clear Buffer
                 </button>
             </div>
         </div>
@@ -100,3 +100,4 @@ async function loadTerminalLogs() {
         // silent
     }
 }
+

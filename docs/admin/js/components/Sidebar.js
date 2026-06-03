@@ -45,7 +45,7 @@ export function renderAdminSidebar() {
             const badge = item.badgeId ? `<span class="nav-badge" id="${item.badgeId}">807</span>` : '';
             navHTML += `
                 <button class="nav-item ${isActive}" onclick="window.location.hash='#${item.route}'">
-                    <span class="nav-icon"><i data-lucide="${item.icon}"></i></span>
+                    <span class="nav-icon"></span>
                     <span class="nav-label">${item.label}</span>
                     ${badge}
                 </button>`;
@@ -73,7 +73,7 @@ export function renderAdminSidebar() {
         </nav>
         <div class="sidebar-footer">
             <button class="nav-item nav-item-logout" id="adm-logout-btn">
-                <span class="nav-icon"><i data-lucide="log-out"></i></span>
+                <span class="nav-icon"></span>
                 <span class="nav-label">Logout</span>
             </button>
         </div>
@@ -87,3 +87,4 @@ export function renderAdminSidebar() {
         window.location.reload();
     });
 }
+

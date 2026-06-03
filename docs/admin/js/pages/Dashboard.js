@@ -7,7 +7,7 @@ let refreshTimer = null;
 
 export async function renderDashboard(container) {
     container.innerHTML = `
-        <div class="section-title anim-in"><i data-lucide="activity"></i> System Overview</div>
+        <div class="section-title anim-in">System Overview</div>
         <div class="stat-grid anim-in anim-d1" id="adm-stats">
             ${statBox('dash-total-tenders', 'Total Tenders', '...', 'cyan')}
             ${statBox('dash-google-results', 'Google Results', '...', 'cyan')}
@@ -17,7 +17,7 @@ export async function renderDashboard(container) {
             ${statBox('dash-total-users', 'Total Users', '...', '')}
         </div>
 
-        <div class="section-title anim-in anim-d2"><i data-lucide="bar-chart-3"></i> Tenders by Source</div>
+        <div class="section-title anim-in anim-d2">Tenders by Source</div>
         <div id="adm-source-grid" class="stat-grid anim-in anim-d2">
             ${statBox('dash-src-gem', 'GEM', '...', 'cyan')}
             ${statBox('dash-src-tender247', 'TENDER247', '...', 'cyan')}
@@ -26,7 +26,7 @@ export async function renderDashboard(container) {
             ${statBox('dash-src-biddetail', 'BIDDETAIL', '...', 'cyan')}
         </div>
 
-        <div class="section-title anim-in anim-d3"><i data-lucide="scroll-text"></i> Recent Activity</div>
+        <div class="section-title anim-in anim-d3">Recent Activity</div>
         <div class="adm-card anim-in anim-d3" id="adm-recent-logs" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:12px; overflow:hidden;">
             <table class="adm-table" style="margin-top:0;">
                 <thead><tr><th>Source</th><th>Status</th><th>Found</th><th>Saved</th><th>Started</th></tr></thead>
@@ -142,4 +142,5 @@ function statBox(id, label, value, colorClass = '') {
         </div>
     `;
 }
+
 
