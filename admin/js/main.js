@@ -70,6 +70,10 @@ function renderTopbar() {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const isLocal = mode === 'local';
 
+        const currentRoute = getCurrentRoute();
+        const currentPath = currentRoute ? currentRoute.path : '#/dashboard';
+        const isActive = (path) => currentPath.includes(path) ? 'active' : '';
+
         topbar.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; height:100%;">
                 
