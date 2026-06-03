@@ -25,12 +25,16 @@ export async function renderScrapers(container) {
         </div>
 
 
-        <div class="scraper-list anim-in anim-d2" id="adm-scraper-grid"></div>
+        <div class="scraper-list anim-in anim-d2" id="adm-scraper-grid">
+            <div style="grid-column: 1 / -1; padding: 32px; text-align:center; color:var(--text-tertiary); font-size:12px; font-family:var(--font-mono); border:1px dashed var(--border-glass); border-radius:12px;">Initializing scraping telemetry...</div>
+        </div>
 
         <div class="section-title anim-in anim-d3">
             <i data-lucide="search"></i> Google Research Scraper
         </div>
-        <div class="adm-card anim-in anim-d3" id="adm-google-panel"></div>
+        <div class="adm-card anim-in anim-d3" id="adm-google-panel">
+            <div style="padding: 32px; text-align:center; color:var(--text-tertiary); font-size:12px; font-family:var(--font-mono); border:1px dashed var(--border-glass); border-radius:12px;">Initializing google engine core...</div>
+        </div>
     `;
 
     if (window.lucide) window.lucide.createIcons();
@@ -113,8 +117,9 @@ async function loadScraperStatus() {
 
         const grid = document.getElementById('adm-scraper-grid');
         if (grid) {
-            // First time render checker
-            const requiresInitialRender = grid.children.length === 0;
+            // First time render checker (if it only contains the placeholder or is empty)
+            const isPlaceholder = grid.children.length === 1 && grid.firstElementChild.innerText.includes('Initializing');
+            const requiresInitialRender = grid.children.length === 0 || isPlaceholder;
 
             let htmlBuffer = '';
 
