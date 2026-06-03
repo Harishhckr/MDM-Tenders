@@ -68,6 +68,7 @@ function renderTopbar() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const mode = getApiMode();
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const isLocal = mode === 'local';
 
         topbar.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; height:100%;">
