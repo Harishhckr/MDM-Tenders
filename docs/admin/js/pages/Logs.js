@@ -7,9 +7,6 @@ let logTimer = null;
 
 export async function renderLogs(container) {
     container.innerHTML = `
-        <div class="section-title anim-in">
-            <i data-lucide="activity"></i> Engine Telemetry
-        </div>
 
         <div style="display:flex; gap:12px; align-items:center; margin-bottom:24px;" class="anim-in anim-d1">
             <select id="adm-log-source" style="background:var(--bg-card);border:1px solid var(--border-glass);color:var(--text-primary);padding:10px 16px;border-radius:4px;font-size:14px;font-weight:600;outline:none;">
@@ -75,7 +72,7 @@ async function loadLogs() {
 
         viewer.innerHTML = d.logs.map(l => {
             const time = l.started_at ? new Date(l.started_at).toLocaleString() : '—';
-            
+
             // Calculate duration
             let duration = '';
             if (l.started_at && l.completed_at) {
@@ -100,7 +97,7 @@ async function loadLogs() {
             }
 
             const errorHtml = l.error_message ? `<div style="color:#ef4444; margin-top:4px; font-size:11px; padding:4px 8px; background:rgba(239,68,68,0.05); border-radius:4px; border-left:2px solid #ef4444;">Err: ${l.error_message}</div>` : '';
-            
+
             const keywordHtml = l.keyword ? `<span style="color:#8b5cf6; font-weight:600; margin-right:8px;">[${l.keyword}]</span>` : '';
 
             return `
