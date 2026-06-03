@@ -24,7 +24,7 @@ export async function renderTerminal(container) {
                 <span>root@leonex-core:~# tail -f /var/log/syslog</span>
                 <span style="opacity:0.7;">[ SYSTEM SECURED ]</span>
             </div>
-            <div id="hacker-output" style="padding:16px; font-family:var(--font-mono); font-size:13px; color:#10b981; height:600px; overflow-y:auto; line-height:1.6; text-shadow: 0 0 5px rgba(16,185,129,0.5);">
+            <div id="hacker-output" style="padding:16px; font-family:var(--font-mono); font-size:13px; color:#10b981; height:calc(100vh - 280px); min-height:300px; overflow-y:auto; line-height:1.6; text-shadow: 0 0 5px rgba(16,185,129,0.5);">
                 <div><span style="opacity:0.5;">${new Date().toISOString()}</span> [INIT] Booting remote access terminal...</div>
                 <div><span style="opacity:0.5;">${new Date().toISOString()}</span> [AUTH] Handshake established. Secure connection true.</div>
                 <div><span style="opacity:0.5;">${new Date().toISOString()}</span> [SYS] Listening for incoming telemetry...</div>
@@ -66,16 +66,16 @@ async function loadTerminalLogs() {
         if (!out) return;
 
         let added = false;
-        
+
         const currentLines = out.querySelectorAll('.hacker-line').length;
-        
+
         if (logs.length > currentLines) {
             const newLogs = logs.slice(currentLines);
             newLogs.forEach(lineText => {
                 let color = '#10b981'; // Green
                 if (lineText.includes('ERROR')) color = '#ef4444';
                 if (lineText.includes('WARNING')) color = '#f59e0b';
-                
+
                 const safeText = lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 out.innerHTML += `<div class="hacker-line" style="color:${color}">${safeText}</div>`;
                 added = true;

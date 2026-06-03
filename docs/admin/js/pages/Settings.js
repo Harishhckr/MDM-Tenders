@@ -8,7 +8,7 @@ export async function renderSettings(container) {
             <i data-lucide="settings"></i> System Settings
         </div>
 
-        <div class="adm-card anim-in anim-d1" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:4px; padding:32px; max-width:800px;">
+        <div class="adm-card anim-in anim-d1" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:4px; padding:24px; max-width:640px;">
             <h3 style="font-size:18px; font-weight:800; margin-bottom:24px; color:var(--text-primary);">Preferences</h3>
             
             <div style="display:flex; flex-direction:column; gap:24px;">

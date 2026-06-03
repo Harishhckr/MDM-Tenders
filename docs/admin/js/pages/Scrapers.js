@@ -24,9 +24,6 @@ export async function renderScrapers(container) {
             </div>
         </div>
 
-        <div class="section-title anim-in anim-d2">
-            <i data-lucide="box"></i> Tender Source Engines
-        </div>
 
         <div class="scraper-list anim-in anim-d2" id="adm-scraper-grid"></div>
 
