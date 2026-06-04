@@ -348,15 +348,18 @@ class GoogleSearchScraper:
             self.driver.get(url)
             human_delay(1.5, 3.5)        # natural load wait
 
-            # ── Step 2: CAPTCHA / block → SKIP immediately ────────────────
+            # ── Step 2: CAPTCHA / block → WAIT FOR USER ────────────────
             if self._is_captcha_page():
-                print("            ⏭️  CAPTCHA / block detected — skipping this link.")
-                return False, ""
+                print("            ⏭️  CAPTCHA / block detected — please resolve it!")
+                if self.captcha_callback:
+                    self.captcha_callback()
+                else:
+                    input("            Press Enter after solving...")
 
             # Extra safety: short extra wait then re-check once
             time.sleep(1.0)
             if self._is_captcha_page():
-                print("            ⏭️  Still blocked after wait — skipping.")
+                print("            ⏭️  Still blocked after wait — treating as skipped.")
                 return False, ""
 
             # ── Keyword scan ───────────────────────────────────────────────

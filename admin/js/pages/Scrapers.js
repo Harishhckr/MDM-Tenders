@@ -327,7 +327,7 @@ window._startScraper = async (event, source) => {
     try {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-        await adminFetch(`${baseUrl} /admin/scrapers / start ? source = ${source}& headless=${isHeadless} `, { method: 'POST' });
+        await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
     } catch (e) { console.error(e); }
 
     setTimeout(async () => {
@@ -341,7 +341,7 @@ window._startScraper = async (event, source) => {
 window._stopScraper = async (event, source) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-    await adminFetch(`${baseUrl} /admin/scrapers / stop ? source = ${source} `, { method: 'POST' });
+    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=${source}`, { method: 'POST' });
     await loadScraperStatus();
 };
 
@@ -355,7 +355,7 @@ window._startGoogle = async (event) => {
     try {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-        const res = await adminFetch(`${baseUrl} /admin/scrapers / start ? source = google & headless=${isHeadless} `, { method: 'POST' });
+        const res = await adminFetch(`${baseUrl}/admin/scrapers/start?source=google&headless=${isHeadless}`, { method: 'POST' });
         if (!res.ok) {
             const d = await res.json().catch(() => ({}));
             alert('Launch Failed: ' + (d.detail || 'Internal Server Error'));
@@ -373,7 +373,7 @@ window._startGoogle = async (event) => {
 window._stopGoogle = async (event) => {
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-    await adminFetch(`${baseUrl} /admin/scrapers / stop ? source = google`, { method: 'POST' });
+    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
     await loadScraperStatus();
 };
 
@@ -388,7 +388,7 @@ window._submitCaptcha = async (event) => {
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
 
     try {
-        await adminFetch(`${baseUrl} /admin/scrapers / captcha`, {
+        await adminFetch(`${baseUrl}/admin/scrapers/captcha`, {
             method: 'POST',
             body: { answer: 'manual_clear' }
         });
