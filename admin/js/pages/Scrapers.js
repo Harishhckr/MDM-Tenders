@@ -40,7 +40,8 @@ export async function renderScrapers(container) {
 
     await loadScraperStatus();
     if (pollTimer) clearInterval(pollTimer);
-    // Auto-refresh disabled to improve UI performance
+    // Re-enable targeted polling so backend execution limits (e.g Captcha blocks) trigger UI renders
+    pollTimer = setInterval(loadScraperStatus, 3000);
 
     const obs = new MutationObserver(() => {
         if (!document.getElementById('adm-scraper-grid')) {
