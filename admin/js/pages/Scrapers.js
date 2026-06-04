@@ -288,27 +288,26 @@ async function loadScraperStatus() {
                         ${g.message || 'Ready for deep research extraction'}
                     </div>
 
-                    ${isCaptcha ? `
-                                    <div class="captcha-box anim-in" style="max-width:400px; background:rgba(239, 68, 68, 0.05); border:1px solid rgba(239, 68, 68, 0.2); padding:16px; border-radius:12px; animation: pulse 2s infinite;">
-                                        <div style="color:#ef4444; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
-                                            Security Check Required
-                                        </div>
-                                        <button class="captcha-btn" id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:#ef4444; color:#fff; width:100%; height:36px; font-weight:800; text-transform:uppercase; letter-spacing:1px; display:flex; justify-content:center; align-items:center; gap:8px;">
-                                            I've Cleared the Captcha
-                                        </button>
-                                    </div>
-                                ` : ''}
+                    ${(isCaptcha || isRunning) ? `
+                        <div class="captcha-box anim-in" style="margin-top:8px; background:${isCaptcha ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.02)'}; border:1px solid ${isCaptcha ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.07)'}; padding:12px 16px; border-radius:12px; ${isCaptcha ? 'animation: pulse 2s infinite;' : ''}">
+                            ${isCaptcha ? `<div style="color:#f59e0b; font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:10px;">⚠️ CAPTCHA / SECURITY CHECK DETECTED</div>` : ''}
+                            <div style="font-size:11px; color:var(--text-tertiary); margin-bottom:10px;">If the browser is stuck on a captcha or verification screen, solve it manually then click below.</div>
+                            <button id="adm-clear-captcha-btn" onclick="window._submitCaptcha(event)" style="background:${isCaptcha ? '#ef4444' : 'rgba(255,255,255,0.06)'}; color:${isCaptcha ? '#fff' : 'var(--text-secondary)'}; border:1px solid ${isCaptcha ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'}; width:100%; height:36px; border-radius:8px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                                ✓ I've Cleared the Captcha / Continue
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
                 <div style="display:flex; flex-direction:column; gap:12px; min-width:140px; flex:1;">
                     ${isRunning ? `
-                                    <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        Abort Sequence
-                                    </button>
-                                ` : `
-                                    <button onclick="window._startGoogle(event)" style="height:36px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
-                                        Launch Engine
-                                    </button>
-                                `}
+                        <button onclick="window._stopGoogle(event)" style="height:36px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                            Abort Sequence
+                        </button>
+                    ` : `
+                        <button onclick="window._startGoogle(event)" style="height:36px; background:var(--accent-blue); color:#fff; border:none; box-shadow: 0 4px 14px var(--accent-blue-dim); border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:8px; transition:all 0.2s;">
+                            Launch Engine
+                        </button>
+                    `}
                 </div>
             </div>
                     </div>
