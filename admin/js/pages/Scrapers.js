@@ -97,11 +97,11 @@ async function loadScraperStatus() {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
 
-        let res = await adminFetch(`${baseUrl}/admin/scrapers/status`).catch(() => null);
+        let res = await adminFetch(`${baseUrl}/admin/scrapers/status?_t=${Date.now()}`).catch(() => null);
 
         // Fallback: If local fetch failed or was unauthorized, try the primary backend
         if (!res || !res.ok) {
-            res = await adminFetch(`${getApiBase()}/admin/scrapers/status`);
+            res = await adminFetch(`${getApiBase()}/admin/scrapers/status?_t=${Date.now()}`);
         }
 
         if (!res.ok) return;
