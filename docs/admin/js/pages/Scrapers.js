@@ -372,9 +372,19 @@ window._startGoogle = async (event) => {
 };
 
 window._stopGoogle = async (event) => {
-    const isHeadless = localStorage.getItem('admin_headless') !== 'false';
-    const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-    await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
+    const btn = event.currentTarget;
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.innerHTML = '⏹ Stopping...';
+
+    try {
+        const isHeadless = localStorage.getItem('admin_headless') !== 'false';
+        const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
+        await adminFetch(`${baseUrl}/admin/scrapers/stop?source=google`, { method: 'POST' });
+    } catch (e) { console.error(e); }
+
+    // Status should already be updated server-side; refresh UI immediately
     await loadScraperStatus();
 };
 
@@ -382,8 +392,7 @@ window._submitCaptcha = async (event) => {
     const btn = event.currentTarget;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = 'Resuming...';
-    if (window.lucide) window.lucide.createIcons();
+    btn.innerHTML = '⏳ Resuming...';
 
     const isHeadless = localStorage.getItem('admin_headless') !== 'false';
     const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
@@ -395,8 +404,9 @@ window._submitCaptcha = async (event) => {
         });
     } catch (e) { console.error(e); }
 
+    // Give backend 1.5s to propagate state, then refresh panel
     setTimeout(async () => {
         await loadScraperStatus();
-    }, 2000);
+    }, 1500);
 };
 

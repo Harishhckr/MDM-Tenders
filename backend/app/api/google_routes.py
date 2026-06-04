@@ -216,12 +216,19 @@ def clear_captcha():
 
 @router.post("/stop")
 def stop_google():
-    """Signal the scraper thread to stop after the current page."""
+    """Signal the scraper thread to stop, unblocking any captcha wait immediately."""
     if not _sync_status["running"]:
         return {"status": "not_running", "message": "Scraper is not running"}
 
     _stop_event.set()
-    _sync_status["message"] = "Stop requested — finishing current page…"
+    _captcha_event.set()   # unblock any hanging captcha wait immediately
+
+    # Optimistically mark as stopped so the UI responds instantly.
+    # The thread will overwrite this with final values once it exits.
+    _sync_status["running"] = False
+    _sync_status["stopped"] = True
+    _sync_status["message"] = "Stopped by user."
+    logger.info("stop_google: stop + captcha events set; status marked stopped immediately")
     return {"status": "stopping", "message": "Stop signal sent"}
 
 
