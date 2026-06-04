@@ -265,9 +265,9 @@ async function loadScraperStatus() {
             const newStateId = `${isRunning}-${isCaptcha}-${g.message}`;
 
             if (currentStateId !== newStateId) {
-                const statusColor = isRunning ? '#10b981' : (isCaptcha ? '#f59e0b' : 'var(--text-tertiary)');
-                const statusText = isRunning ? (isCaptcha ? 'ACTION REQUIRED' : 'ENGINE ACTIVE') : 'STANDBY';
-                const pulseAnim = isRunning ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
+                const statusColor = isCaptcha ? '#f59e0b' : (isRunning ? '#10b981' : 'var(--text-tertiary)');
+                const statusText = isCaptcha ? 'ACTION REQUIRED' : (isRunning ? 'ENGINE ACTIVE' : 'STANDBY');
+                const pulseAnim = (isRunning || isCaptcha) ? 'animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;' : '';
 
                 gPanel.setAttribute('data-state-id', newStateId);
                 gPanel.innerHTML = `
@@ -311,7 +311,7 @@ async function loadScraperStatus() {
                                 `}
                 </div>
             </div>
-                    </div >
+                    </div>
                 `;
             }
         }
