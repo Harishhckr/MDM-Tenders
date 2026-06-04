@@ -246,7 +246,7 @@ async function loadScraperStatus() {
         const gPanel = document.getElementById('adm-google-panel');
         if (gPanel) {
             const g = d.google || {};
-            const isCaptcha = (g.message || '').toLowerCase().includes('captcha');
+            const isCaptcha = !!g.captcha_detected;
             const isRunning = g.running;
 
             if (isCaptcha && !window._captchaSoundPlayed) {
@@ -402,11 +402,21 @@ window._submitCaptcha = async (event) => {
             method: 'POST',
             body: { answer: 'manual_clear' }
         });
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
 
-    // Give backend 1.5s to propagate state, then refresh panel
+    // Give backend 1s to propagate state, then refresh panel and RESTORE button
     setTimeout(async () => {
         await loadScraperStatus();
-    }, 1500);
+        // Restore button just in case isCaptcha is still true (e.g. backend lag)
+        const checkBtn = document.getElementById('adm-clear-captcha-btn');
+        if (checkBtn) {
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = originalHTML;
+        }
+    }, 1000);
 };
 

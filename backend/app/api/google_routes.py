@@ -209,7 +209,7 @@ def clear_captcha():
     # setting an already-set Event is a no-op and safe.
     _captcha_event.set()
     _sync_status["captcha_detected"] = False
-    _sync_status["message"] = "Captcha cleared by user — resuming scraper..."
+    _sync_status["message"] = "Verification cleared by user — resuming engine..."
     logger.info("clear-captcha endpoint called — _captcha_event.set() fired")
     return {"status": "cleared", "message": "Captcha cleared, scraper resuming"}
 
