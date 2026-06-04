@@ -308,6 +308,7 @@ class GoogleSearchScraper:
         "just a moment", "attention required", "security check",
         "access denied", "are you a robot", "bot verification",
         "ddos protection", "please verify", "human verification",
+        "unusual traffic", "sorry", "before you continue"
     )
     _CAPTCHA_SELECTORS = [
         "#captcha-form",
@@ -404,10 +405,8 @@ class GoogleSearchScraper:
                 human_delay(2.5, 5.0)  # realistic load wait — not constant
                 inject_stealth_scripts(self.driver)
 
-                # Reliable Captcha Check for Google
-                is_captcha = False
-                if self.driver.find_elements(By.ID, "captcha-form") or "sorry" in self.driver.title.lower():
-                    is_captcha = True
+                # Reliable Captcha Check for Google via class heuristic array
+                is_captcha = self._is_captcha_page()
                 
                 if is_captcha:
                     print("   ⚠️ Google Captcha detected! Please solve manually...")
