@@ -90,6 +90,12 @@ class Settings(BaseSettings):
         "material verification"
     ]
 
+    # ── Nodemailer Microservice ──────────────────────────────────────────────
+    # URL of the Node.js Express + Nodemailer email service.
+    # Local: http://localhost:3001
+    # Render: set to your deployed email-service URL
+    MAILER_URL: str = "http://localhost:3001"
+
     # Email — Resend HTTP API (works on Render / all cloud platforms)
     # Get your key at https://resend.com — free tier: 3000 emails/month
     RESEND_API_KEY: str = "re_Ks2BAFfA_g4SHnLqQhnGxriRzWSPfkPs6"

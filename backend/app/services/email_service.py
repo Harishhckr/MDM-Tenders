@@ -1,6 +1,7 @@
 import logging
 import threading
 import time
+import requests
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
@@ -15,31 +16,43 @@ logger = logging.getLogger("email_service")
 class EmailService:
     @staticmethod
     def send_email(to: str, subject: str, html_content: str, from_name: Optional[str] = None) -> Tuple[bool, Optional[str]]:
-        """Sends an email using Resend HTTP API (works on Render / all cloud platforms)."""
-        import resend
-
-        api_key = settings.RESEND_API_KEY or "re_Ks2BAFfA_g4SHnLqQhnGxriRzWSPfkPs6"
-        if not api_key:
-            return False, "RESEND_API_KEY is missing."
-
-        resend.api_key = api_key
+        """
+        Sends an email by calling the Node.js Nodemailer microservice via HTTP.
+        
+        Architecture:
+          Python (FastAPI) ──HTTP POST──► Node.js (Express + Nodemailer) ──SMTP──► Gmail
+        
+        This pattern is identical to how Nodemailer is used in production:
+        a Node.js service owns the SMTP transport, Python just fires the request.
+        """
+        mailer_url = getattr(settings, "MAILER_URL", "http://localhost:3001")
         display_name = from_name or "Tender Intelligence"
-        # Resend requires your verified domain in the From address.
-        # We use onboarding@resend.dev for testing or your verified domain.
-        from_address = f"{display_name} <onboarding@resend.dev>"
 
         try:
-            params = resend.Emails.SendParams(
-                from_=from_address,
-                to=[to],
-                subject=subject,
-                html=html_content,
+            resp = requests.post(
+                f"{mailer_url}/send",
+                json={
+                    "to": to,
+                    "subject": subject,
+                    "html": html_content,
+                    "fromName": display_name,
+                },
+                timeout=30,
             )
-            result = resend.Emails.send(params)
-            logger.info("Email sent via Resend to %s — id: %s", to, result.get("id"))
-            return True, None
+            data = resp.json()
+            if resp.ok and data.get("success"):
+                logger.info("Email sent to %s via Nodemailer (msgId: %s)", to, data.get("messageId"))
+                return True, None
+            else:
+                err = data.get("error", f"HTTP {resp.status_code}")
+                logger.error("Nodemailer service error for %s: %s", to, err)
+                return False, err
+        except requests.exceptions.ConnectionError:
+            err = "Mailer service offline — is email-service/server.js running?"
+            logger.error(err)
+            return False, err
         except Exception as e:
-            err = f"Resend {type(e).__name__}: {str(e)}"
+            err = f"Mailer request failed: {str(e)}"
             logger.exception(err)
             return False, err
 
@@ -67,8 +80,8 @@ class EmailService:
                 <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Description:</strong> {t.description or t.title or 'No description'}</p>
                 <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Keyword:</strong> {t.keyword or 'N/A'} | <strong>Source:</strong> {t.source.upper()}</p>
                 <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Start:</strong> {t.start_date or 'N/A'} | <strong>End:</strong> {t.end_date or 'N/A'}</p>
-                <p style="margin: 0 0 15px 0; font-size: 12px;"><strong>Link:</strong> <a href="{t.link or '#'}" style="color:#000;text-decoration:underline;">{t.link or '#'}</a></p>
-                <hr style="border:0;border-top:1px solid #eee;margin:0;">
+                <p style="margin: 0 0 15px 0; font-size: 12px;"><strong>Link:</strong> <a href="{t.link or '#'}" style="color: #000; text-decoration: underline;">{t.link or '#'}</a></p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 0;">
             </div>
             """
         if not rows_html:
@@ -97,7 +110,6 @@ class EmailService:
             settings_row = EmailSetting()
             db.add(settings_row); db.commit(); db.refresh(settings_row)
 
-        # Skip if automation is disabled and no manual trigger
         if not manual_recipient and not target_date and not settings_row.daily_report_enabled:
             return
 
