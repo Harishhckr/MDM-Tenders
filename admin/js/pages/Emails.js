@@ -3,7 +3,7 @@
  * Focused on high-density, automated distribution tracking and theme-neutral visibility.
  */
 
-window.loadEmails = async function () {
+export async function renderEmails() {
     const container = document.getElementById('admin-content');
     container.innerHTML = `
         <style>
