@@ -92,7 +92,7 @@ class Settings(BaseSettings):
 
     # Email (SMTP / Nodemailer Equivalent)
     SMTP_HOST: str = "smtp.gmail.com"
-    SMTP_PORT: int = 587
+    SMTP_PORT: int = 465
     SMTP_USER: str = "leonexinternship@gmail.com"
     SMTP_PASS: str = "iurwecaxcnrnwlst"
     SMTP_TLS: bool = True

@@ -51,11 +51,12 @@ class EmailService:
 
         # 3. Transmission
         try:
-            # Use SMTP_PORT (usually 587 for TLS or 465 for SSL)
-            server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=20)
-            
-            if settings.SMTP_TLS:
-                server.starttls()  # Upgrade to secure connection
+            if settings.SMTP_PORT == 465:
+                server = smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30)
+            else:
+                server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30)
+                if settings.SMTP_TLS:
+                    server.starttls()  # Upgrade to secure connection
                 
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
