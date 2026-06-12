@@ -53,9 +53,10 @@ class EmailService:
             logger.info("Email sent to %s via Resend (id: %s)", to, msg_id)
             return True, None
         except Exception as e:
-            err = f"Resend error: {str(e)}"
+            err = f"Resend {type(e).__name__}: {str(e)}"
             logger.exception(err)
-            return False, err
+            # Truncate slightly for UI but keep enough to read the restriction
+            return False, err[:500]
 
     @staticmethod
     def log_email(

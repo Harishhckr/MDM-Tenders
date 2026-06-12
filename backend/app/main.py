@@ -2,7 +2,7 @@
 FastAPI Application — main entry point
 """
 from contextlib import asynccontextmanager
-# SMTP SSL Header Final Align: 2026-06-12T17:45
+# SMTP Resend Diagnostic Build: 2026-06-12T18:15
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
