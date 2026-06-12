@@ -389,6 +389,16 @@ window._sendQuickTest = async (email) => {
     } catch (e) { }
 };
 
+async function clearEmailLogs() {
+    if (!confirm("Purge all transmission logs?")) return;
+    const baseUrl = getApiBase();
+    try {
+        await adminFetch(`${baseUrl}/admin/emails/logs`, { method: 'DELETE' });
+        loadLogs();
+        showToast("Archive purged.");
+    } catch (e) { showToast("Purge failed", "error"); }
+}
+
 function showToast(msg, type = "success") {
     const toast = document.createElement('div');
     toast.style = `position:fixed; bottom:32px; right:32px; padding:12px 24px; border-radius:12px; background:${type === 'error' ? '#ef4444' : 'var(--text-primary)'}; color:${type === 'error' ? 'white' : 'var(--bg-page)'}; font-size:13px; font-weight:800; z-index:9999; border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);`;
