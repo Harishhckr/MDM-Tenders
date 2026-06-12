@@ -10,17 +10,17 @@ export async function renderEmails() {
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px; padding: 0 4px;">
                 <div>
                     <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                        <div style="width:32px; height:4px; background:var(--neon-cyan); border-radius:2px;"></div>
-                        <span style="font-size:11px; font-weight:900; color:var(--neon-cyan); text-transform:uppercase; letter-spacing:2px;">Reporting Engine</span>
+                        <div style="width:32px; height:4px; background:var(--text-tertiary); border-radius:2px;"></div>
+                        <span style="font-size:11px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:2px;">Reporting Engine</span>
                     </div>
                     <h1 style="font-size:36px; font-weight:900; color:var(--text-primary); margin:0; letter-spacing:-1px; line-height:1;">Email Management</h1>
                 </div>
                 <div style="display:flex; gap:16px;">
                     <button id="adm-send-now-btn" class="bb-btn-secondary" style="height:48px; padding:0 24px; border-radius:14px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:12px; letter-spacing:0.5px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.02); color: var(--text-primary);">
-                        <i data-lucide="zap" style="width:18px;height:18px; color:var(--neon-cyan);"></i>
+                        <i data-lucide="zap" style="width:18px;height:18px; color:var(--text-tertiary);"></i>
                         TRIGGER SYNC
                     </button>
-                    <button id="adm-add-recipient-btn" class="bb-btn-primary" style="height:48px; padding:0 24px; border-radius:14px; font-size:12px; font-weight:900; display:flex; align-items:center; gap:12px; letter-spacing:0.5px; box-shadow: 0 8px 20px rgba(255,255,255,0.05);">
+                    <button id="adm-add-recipient-btn" class="bb-btn-primary" style="height:48px; padding:0 24px; border-radius:14px; font-size:12px; font-weight:900; display:flex; align-items:center; gap:12px; letter-spacing:0.5px; box-shadow: 0 8px 20px rgba(255,255,255,0.05); background: var(--text-primary); color: var(--bg-page); border: none;">
                         <i data-lucide="user-plus" style="width:18px;height:18px;"></i>
                         NEW RECIPIENT
                     </button>
@@ -33,7 +33,7 @@ export async function renderEmails() {
                 <div style="grid-column: span 4; display:flex; flex-direction:column; gap:32px;">
                     
                     <div class="bb-card" style="border:1px solid var(--border-glass); padding:32px; backdrop-filter: blur(20px); position:relative;">
-                        <div style="position:absolute; top:32px; right:32px;"><i data-lucide="cpu" style="width:24px; height:24px; color:rgba(255,255,255,0.03);"></i></div>
+                        <div style="position:absolute; top:32px; right:32px;"><i data-lucide="cpu" style="width:24px; height:24px; color:rgba(255,255,255,0.01);"></i></div>
                         <h3 style="margin:0 0 32px 0; font-size:14px; font-weight:900; color:var(--text-primary); text-transform:uppercase; letter-spacing:2px; display:flex; align-items:center; gap:12px;">
                             Core Configuration
                         </h3>
@@ -46,7 +46,7 @@ export async function renderEmails() {
                                 </div>
                                 <label class="adm-toggle">
                                     <input type="checkbox" id="setting-report-enabled">
-                                    <span class="slider" style="background-color: var(--neon-cyan);"></span>
+                                    <span class="slider" style="background-color: var(--text-tertiary);"></span>
                                 </label>
                             </div>
 
@@ -66,23 +66,23 @@ export async function renderEmails() {
                                 </div>
                             </div>
 
-                            <button id="adm-save-settings-btn" class="bb-btn-primary" style="width:100%; height:52px; border-radius:16px; font-weight:900; font-size:12px; letter-spacing:2px; margin-top:8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+                            <button id="adm-save-settings-btn" class="bb-btn-primary" style="width:100%; height:52px; border-radius:16px; font-weight:900; font-size:12px; letter-spacing:2px; margin-top:8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); background: var(--text-primary); color: var(--bg-page); border: none;">
                                 UPDATE CORE SETTINGS
                             </button>
                         </div>
                     </div>
 
                     <!-- TEST BOX -->
-                    <div class="bb-card" style="border:1px solid rgba(34,197,94,0.1); padding:32px; background: linear-gradient(145deg, rgba(34,197,94,0.03) 0%, rgba(0,0,0,0) 100%);">
+                    <div class="bb-card" style="border:1px solid var(--border-glass); padding:32px; background: rgba(255,255,255,0.01);">
                         <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                            <div style="width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow: 0 0 10px #22c55e;"></div>
-                            <h3 style="margin:0; font-size:12px; font-weight:900; color:#22c55e; text-transform:uppercase; letter-spacing:2px;">Signal Test</h3>
+                            <div style="width:8px; height:8px; border-radius:50%; background:var(--text-tertiary); box-shadow: 0 0 10px rgba(255,255,255,0.1);"></div>
+                            <h3 style="margin:0; font-size:12px; font-weight:900; color:var(--text-primary); text-transform:uppercase; letter-spacing:2px;">Signal Test</h3>
                         </div>
                         <p style="font-size:12px; color:var(--text-tertiary); line-height:1.6; margin-bottom:24px;">Trigger an immediate diagnostic transmission to verify the Resend pipeline integrity.</p>
                         
                         <div style="display:flex; gap:12px;">
-                            <input type="email" id="test-email-addr" class="adm-input" style="flex:1; height:48px; border-radius:12px; border:1px solid rgba(34,197,94,0.1) !important; font-size:13px; font-weight:600; padding:0 16px; color: var(--text-primary);" placeholder="test-target@domain.com">
-                            <button id="adm-test-email-btn" class="bb-btn-secondary" style="width:48px; height:48px; padding:0; border-radius:12px; color:#22c55e; border:1px solid rgba(34,197,94,0.2); background:rgba(34,197,94,0.05); display:flex; justify-content:center; align-items:center;">
+                            <input type="email" id="test-email-addr" class="adm-input" style="flex:1; height:48px; border-radius:12px; border:1px solid var(--border-glass) !important; font-size:13px; font-weight:600; padding:0 16px; color: var(--text-primary);" placeholder="test-target@domain.com">
+                            <button id="adm-test-email-btn" class="bb-btn-secondary" style="width:48px; height:48px; padding:0; border-radius:12px; color:var(--text-primary); border:1px solid var(--border-glass); background:rgba(255,255,255,0.02); display:flex; justify-content:center; align-items:center;">
                                 <i data-lucide="play-circle" style="width:22px;height:22px;"></i>
                             </button>
                         </div>
@@ -99,7 +99,7 @@ export async function renderEmails() {
                                 <i data-lucide="users" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
                                 <span style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-secondary);">Direct Distribution List</span>
                             </div>
-                            <span id="recipient-count-badge" class="badge" style="background:rgba(0,243,255,0.1); color:var(--neon-cyan); border:1px solid rgba(0,243,255,0.2); font-weight:800; padding:4px 10px; border-radius:8px;">0 Members</span>
+                            <span id="recipient-count-badge" class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-primary); border:1px solid var(--border-glass); font-weight:800; padding:4px 10px; border-radius:8px;">0 Members</span>
                         </div>
                         <div style="overflow-x:auto;">
                             <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -159,7 +159,7 @@ export async function renderEmails() {
 
                     <div style="display:flex; gap:16px; margin-top:16px;">
                         <button onclick="document.getElementById('adm-email-modal').style.display='none'" class="bb-btn-secondary" style="flex:1; height:52px; border-radius:14px; font-weight:800; border:1px solid var(--border-glass); color: var(--text-primary);">DISCARD</button>
-                        <button id="modal-r-save-btn" class="bb-btn-primary" style="flex:1; height:52px; border-radius:14px; font-weight:900; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">CONFIRM ENTRY</button>
+                        <button id="modal-r-save-btn" class="bb-btn-primary" style="flex:1; height:52px; border-radius:14px; font-weight:900; box-shadow: 0 10px 20px rgba(0,0,0,0.2); background: var(--text-primary); color: var(--bg-page); border: none;">CONFIRM ENTRY</button>
                     </div>
                 </div>
             </div>
@@ -212,12 +212,12 @@ async function loadRecipients() {
                 <td style="padding:24px 32px; text-align:center;">
                     <label class="adm-toggle">
                         <input type="checkbox" ${r.is_active ? 'checked' : ''} onchange="window._toggleRecipient('${r.id}', this.checked)">
-                        <span class="slider" style="background-color: var(--neon-cyan);"></span>
+                        <span class="slider" style="background-color: var(--text-tertiary);"></span>
                     </label>
                 </td>
                 <td style="padding:24px 32px; text-align:right;">
                     <div style="display:flex; justify-content:flex-end; gap:12px;">
-                        <button class="bb-btn-icon" onclick="window._sendQuickTest('${r.email}')" title="Quick Transmission" style="color:var(--text-tertiary); border:1px solid transparent;" onmouseover="this.style.borderColor='var(--border-glass)'; this.style.color='var(--neon-cyan)'" onmouseout="this.style.borderColor='transparent'; this.style.color='var(--text-tertiary)'"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
+                        <button class="bb-btn-icon" onclick="window._sendQuickTest('${r.email}')" title="Quick Transmission" style="color:var(--text-tertiary); border:1px solid transparent;" onmouseover="this.style.borderColor='var(--border-glass)'; this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='transparent'; this.style.color='var(--text-tertiary)'"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
                         <button class="bb-btn-icon" onclick="window._deleteRecipient('${r.id}')" title="Terminate" style="color:#ef4444; opacity:0.5; border:1px solid transparent;" onmouseover="this.style.opacity='1'; this.style.borderColor='rgba(239,68,68,0.2)'" onmouseout="this.style.opacity='0.5'; this.style.borderColor='transparent'"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
                     </div>
                 </td>
@@ -245,15 +245,15 @@ async function loadLogs() {
         logList.innerHTML = data.map(log => `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-radius:16px; margin-bottom:12px; background:rgba(255,255,255,0.015); border:1px solid var(--border-glass); transition: transform 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='none'">
                 <div style="display:flex; align-items:center; gap:20px;">
-                    <div style="width:44px; height:44px; border-radius:12px; background:${log.status === 'sent' ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)'}; display:flex; justify-content:center; align-items:center; border:1px solid ${log.status === 'sent' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};">
-                        <i data-lucide="${log.status === 'sent' ? 'check-circle' : 'slash'}" style="width:20px; height:20px; color:${log.status === 'sent' ? '#22c55e' : '#ef4444'};"></i>
+                    <div style="width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.02); display:flex; justify-content:center; align-items:center; border:1px solid var(--border-glass);">
+                        <i data-lucide="${log.status === 'sent' ? 'check-circle' : 'slash'}" style="width:20px; height:20px; color:var(--text-tertiary);"></i>
                     </div>
                     <div>
                         <div style="font-size:14px; font-weight:800; color:var(--text-primary); letter-spacing:-0.2px;">${log.recipient}</div>
                         <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px; font-family:var(--font-mono);">${new Date(log.sent_at).toLocaleString()}</div>
                     </div>
                 </div>
-                <div style="font-size:10px; font-weight:900; color:${log.status === 'sent' ? '#22c55e' : '#ef4444'}; text-transform:uppercase; letter-spacing:1.5px; background:${log.status === 'sent' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)'}; padding:5px 12px; border-radius:8px; border:1px solid ${log.status === 'sent' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};">${log.status}</div>
+                <div style="font-size:10px; font-weight:900; color:var(--text-primary); text-transform:uppercase; letter-spacing:1.5px; background:rgba(255,255,255,0.05); padding:5px 12px; border-radius:8px; border:1px solid var(--border-glass);">${log.status}</div>
             </div>
         `).join('');
         if (window.lucide) window.lucide.createIcons();
@@ -266,7 +266,6 @@ async function loadSettings() {
         const res = await adminFetch(`${baseUrl}/admin/emails/settings`);
         const s = await res.json();
 
-        // STRICT NULL HANDLING FOR UNDEFINED UI ISSUES
         document.getElementById('setting-report-enabled').checked = !!s?.daily_report_enabled;
         document.getElementById('setting-report-time').value = s?.report_time || '09:00';
         document.getElementById('setting-sender-name').value = s?.sender_name || 'Tender Intelligence';
@@ -420,7 +419,7 @@ window._deleteRecipient = async (id) => {
 
 function showToast(msg, type = "success") {
     const toast = document.createElement('div');
-    toast.style = `position:fixed; bottom:32px; right:32px; padding:14px 28px; border-radius:16px; background:${type === 'error' ? '#ef4444' : '#22c55e'}; color:white; font-size:14px; font-weight:800; z-index:9999; box-shadow:0 15px 40px rgba(0,0,0,0.5); transform:translateY(150px); transition:transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);`;
+    toast.style = `position:fixed; bottom:32px; right:32px; padding:14px 28px; border-radius:16px; background:${type === 'error' ? '#ef4444' : 'var(--text-primary)'}; color:${type === 'error' ? 'white' : 'var(--bg-page)'}; font-size:14px; font-weight:800; z-index:9999; box-shadow:0 15px 40px rgba(0,0,0,0.5); transform:translateY(150px); transition:transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);`;
     toast.innerText = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.style.transform = 'translateY(0)', 10);
