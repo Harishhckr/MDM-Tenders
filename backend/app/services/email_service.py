@@ -29,14 +29,10 @@ class EmailService:
             return False, msg
 
         # 2. Construct Message
-        final_from_email = from_email or settings.EMAIL_FROM
-        final_from_name = from_name or "Tender Intelligence"
-        
-        # Standardize "Name <email@domain.com>"
-        if "<" not in final_from_email:
-            sender_formatted = f"{final_from_name} <{final_from_email}>"
-        else:
-            sender_formatted = final_from_email
+        # GMAIL REQUIREMENT: The 'From' address must match the authenticated account exactly.
+        actual_sender_email = smtp_user
+        display_name = from_name or "Tender Intelligence"
+        sender_formatted = f"{display_name} <{actual_sender_email}>"
 
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -52,11 +48,13 @@ class EmailService:
         # 3. Transmission
         try:
             if settings.SMTP_PORT == 465:
+                # SSL standard for Port 465
                 server = smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30)
             else:
+                # TLS standard for Port 587
                 server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30)
                 if settings.SMTP_TLS:
-                    server.starttls()  # Upgrade to secure connection
+                    server.starttls()
                 
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
@@ -74,9 +72,11 @@ class EmailService:
             logger.error(err)
             return False, err
         except Exception as e:
-            err = f"SMTP Error: {str(e)}"
+            import traceback
+            err = f"SMTP {type(e).__name__}: {str(e)}"
             logger.exception(err)
-            return False, err
+            # Return detailed error for UI analysis
+            return False, f"{err} | TRACE: {traceback.format_exc()[-100:].strip()}"
 
     @staticmethod
     def log_email(db: Session, recipient: str, subject: str, status: str, error_message: Optional[str] = None):
@@ -144,33 +144,26 @@ class EmailService:
                 dt = datetime.strptime(target_date, "%Y-%m-%d")
                 start_time = dt.replace(hour=0, minute=0, second=0, microsecond=0)
                 end_time = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
-                date_str = dt.strftime("%B %d, %Y")
             except ValueError:
-                # Fallback to default if invalid date string
                 start_time = datetime.now() - timedelta(hours=48)
                 end_time = datetime.now()
-                date_str = datetime.now().strftime("%B %d, %Y")
         else:
             lookback_hours = 48 if manual_recipient or not settings_row.last_report_sent_at else 24
             start_time = datetime.now() - timedelta(hours=lookback_hours)
             end_time = datetime.now()
-            date_str = datetime.now().strftime("%B %d, %Y")
 
         tenders = db.query(Tender).filter(Tender.created_at >= start_time, Tender.created_at <= end_time).order_by(Tender.created_at.desc()).all()
         
         html_content = cls.generate_tender_report_html(tenders)
-        subject = f"Tender Intelligence Report – {datetime.now().strftime('%d %b %Y')}"
+        subject = f"Tender Intelligence Report \u2013 {datetime.now().strftime('%d %b %Y')}"
 
         if manual_recipient:
             recipients = [EmailRecipient(email=manual_recipient, name="Subscriber", is_active=True)]
         else:
             recipients = db.query(EmailRecipient).filter(EmailRecipient.is_active == True).all()
 
-        from_email = settings_row.sender_email
-        from_name = settings_row.sender_name
-
         for r in recipients:
-            success, err = cls.send_email(r.email, subject, html_content, from_email=from_email, from_name=from_name)
+            success, err = cls.send_email(r.email, subject, html_content, from_name=settings_row.sender_name)
             cls.log_email(db, r.email, subject, "sent" if success else "failed", err)
 
         if not manual_recipient:
