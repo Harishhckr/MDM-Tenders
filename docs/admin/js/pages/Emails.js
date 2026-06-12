@@ -5,6 +5,11 @@ export async function renderEmails() {
     if (!container) return;
 
     container.innerHTML = `
+        <style>
+            .log-scroll::-webkit-scrollbar { width: 6px; }
+            .log-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+            .log-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        </style>
         <div class="anim-in" style="max-width: 1400px; margin: 0 auto; padding-bottom: 60px;">
             <!-- HEADER AREA -->
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px; padding: 0 4px;">
@@ -64,6 +69,7 @@ export async function renderEmails() {
                                     <input type="text" id="setting-sender-name" class="adm-input" style="height:52px; border-radius:14px; padding:0 20px; font-weight:600; background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); color: var(--text-primary);" placeholder="Display Name">
                                     <input type="email" id="setting-sender-email" class="adm-input" style="height:52px; border-radius:14px; padding:0 20px; font-weight:600; background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); color: var(--text-primary);" placeholder="sender@system.net">
                                 </div>
+                                <p style="font-size:10px; color:var(--text-tertiary); margin-top:12px; line-height:1.4;">NOTE: Use verified domains (e.g. leonex.net) to avoid transmission failures.</p>
                             </div>
 
                             <button id="adm-save-settings-btn" class="bb-btn-primary" style="width:100%; height:52px; border-radius:16px; font-weight:900; font-size:12px; letter-spacing:2px; margin-top:8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); background: var(--text-primary); color: var(--bg-page); border: none;">
@@ -120,11 +126,14 @@ export async function renderEmails() {
 
                     <!-- HISTORY -->
                     <div class="bb-card" style="padding:0; border:1px solid var(--border-glass); backdrop-filter: blur(20px);">
-                        <div style="padding:24px 32px; border-bottom:1px solid var(--border-glass); background:rgba(255,255,255,0.02); display:flex; align-items:center; gap:12px;">
-                            <i data-lucide="activity" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
-                            <span style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-secondary);">Transmission Network History</span>
+                        <div style="padding:24px 32px; border-bottom:1px solid var(--border-glass); background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <i data-lucide="activity" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
+                                <span style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-secondary);">Transmission Network History</span>
+                            </div>
+                            <button id="adm-clear-logs-btn" style="background:transparent; border:none; color:var(--text-tertiary); font-size:10px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:1px; padding:4px 8px; border:1px solid transparent; border-radius:6px; transition:0.3s;" onmouseover="this.style.borderColor='var(--border-glass)'; this.style.color='#ef4444'" onmouseout="this.style.borderColor='transparent'; this.style.color='var(--text-tertiary)'">Clear Archive</button>
                         </div>
-                        <div style="max-height:500px; overflow-y:auto; padding:20px 32px;" id="email-log-list">
+                        <div style="max-height:480px; overflow-y:auto; padding:20px 32px;" id="email-log-list" class="log-scroll">
                             <!-- Logs here -->
                         </div>
                     </div>
@@ -176,6 +185,7 @@ export async function renderEmails() {
     document.getElementById('adm-save-settings-btn').addEventListener('click', saveSettings);
     document.getElementById('adm-send-now-btn').addEventListener('click', triggerManualReport);
     document.getElementById('adm-test-email-btn').addEventListener('click', sendDiagnosticEmail);
+    document.getElementById('adm-clear-logs-btn').addEventListener('click', clearEmailLogs);
 
     // Dynamic Logic
     await Promise.all([
@@ -194,7 +204,7 @@ async function loadRecipients() {
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-            list.innerHTML = '<tr><td colspan="4" style="padding:100px; text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px; letter-spacing:1px;">DIRECTORY EMPTY: NO NODES CONFIGURED.</td></tr>';
+            list.innerHTML = '<tr><td colspan="4" style="padding:100px; text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px; letter-spacing:1px;">DIRECTORY EMPTY.</td></tr>';
             badge.innerText = '0 Members';
             return;
         }
@@ -224,10 +234,7 @@ async function loadRecipients() {
             </tr>
         `).join('');
         if (window.lucide) window.lucide.createIcons();
-    } catch (e) {
-        console.error(e);
-        list.innerHTML = `<tr><td colspan="4" style="padding:100px; text-align:center; color:#ef4444; font-family:var(--font-mono); font-size:12px;">FATAL_IO_ERROR: NETWORK_SYNC_FAILED</td></tr>`;
-    }
+    } catch (e) { console.error(e); }
 }
 
 async function loadLogs() {
@@ -238,26 +245,36 @@ async function loadLogs() {
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-            logList.innerHTML = '<div style="padding:60px; text-align:center; color:var(--text-tertiary); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; opacity:0.5;">No transmission artifacts recorded.</div>';
+            logList.innerHTML = '<div style="padding:100px; text-align:center; color:var(--text-tertiary); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; opacity:0.5;">No records.</div>';
             return;
         }
 
         logList.innerHTML = data.map(log => `
             <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-radius:16px; margin-bottom:12px; background:rgba(255,255,255,0.015); border:1px solid var(--border-glass); transition: transform 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='none'">
                 <div style="display:flex; align-items:center; gap:20px;">
-                    <div style="width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.02); display:flex; justify-content:center; align-items:center; border:1px solid var(--border-glass);">
-                        <i data-lucide="${log.status === 'sent' ? 'check-circle' : 'slash'}" style="width:20px; height:20px; color:var(--text-tertiary);"></i>
+                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.02); display:flex; justify-content:center; align-items:center; border:1px solid var(--border-glass);">
+                        <i data-lucide="${log.status === 'sent' ? 'check' : 'alert-circle'}" style="width:16px; height:16px; color:${log.status === 'sent' ? 'var(--text-secondary)' : '#ef4444'};"></i>
                     </div>
                     <div>
-                        <div style="font-size:14px; font-weight:800; color:var(--text-primary); letter-spacing:-0.2px;">${log.recipient}</div>
-                        <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px; font-family:var(--font-mono);">${new Date(log.sent_at).toLocaleString()}</div>
+                        <div style="font-size:13px; font-weight:800; color:var(--text-primary);">${log.recipient}</div>
+                        <div style="font-size:10px; color:var(--text-tertiary); margin-top:2px;">${new Date(log.sent_at).toLocaleString()}</div>
                     </div>
                 </div>
-                <div style="font-size:10px; font-weight:900; color:var(--text-primary); text-transform:uppercase; letter-spacing:1.5px; background:rgba(255,255,255,0.05); padding:5px 12px; border-radius:8px; border:1px solid var(--border-glass);">${log.status}</div>
+                <div style="font-size:10px; font-weight:900; color:${log.status === 'sent' ? 'var(--text-tertiary)' : '#ef4444'}; text-transform:uppercase; letter-spacing:1px; background:rgba(255,255,255,0.03); padding:4px 10px; border-radius:6px; border:1px solid var(--border-glass);">${log.status}</div>
             </div>
         `).join('');
         if (window.lucide) window.lucide.createIcons();
     } catch (e) { console.error(e); }
+}
+
+async function clearEmailLogs() {
+    if (!confirm("Permanently purge all transmission artifacts?")) return;
+    const baseUrl = getApiBase();
+    try {
+        await adminFetch(`${baseUrl}/admin/emails/logs`, { method: 'DELETE' });
+        loadLogs();
+        showToast("Archive purged successfully.");
+    } catch (e) { showToast("Purge failed.", "error"); }
 }
 
 async function loadSettings() {
@@ -265,7 +282,6 @@ async function loadSettings() {
     try {
         const res = await adminFetch(`${baseUrl}/admin/emails/settings`);
         const s = await res.json();
-
         document.getElementById('setting-report-enabled').checked = !!s?.daily_report_enabled;
         document.getElementById('setting-report-time').value = s?.report_time || '09:00';
         document.getElementById('setting-sender-name').value = s?.sender_name || 'Tender Intelligence';
@@ -294,7 +310,7 @@ async function saveSettings() {
             }
         });
         if (!res.ok) throw new Error("Backend rejection");
-        showToast("System configuration updated successfully.");
+        showToast("System configuration updated.");
     } catch (e) {
         showToast("Configuration sync failed.", "error");
     } finally {
@@ -327,7 +343,7 @@ async function saveNewRecipient() {
             document.getElementById('modal-r-email').value = '';
             document.getElementById('modal-r-dept').value = '';
             loadRecipients();
-            showToast("New recipient registered to network.");
+            showToast("New recipient registered.");
         } else {
             const err = await res.json();
             throw new Error(err.detail || "Registration failed");
@@ -408,18 +424,18 @@ window._toggleRecipient = async (id, isActive) => {
 };
 
 window._deleteRecipient = async (id) => {
-    if (!confirm("Permanently terminate this node from the distribution network?")) return;
+    if (!confirm("Permanently terminate this node?")) return;
     const baseUrl = getApiBase();
     try {
         await adminFetch(`${baseUrl}/admin/emails/recipients/${id}`, { method: 'DELETE' });
         loadRecipients();
         showToast("Node termination successful.");
-    } catch (e) { showToast("Termination procedure failed.", "error"); }
+    } catch (e) { showToast("Termination failed.", "error"); }
 };
 
 function showToast(msg, type = "success") {
     const toast = document.createElement('div');
-    toast.style = `position:fixed; bottom:32px; right:32px; padding:14px 28px; border-radius:16px; background:${type === 'error' ? '#ef4444' : 'var(--text-primary)'}; color:${type === 'error' ? 'white' : 'var(--bg-page)'}; font-size:14px; font-weight:800; z-index:9999; box-shadow:0 15px 40px rgba(0,0,0,0.5); transform:translateY(150px); transition:transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);`;
+    toast.style = `position:fixed; bottom:32px; right:32px; padding:12px 24px; border-radius:12px; background:${type === 'error' ? '#ef4444' : 'var(--text-primary)'}; color:${type === 'error' ? 'white' : 'var(--bg-page)'}; font-size:13px; font-weight:800; z-index:9999; box-shadow:0 15px 40px rgba(0,0,0,0.5); transform:translateY(150px); transition:0.4s var(--ease); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);`;
     toast.innerText = msg;
     document.body.appendChild(toast);
     setTimeout(() => toast.style.transform = 'translateY(0)', 10);

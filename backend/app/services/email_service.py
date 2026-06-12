@@ -15,11 +15,18 @@ logger = logging.getLogger("email_service")
 
 class EmailService:
     @staticmethod
-    def send_email(to: str, subject: str, html_content: str) -> bool:
+    def send_email(to: str, subject: str, html_content: str, from_email: Optional[str] = None, from_name: Optional[str] = None) -> bool:
         """Sends an email using Resend API (via requests)."""
         if not settings.RESEND_API_KEY:
             logger.warning("RESEND_API_KEY not set. Skipping email to %s", to)
             return False
+
+        # Use provided from_email/from_name or fallback to system defaults
+        final_from_email = from_email or settings.EMAIL_FROM
+        final_from_name = from_name or "Tender Intelligence"
+        
+        # Format as "Name <email@domain.com>"
+        sender_formatted = f"{final_from_name} <{final_from_email}>"
 
         url = "https://api.resend.com/emails"
         headers = {
@@ -27,7 +34,7 @@ class EmailService:
             "Content-Type": "application/json"
         }
         payload = {
-            "from": settings.EMAIL_FROM,
+            "from": sender_formatted,
             "to": to,
             "subject": subject,
             "html": html_content,
@@ -35,16 +42,18 @@ class EmailService:
         }
 
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=10)
+            response = requests.post(url, headers=headers, json=payload, timeout=15)
             if response.status_code in (200, 201):
                 logger.info("Email sent successfully to %s", to)
                 return True
             else:
-                logger.error("Failed to send email to %s: %s", to, response.text)
-                return False
+                err_msg = f"API Error ({response.status_code}): {response.text}"
+                logger.error("Failed to send email to %s: %s", to, err_msg)
+                return False, err_msg
         except Exception as e:
-            logger.exception("Error sending email via Resend: %s", e)
-            return False
+            err_msg = str(e)
+            logger.exception("Error sending email via Resend: %s", err_msg)
+            return False, err_msg
 
     @staticmethod
     def log_email(db: Session, recipient: str, subject: str, status: str, error_message: Optional[str] = None):
@@ -77,7 +86,7 @@ class EmailService:
             """
 
         if not rows_html:
-            rows_html = "<p style='text-align: center; color: #888888; padding: 20px;'>No new tenders found for today.</p>"
+            rows_html = "<p style='text-align: center; color: #888888; padding: 20px;'>No new tenders found for this period.</p>"
 
         return f"""
         <!DOCTYPE html>
@@ -90,7 +99,7 @@ class EmailService:
         </head>
         <body>
             <p>Dear Team,</p>
-            <p>Please find below the tender report for {date_str}.</p>
+            <p>Please find below the consolidated tender report as of {date_str}.</p>
             <br>
             <hr style="border: 0; border-top: 1px solid #000000; margin: 0 0 20px 0;">
             
@@ -105,8 +114,8 @@ class EmailService:
 
     @classmethod
     def send_daily_report(cls, db: Session, manual_recipient: Optional[str] = None):
-        """Fetches today's tenders and sends report to recipients."""
-        logger.info("Starting daily tender report generation...")
+        """Fetches tenders and sends report to recipients."""
+        logger.info("Starting tender report generation...")
         
         # 1. Fetch settings
         settings_row = db.query(EmailSetting).first()
@@ -120,9 +129,13 @@ class EmailService:
             logger.info("Daily report is disabled in settings.")
             return
 
-        # 2. Get today's tenders
-        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        tenders = db.query(Tender).filter(Tender.created_at >= today_start).all()
+        # 2. Identify Time Range
+        # For manual triggers, we look back 48 hours to ensure past results (like the 11th) are captured.
+        # For scheduled ones, we look back 24 hours.
+        lookback_hours = 48 if manual_recipient or not settings_row.last_report_sent_at else 24
+        start_time = datetime.now() - timedelta(hours=lookback_hours)
+        
+        tenders = db.query(Tender).filter(Tender.created_at >= start_time).order_by(Tender.created_at.desc()).all()
         
         # 3. Generate HTML
         html_content = cls.generate_tender_report_html(tenders)
@@ -131,15 +144,26 @@ class EmailService:
         # 4. Identify recipients
         if manual_recipient:
             logger.info("Sending manual report to %s", manual_recipient)
-            recipients = [EmailRecipient(email=manual_recipient, name="Test Admin", is_active=True)]
+            # Create a transient recipient object for the loop
+            recipients = [EmailRecipient(email=manual_recipient, name="Subscriber", is_active=True)]
         else:
             recipients = db.query(EmailRecipient).filter(EmailRecipient.is_active == True).all()
             logger.info("Sending scheduled report to %d active recipients", len(recipients))
 
         # 5. Send emails
+        from_email = settings_row.sender_email
+        from_name = settings_row.sender_name
+
         for r in recipients:
-            success = cls.send_email(r.email, subject, html_content)
-            cls.log_email(db, r.email, subject, "sent" if success else "failed", None if success else "API Error")
+            result = cls.send_email(r.email, subject, html_content, from_email=from_email, from_name=from_name)
+            
+            if isinstance(result, tuple):
+                success, err = result
+            else:
+                success = result
+                err = None if success else "Unknown API Error"
+                
+            cls.log_email(db, r.email, subject, "sent" if success else "failed", err)
 
         # 6. Update last sent time if not manual
         if not manual_recipient:
@@ -167,13 +191,11 @@ class EmailScheduler:
                                 # If target time already passed today, check if we sent it
                                 last_sent = settings_row.last_report_sent_at
                                 if last_sent:
-                                    # Already sent today? (UTC or Local? Assuming single timezone server for simplicity)
                                     sent_today = last_sent.date() == now.date()
                                 else:
                                     sent_today = False
 
                                 if not sent_today and now >= target_time:
-                                    # Time to send!
                                     EmailService.send_daily_report(db)
                             except Exception as e:
                                 logger.error("Scheduler time parsing error (%s): %s", target_time_str, e)
@@ -182,7 +204,6 @@ class EmailScheduler:
                 except Exception as e:
                     logger.error("Scheduler loop error: %s", e)
                 
-                # Check every minute
                 time.sleep(60)
 
         t = threading.Thread(target=run, daemon=True, name="email-scheduler")

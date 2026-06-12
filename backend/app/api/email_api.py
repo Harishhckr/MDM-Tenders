@@ -95,6 +95,12 @@ def get_email_logs(limit: int = 100, db: Session = Depends(get_db), _admin=Depen
     logs = db.query(EmailLog).order_by(EmailLog.sent_at.desc()).limit(limit).all()
     return [l.to_dict() for l in logs]
 
+@router.delete("/logs")
+def clear_email_logs(db: Session = Depends(get_db), _admin=Depends(require_admin) if not settings.DEBUG else None):
+    db.query(EmailLog).delete()
+    db.commit()
+    return {"status": "success", "message": "All logs cleared"}
+
 # ── Actions ──────────────────────────────────────────────────────────────────
 
 @router.post("/send-test")
