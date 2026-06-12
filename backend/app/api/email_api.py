@@ -96,9 +96,18 @@ def get_email_logs(limit: int = 100, db: Session = Depends(get_db), _admin=Depen
     return [l.to_dict() for l in logs]
 
 @router.post("/trigger")
-def trigger_sync(background_tasks: BackgroundTasks, db: Session = Depends(get_db), date: Optional[str] = None):
-    """Manually triggers a daily report sync. Accepts optional target date (YYYY-MM-DD)."""
-    background_tasks.add_task(EmailService.send_daily_report, db, target_date=date)
+def trigger_sync(background_tasks: BackgroundTasks, date: Optional[str] = None):
+    """Manually triggers a daily report sync using a fresh background session."""
+    from app.database import SessionLocal
+    
+    def run_sync():
+        db = SessionLocal()
+        try:
+            EmailService.send_daily_report(db, target_date=date)
+        finally:
+            db.close()
+
+    background_tasks.add_task(run_sync)
     return {"message": f"Manual sync initiated{' for ' + date if date else ''}"}
 
 @router.delete("/logs")
