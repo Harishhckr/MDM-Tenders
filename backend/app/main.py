@@ -2,6 +2,7 @@
 FastAPI Application — main entry point
 """
 from contextlib import asynccontextmanager
+# SMTP Refactor Sentinel: 2026-06-12
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse

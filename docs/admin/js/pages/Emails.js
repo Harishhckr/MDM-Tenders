@@ -93,6 +93,10 @@ export async function renderEmails() {
                                         <input type="text" id="setting-sender-name" class="adm-input" style="height:56px; border-radius:18px; padding:0 24px; font-weight:700; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:var(--text-primary);" placeholder="Display Identification">
                                         <input type="email" id="setting-sender-email" class="adm-input" style="height:56px; border-radius:18px; padding:0 24px; font-weight:700; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:var(--text-primary);" placeholder="root@system.net">
                                     </div>
+                                    <div style="margin-top:20px; padding:16px; background:rgba(255,255,255,0.01); border-radius:14px; border:1px solid rgba(255,255,255,0.03); display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:9px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px;">Latest Activity</span>
+                                        <span id="last-sync-val" style="font-size:10px; font-weight:900; color:var(--text-secondary); font-family:var(--font-mono);">00:00:00 / NULL</span>
+                                    </div>
                                     <p style="font-size:10px; color:var(--text-tertiary); margin-top:16px; line-height:1.6; font-weight:600; font-family:var(--font-mono); opacity:0.8;">AUTH PRIORITY: HIGH. Ensure SMTP handshake integrity.</p>
                                 </div>
 
@@ -306,13 +310,21 @@ async function loadSettings() {
     const baseUrl = getApiBase();
     try {
         const res = await adminFetch(`${baseUrl}/admin/emails/settings`);
-        const s = await res.json();
-        document.getElementById('setting-report-enabled').checked = !!s?.daily_report_enabled;
-        document.getElementById('setting-report-time').value = s?.report_time || '09:00';
-        document.getElementById('setting-sender-name').value = s?.sender_name || 'Tender Intelligence';
-        document.getElementById('setting-sender-email').value = s?.sender_email || 'reports@leonex.net';
+        const data = await res.json();
+
+        document.getElementById('setting-report-enabled').checked = data.daily_report_enabled;
+        document.getElementById('setting-report-time').value = data.report_time;
+        document.getElementById('setting-sender-name').value = data.sender_name || '';
+        document.getElementById('setting-sender-email').value = data.sender_email || '';
+
+        const lastSync = document.getElementById('last-sync-val');
+        if (lastSync && data.last_report_sent_at) {
+            const date = new Date(data.last_report_sent_at);
+            lastSync.innerText = `${date.toLocaleDateString()} / ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            lastSync.style.color = 'var(--text-primary)';
+        }
     } catch (e) {
-        console.error('Settings load fail:', e);
+        console.error('Failed to load settings:', e);
     }
 }
 
