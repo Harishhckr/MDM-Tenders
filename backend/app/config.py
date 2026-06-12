@@ -90,8 +90,13 @@ class Settings(BaseSettings):
         "material verification"
     ]
 
-    # Email (Resend API)
-    RESEND_API_KEY: str = ""
+    # Email (SMTP / Nodemailer Equivalent)
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASS: str = ""
+    SMTP_TLS: bool = True
+    
     EMAIL_FROM: str = "Tender Reports <reports@leonex.net>"
     EMAIL_REPLY_TO: str = "support@leonex.net"
 
