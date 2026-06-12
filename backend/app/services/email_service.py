@@ -1,10 +1,18 @@
+"""
+EmailService — Resend HTTP API Transport
+=========================================
+Since Render's free tier blocks all outbound SMTP ports (25, 465, 587),
+we use the Resend SDK which makes HTTPS calls (port 443, never blocked).
+
+  Python FastAPI ──HTTPS──► Resend API ──SMTP──► Gmail/any inbox
+"""
 import logging
 import threading
 import time
-import requests
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
+import resend
 from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import SessionLocal
@@ -12,58 +20,57 @@ from app.models import Tender, EmailRecipient, EmailLog, EmailSetting
 
 logger = logging.getLogger("email_service")
 
+# Set Resend API key once at module load
+resend.api_key = settings.RESEND_API_KEY
+
 
 class EmailService:
     @staticmethod
-    def send_email(to: str, subject: str, html_content: str, from_name: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+    def send_email(
+        to: str,
+        subject: str,
+        html_content: str,
+        from_name: Optional[str] = None,
+    ) -> Tuple[bool, Optional[str]]:
         """
-        Sends an email by calling the Node.js Nodemailer microservice via HTTP.
-        
-        Architecture:
-          Python (FastAPI) ──HTTP POST──► Node.js (Express + Nodemailer) ──SMTP──► Gmail
-        
-        This pattern is identical to how Nodemailer is used in production:
-        a Node.js service owns the SMTP transport, Python just fires the request.
+        Sends an email via Resend HTTP API.
+        Works on Render, Railway, Heroku, Vercel — any cloud platform.
         """
-        mailer_url = getattr(settings, "MAILER_URL", "http://localhost:3001")
         display_name = from_name or "Tender Intelligence"
+        # 'onboarding@resend.dev' works in test mode (sends to any inbox).
+        # To use your own domain: verify leonexinternship@gmail.com at resend.com/domains
+        from_address = f"{display_name} <onboarding@resend.dev>"
 
         try:
-            resp = requests.post(
-                f"{mailer_url}/send",
-                json={
-                    "to": to,
-                    "subject": subject,
-                    "html": html_content,
-                    "fromName": display_name,
-                },
-                timeout=30,
-            )
-            data = resp.json()
-            if resp.ok and data.get("success"):
-                logger.info("Email sent to %s via Nodemailer (msgId: %s)", to, data.get("messageId"))
-                return True, None
-            else:
-                err = data.get("error", f"HTTP {resp.status_code}")
-                logger.error("Nodemailer service error for %s: %s", to, err)
-                return False, err
-        except requests.exceptions.ConnectionError:
-            err = "Mailer service offline — is email-service/server.js running?"
-            logger.error(err)
-            return False, err
+            params: resend.Emails.SendParams = {
+                "from": from_address,
+                "to": [to],
+                "subject": subject,
+                "html": html_content,
+            }
+            result = resend.Emails.send(params)
+            msg_id = result.get("id") if isinstance(result, dict) else getattr(result, "id", "")
+            logger.info("Email sent to %s via Resend (id: %s)", to, msg_id)
+            return True, None
         except Exception as e:
-            err = f"Mailer request failed: {str(e)}"
+            err = f"Resend error: {str(e)}"
             logger.exception(err)
             return False, err
 
     @staticmethod
-    def log_email(db: Session, recipient: str, subject: str, status: str, error_message: Optional[str] = None):
+    def log_email(
+        db: Session,
+        recipient: str,
+        subject: str,
+        status: str,
+        error_message: Optional[str] = None,
+    ):
         """Logs an email attempt in the database."""
         log = EmailLog(
             recipient=recipient,
             subject=subject,
             status=status,
-            error_message=error_message
+            error_message=error_message,
         )
         db.add(log)
         db.commit()
@@ -75,13 +82,20 @@ class EmailService:
         rows_html = ""
         for t in tenders:
             rows_html += f"""
-            <div style="margin-bottom: 25px;">
-                <p style="margin: 0 0 5px 0;"><strong>Tender ID:</strong> {t.tender_id or 'N/A'}</p>
-                <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Description:</strong> {t.description or t.title or 'No description'}</p>
-                <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Keyword:</strong> {t.keyword or 'N/A'} | <strong>Source:</strong> {t.source.upper()}</p>
-                <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Start:</strong> {t.start_date or 'N/A'} | <strong>End:</strong> {t.end_date or 'N/A'}</p>
-                <p style="margin: 0 0 15px 0; font-size: 12px;"><strong>Link:</strong> <a href="{t.link or '#'}" style="color: #000; text-decoration: underline;">{t.link or '#'}</a></p>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 0;">
+            <div style="margin-bottom:25px;">
+                <p style="margin:0 0 5px 0;"><strong>Tender ID:</strong> {t.tender_id or 'N/A'}</p>
+                <p style="margin:0 0 5px 0;font-size:14px;"><strong>Description:</strong> {t.description or t.title or 'No description'}</p>
+                <p style="margin:0 0 5px 0;font-size:12px;color:#555;">
+                    <strong>Keyword:</strong> {t.keyword or 'N/A'} | <strong>Source:</strong> {(t.source or '').upper()}
+                </p>
+                <p style="margin:0 0 5px 0;font-size:12px;color:#555;">
+                    <strong>Start:</strong> {t.start_date or 'N/A'} | <strong>End:</strong> {t.end_date or 'N/A'}
+                </p>
+                <p style="margin:0 0 15px 0;font-size:12px;">
+                    <strong>Link:</strong>
+                    <a href="{t.link or '#'}" style="color:#000;text-decoration:underline;">{t.link or '#'}</a>
+                </p>
+                <hr style="border:0;border-top:1px solid #eee;margin:0;">
             </div>
             """
         if not rows_html:
@@ -98,17 +112,26 @@ class EmailService:
         <p>Hello Team,</p>
         <p>Please find the consolidated tender collection for <strong>{date_str}</strong> below.</p>
         <div style="margin-top:40px;">{rows_html}</div>
-        <p style="font-size:11px;color:#aaa;margin-top:60px;text-align:center;">Authorized by Leonex Tender Intelligence Platform.</p>
+        <p style="font-size:11px;color:#aaa;margin-top:60px;text-align:center;">
+            Authorized by Leonex Tender Intelligence Platform.
+        </p>
     </div>
 </body></html>"""
 
     @classmethod
-    def send_daily_report(cls, db: Session, manual_recipient: Optional[str] = None, target_date: Optional[str] = None):
+    def send_daily_report(
+        cls,
+        db: Session,
+        manual_recipient: Optional[str] = None,
+        target_date: Optional[str] = None,
+    ):
         """Fetches tenders and sends report to all active recipients."""
         settings_row = db.query(EmailSetting).first()
         if not settings_row:
             settings_row = EmailSetting()
-            db.add(settings_row); db.commit(); db.refresh(settings_row)
+            db.add(settings_row)
+            db.commit()
+            db.refresh(settings_row)
 
         if not manual_recipient and not target_date and not settings_row.daily_report_enabled:
             return
@@ -123,14 +146,16 @@ class EmailService:
                 start_time = datetime.now() - timedelta(hours=48)
                 end_time = datetime.now()
         else:
-            lookback_hours = 48 if manual_recipient or not settings_row.last_report_sent_at else 24
+            lookback_hours = 48 if (manual_recipient or not settings_row.last_report_sent_at) else 24
             start_time = datetime.now() - timedelta(hours=lookback_hours)
             end_time = datetime.now()
 
-        tenders = db.query(Tender).filter(
-            Tender.created_at >= start_time,
-            Tender.created_at <= end_time
-        ).order_by(Tender.created_at.desc()).all()
+        tenders = (
+            db.query(Tender)
+            .filter(Tender.created_at >= start_time, Tender.created_at <= end_time)
+            .order_by(Tender.created_at.desc())
+            .all()
+        )
 
         html_content = cls.generate_tender_report_html(tenders)
         subject = f"Tender Intelligence Report \u2013 {datetime.now().strftime('%d %b %Y')}"
@@ -141,7 +166,9 @@ class EmailService:
             recipients = db.query(EmailRecipient).filter(EmailRecipient.is_active == True).all()
 
         for r in recipients:
-            success, err = cls.send_email(r.email, subject, html_content, from_name=settings_row.sender_name)
+            success, err = cls.send_email(
+                r.email, subject, html_content, from_name=settings_row.sender_name
+            )
             cls.log_email(db, r.email, subject, "sent" if success else "failed", err)
 
         if not manual_recipient:
@@ -160,9 +187,11 @@ class EmailScheduler:
                         settings_row = db.query(EmailSetting).first()
                         if settings_row and settings_row.daily_report_enabled:
                             try:
-                                hour, minute = map(int, settings_row.report_time.split(':'))
+                                hour, minute = map(int, settings_row.report_time.split(":"))
                                 now = datetime.now()
-                                target_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+                                target_time = now.replace(
+                                    hour=hour, minute=minute, second=0, microsecond=0
+                                )
                                 last_sent = settings_row.last_report_sent_at
                                 sent_today = last_sent and last_sent.date() == now.date()
                                 if not sent_today and now >= target_time:
