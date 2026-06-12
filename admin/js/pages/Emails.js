@@ -29,7 +29,7 @@ export async function renderEmails() {
 
             <div style="display:grid; grid-template-columns: repeat(12, 1fr); gap:32px;">
                 
-                <!-- LEFT COLUMN: CONFIG (4 COL) - SWAPPED FROM RIGHT -->
+                <!-- LEFT COLUMN: CONFIG (4 COL) -->
                 <div style="grid-column: span 4; display:flex; flex-direction:column; gap:32px;">
                     
                     <div class="bb-card" style="border:1px solid var(--border-glass); padding:32px; backdrop-filter: blur(20px); position:relative;">
@@ -90,7 +90,7 @@ export async function renderEmails() {
 
                 </div>
 
-                <!-- RIGHT COLUMN: RECIPIENTS (8 COL) - SWAPPED FROM LEFT -->
+                <!-- RIGHT COLUMN: RECIPIENTS (8 COL) -->
                 <div style="grid-column: span 8; display:flex; flex-direction:column; gap:32px;">
                     
                     <div class="bb-card" style="padding:0; overflow:hidden; border:1px solid var(--border-glass); backdrop-filter: blur(20px);">
@@ -255,4 +255,177 @@ async function loadLogs() {
                 </div>
                 <div style="font-size:10px; font-weight:900; color:${log.status === 'sent' ? '#22c55e' : '#ef4444'}; text-transform:uppercase; letter-spacing:1.5px; background:${log.status === 'sent' ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)'}; padding:5px 12px; border-radius:8px; border:1px solid ${log.status === 'sent' ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'};">${log.status}</div>
             </div>
-// --- remaining file content matches previous version ---
+        `).join('');
+        if (window.lucide) window.lucide.createIcons();
+    } catch (e) { console.error(e); }
+}
+
+async function loadSettings() {
+    const baseUrl = getApiBase();
+    try {
+        const res = await adminFetch(`${baseUrl}/admin/emails/settings`);
+        const s = await res.json();
+
+        // STRICT NULL HANDLING FOR UNDEFINED UI ISSUES
+        document.getElementById('setting-report-enabled').checked = !!s?.daily_report_enabled;
+        document.getElementById('setting-report-time').value = s?.report_time || '09:00';
+        document.getElementById('setting-sender-name').value = s?.sender_name || 'Tender Intelligence';
+        document.getElementById('setting-sender-email').value = s?.sender_email || 'reports@leonex.net';
+    } catch (e) {
+        console.error('Settings load fail:', e);
+    }
+}
+
+async function saveSettings() {
+    const btn = document.getElementById('adm-save-settings-btn');
+    const baseUrl = getApiBase();
+    const oldText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:16px;height:16px;margin-right:8px;"></i> SYNCING...';
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+        const res = await adminFetch(`${baseUrl}/admin/emails/settings`, {
+            method: 'PUT',
+            body: {
+                daily_report_enabled: document.getElementById('setting-report-enabled').checked,
+                report_time: document.getElementById('setting-report-time').value,
+                sender_name: document.getElementById('setting-sender-name').value,
+                sender_email: document.getElementById('setting-sender-email').value
+            }
+        });
+        if (!res.ok) throw new Error("Backend rejection");
+        showToast("System configuration updated successfully.");
+    } catch (e) {
+        showToast("Configuration sync failed.", "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+        if (window.lucide) window.lucide.createIcons();
+    }
+}
+
+async function saveNewRecipient() {
+    const btn = document.getElementById('modal-r-save-btn');
+    const name = document.getElementById('modal-r-name').value;
+    const email = document.getElementById('modal-r-email').value;
+    const dept = document.getElementById('modal-r-dept').value;
+    const baseUrl = getApiBase();
+
+    if (!name || !email) return showToast("Name and email are required", "error");
+
+    btn.disabled = true;
+    btn.innerHTML = 'PROCESSING...';
+
+    try {
+        const res = await adminFetch(`${baseUrl}/admin/emails/recipients`, {
+            method: 'POST',
+            body: { name, email, department: dept }
+        });
+        if (res.ok) {
+            document.getElementById('adm-email-modal').style.display = 'none';
+            document.getElementById('modal-r-name').value = '';
+            document.getElementById('modal-r-email').value = '';
+            document.getElementById('modal-r-dept').value = '';
+            loadRecipients();
+            showToast("New recipient registered to network.");
+        } else {
+            const err = await res.json();
+            throw new Error(err.detail || "Registration failed");
+        }
+    } catch (e) {
+        showToast(e.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'CONFIRM ENTRY';
+    }
+}
+
+async function triggerManualReport() {
+    if (!confirm("Confirm full systems tender report distribution sequence?")) return;
+    const btn = document.getElementById('adm-send-now-btn');
+    const baseUrl = getApiBase();
+    btn.disabled = true;
+
+    try {
+        const res = await adminFetch(`${baseUrl}/admin/emails/send-now`, { method: 'POST' });
+        if (res.ok) {
+            showToast("Global distribution sequence started.");
+            loadLogs();
+        } else throw new Error();
+    } catch (e) {
+        showToast("Sequence initiation failed.", "error");
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function sendDiagnosticEmail() {
+    const email = document.getElementById('test-email-addr').value;
+    if (!email) return;
+    const btn = document.getElementById('adm-test-email-btn');
+    const baseUrl = getApiBase();
+    btn.disabled = true;
+
+    try {
+        const res = await adminFetch(`${baseUrl}/admin/emails/send-test`, {
+            method: 'POST',
+            body: { email }
+        });
+        const data = await res.json();
+        if (data.status === 'success') showToast("Diagnostic transmission confirmed!");
+        else showToast("Transmission failure: " + data.message, "error");
+        loadLogs();
+    } catch (e) {
+        showToast(e.message, "error");
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+window._sendQuickTest = async (email) => {
+    const baseUrl = getApiBase();
+    try {
+        const res = await adminFetch(`${baseUrl}/admin/emails/send-test`, {
+            method: 'POST',
+            body: { email }
+        });
+        if (res.ok) showToast(`High-priority test sent to ${email}`);
+    } catch (e) { showToast("Signal failure", "error"); }
+};
+
+window._toggleRecipient = async (id, isActive) => {
+    const baseUrl = getApiBase();
+    try {
+        await adminFetch(`${baseUrl}/admin/emails/recipients/${id}`, {
+            method: 'PUT',
+            body: { is_active: isActive }
+        });
+        showToast(`Node status synchronized.`);
+    } catch (e) {
+        showToast("Sync failed", "error");
+        loadRecipients();
+    }
+};
+
+window._deleteRecipient = async (id) => {
+    if (!confirm("Permanently terminate this node from the distribution network?")) return;
+    const baseUrl = getApiBase();
+    try {
+        await adminFetch(`${baseUrl}/admin/emails/recipients/${id}`, { method: 'DELETE' });
+        loadRecipients();
+        showToast("Node termination successful.");
+    } catch (e) { showToast("Termination procedure failed.", "error"); }
+};
+
+function showToast(msg, type = "success") {
+    const toast = document.createElement('div');
+    toast.style = `position:fixed; bottom:32px; right:32px; padding:14px 28px; border-radius:16px; background:${type === 'error' ? '#ef4444' : '#22c55e'}; color:white; font-size:14px; font-weight:800; z-index:9999; box-shadow:0 15px 40px rgba(0,0,0,0.5); transform:translateY(150px); transition:transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); border:1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);`;
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.style.transform = 'translateY(0)', 10);
+    setTimeout(() => {
+        toast.style.transform = 'translateY(150px)';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
