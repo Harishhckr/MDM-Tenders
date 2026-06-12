@@ -1,16 +1,16 @@
 // ============================================================
 // Admin Portal — Main Entry Point (Robust Version)
 // ============================================================
-import { registerRoute, handleRoute, getCurrentRoute } from './router.js?v=2.2';
-import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js?v=2.2';
-import { renderLogin } from './pages/Login.js?v=2.2';
-import { renderDashboard } from './pages/Dashboard.js?v=2.2';
-import { renderScrapers } from './pages/Scrapers.js?v=2.2';
-import { renderLogs } from './pages/Logs.js?v=2.2';
-import { renderUsers } from './pages/Users.js?v=2.2';
-import { renderSettings } from './pages/Settings.js?v=2.2';
-import { renderTerminal } from './pages/Terminal.js?v=2.2';
-import { renderEmails } from './pages/Emails.js?v=2.2';
+import { registerRoute, handleRoute, getCurrentRoute } from './router.js?v=2.3';
+import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js?v=2.3';
+import { renderLogin } from './pages/Login.js?v=2.3';
+import { renderDashboard } from './pages/Dashboard.js?v=2.3';
+import { renderScrapers } from './pages/Scrapers.js?v=2.3';
+import { renderLogs } from './pages/Logs.js?v=2.3';
+import { renderUsers } from './pages/Users.js?v=2.3';
+import { renderSettings } from './pages/Settings.js?v=2.3';
+import { renderTerminal } from './pages/Terminal.js?v=2.3';
+import { renderEmails } from './pages/Emails.js?v=2.3';
 
 console.log('[Main] Booting System...');
 
