@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import EmailRecipient, EmailLog, EmailSetting
@@ -94,6 +94,12 @@ def update_email_settings(data: Dict[str, Any], db: Session = Depends(get_db), _
 def get_email_logs(limit: int = 100, db: Session = Depends(get_db), _admin=Depends(require_admin) if not settings.DEBUG else None):
     logs = db.query(EmailLog).order_by(EmailLog.sent_at.desc()).limit(limit).all()
     return [l.to_dict() for l in logs]
+
+@router.post("/trigger")
+def trigger_sync(background_tasks: BackgroundTasks, db: Session = Depends(get_db), date: Optional[str] = None):
+    """Manually triggers a daily report sync. Accepts optional target date (YYYY-MM-DD)."""
+    background_tasks.add_task(EmailService.send_daily_report, db, target_date=date)
+    return {"message": f"Manual sync initiated{' for ' + date if date else ''}"}
 
 @router.delete("/logs")
 def clear_email_logs(db: Session = Depends(get_db), _admin=Depends(require_admin) if not settings.DEBUG else None):

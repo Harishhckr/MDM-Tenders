@@ -28,7 +28,8 @@ export async function renderEmails() {
                         </div>
                         <h1 style="font-size:28px; font-weight:900; color:var(--text-primary); margin:0; letter-spacing:-1px;">Email Control</h1>
                     </div>
-                    <div style="display:flex; gap:12px;">
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <input type="date" id="sync-target-date" class="adm-input" style="height:40px; width:130px; border-radius:12px; padding:0 12px; font-size:10px; font-weight:700; border:1px solid rgba(255,255,255,0.08);">
                         <button id="adm-send-now-btn" class="bb-btn-secondary" style="height:40px; padding:0 20px; border-radius:12px; font-size:10px; font-weight:900; display:flex; align-items:center; gap:10px; letter-spacing:1px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--text-primary);">
                             <i data-lucide="zap" style="width:14px;height:14px;"></i>
                             SYNC ENGINE
@@ -230,7 +231,7 @@ export async function renderEmails() {
     });
     document.getElementById('modal-r-save-btn').addEventListener('click', saveNewRecipient);
     document.getElementById('adm-save-settings-btn').addEventListener('click', saveSettings);
-    document.getElementById('adm-send-now-btn').addEventListener('click', triggerManualReport);
+    document.getElementById('adm-send-now-btn').addEventListener('click', initiateGlobalSync);
     document.getElementById('adm-test-email-btn').addEventListener('click', sendDiagnosticEmail);
     document.getElementById('adm-clear-logs-btn').addEventListener('click', clearEmailLogs);
 
@@ -414,22 +415,34 @@ async function saveNewRecipient() {
     }
 }
 
-async function triggerManualReport() {
-    if (!confirm("Confirm full systems tender report distribution sequence?")) return;
+async function initiateGlobalSync() {
     const btn = document.getElementById('adm-send-now-btn');
-    const baseUrl = getApiBase();
-    btn.disabled = true;
+    const dateInput = document.getElementById('sync-target-date');
+    const targetDate = dateInput ? dateInput.value : '';
 
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="pulse-dot"></i> INITIALIZING...';
+    }
+
+    const baseUrl = getApiBase();
     try {
-        const res = await adminFetch(`${baseUrl}/admin/emails/send-now`, { method: 'POST' });
+        const url = new URL(`${baseUrl}/admin/emails/trigger`);
+        if (targetDate) url.searchParams.append('date', targetDate);
+
+        const res = await adminFetch(url.toString(), { method: 'POST' });
         if (res.ok) {
-            showToast("Global distribution sequence started.");
-            loadLogs();
-        } else throw new Error();
+            showToast(`Sync requested${targetDate ? ' for ' + targetDate : ''}`, 'success');
+            setTimeout(loadLogs, 3000);
+        }
     } catch (e) {
-        showToast("Sequence initiation failed.", "error");
+        showToast('Sync request failed', 'error');
     } finally {
-        btn.disabled = false;
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="zap" style="width:14px;height:14px;"></i> SYNC ENGINE';
+            lucide.createIcons();
+        }
     }
 }
 

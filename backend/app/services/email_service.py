@@ -125,19 +125,34 @@ class EmailService:
         """
 
     @classmethod
-    def send_daily_report(cls, db: Session, manual_recipient: Optional[str] = None):
-        """Fetches tenders and sends report to recipients."""
+    def send_daily_report(cls, db: Session, manual_recipient: Optional[str] = None, target_date: Optional[str] = None):
+        """Fetches tenders and sends report to recipients. If target_date provided, filters by that date."""
         settings_row = db.query(EmailSetting).first()
         if not settings_row:
             settings_row = EmailSetting()
             db.add(settings_row); db.commit(); db.refresh(settings_row)
 
-        if not manual_recipient and not settings_row.daily_report_enabled:
+        if not manual_recipient and not target_date and not settings_row.daily_report_enabled:
             return
 
-        lookback_hours = 48 if manual_recipient or not settings_row.last_report_sent_at else 24
-        start_time = datetime.now() - timedelta(hours=lookback_hours)
-        tenders = db.query(Tender).filter(Tender.created_at >= start_time).order_by(Tender.created_at.desc()).all()
+        if target_date:
+            try:
+                dt = datetime.strptime(target_date, "%Y-%m-%d")
+                start_time = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+                end_time = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+                date_str = dt.strftime("%B %d, %Y")
+            except ValueError:
+                # Fallback to default if invalid date string
+                start_time = datetime.now() - timedelta(hours=48)
+                end_time = datetime.now()
+                date_str = datetime.now().strftime("%B %d, %Y")
+        else:
+            lookback_hours = 48 if manual_recipient or not settings_row.last_report_sent_at else 24
+            start_time = datetime.now() - timedelta(hours=lookback_hours)
+            end_time = datetime.now()
+            date_str = datetime.now().strftime("%B %d, %Y")
+
+        tenders = db.query(Tender).filter(Tender.created_at >= start_time, Tender.created_at <= end_time).order_by(Tender.created_at.desc()).all()
         
         html_content = cls.generate_tender_report_html(tenders)
         subject = f"Tender Intelligence Report – {datetime.now().strftime('%d %b %Y')}"
