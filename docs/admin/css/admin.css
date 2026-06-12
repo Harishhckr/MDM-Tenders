@@ -229,7 +229,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    
+
 }
 
 .bb-theme-toggle:hover {
@@ -257,7 +257,7 @@ body {
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    
+
     letter-spacing: 0.3px;
 }
 
@@ -297,7 +297,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    
+
 }
 
 .bb-profile-bubble:hover {
@@ -383,7 +383,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    
+
 }
 
 .scraper-item:hover {
@@ -444,7 +444,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    
+
 }
 
 .btn-icon-sm:hover:not(:disabled) {
@@ -627,7 +627,7 @@ body {
     border: 1px solid var(--border-glass);
     border-radius: 12px;
     padding: 16px;
-    
+
 }
 
 .stat-box:hover {
@@ -739,7 +739,7 @@ body {
     color: var(--text-primary);
     font-size: 13px;
     font-family: inherit;
-    
+
     outline: none;
 }
 
@@ -759,7 +759,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     margin-top: 8px;
-    
+
 }
 
 .admin-login-box .login-btn:hover {
@@ -1185,4 +1185,59 @@ body {
 
 .nav-item {
     font-size: 15px !important;
+}
+
+/* ── New Premium Components ── */
+.bb-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--r-card);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+
+.bb-modal {
+    display: flex;
+    animation: fadeIn 0.3s var(--ease);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.bb-btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.bb-btn-icon:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.1);
+}
+
+.bb-btn-icon:active {
+    transform: scale(0.9);
+}
+
+.bb-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+[data-theme="light"] .bb-card {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    background: #FFFFFF;
 }

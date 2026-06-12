@@ -60,24 +60,19 @@ class EmailService:
 
     @staticmethod
     def generate_tender_report_html(tenders: List[Tender]) -> str:
-        """Generates a compact HTML template for tender reports."""
-        date_str = datetime.now().strftime("%Y-%m-%d")
+        """Generates a compact HTML template matching the user's design."""
+        date_str = datetime.now().strftime("%d %b %Y")
         
         rows_html = ""
         for t in tenders:
             rows_html += f"""
-            <div style="padding: 15px; border-bottom: 1px solid #eeeeee; margin-bottom: 10px;">
-                <h3 style="margin: 0 0 8px 0; color: #1a73e8; font-size: 16px;">{t.title or 'No Title'}</h3>
-                <p style="margin: 0 0 8px 0; font-size: 13px; color: #555555;">{t.description or 'No description available'}</p>
-                <div style="font-size: 12px; color: #888888; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div><strong>ID:</strong> {t.tender_id or 'N/A'}</div>
-                    <div><strong>Keyword:</strong> {t.keyword or 'N/A'}</div>
-                    <div><strong>Source:</strong> {t.source}</div>
-                    <div><strong>End Date:</strong> {t.end_date or 'N/A'}</div>
-                </div>
-                <div style="margin-top: 10px;">
-                    <a href="{t.link or '#'}" style="display: inline-block; padding: 6px 12px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">View Tender</a>
-                </div>
+            <div style="margin-bottom: 25px;">
+                <p style="margin: 0 0 5px 0;"><strong>Tender ID:</strong> {t.tender_id or 'N/A'}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Description:</strong> {t.description or t.title or 'No description'}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Keyword:</strong> {t.keyword or 'N/A'} | <strong>Source:</strong> {t.source.upper()}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Start Date:</strong> {t.start_date or 'N/A'} | <strong>End Date:</strong> {t.end_date or 'N/A'}</p>
+                <p style="margin: 0 0 15px 0;"><strong>Link:</strong> <a href="{t.link or '#'}" style="color: #1a73e8; text-decoration: none;">{t.link or '#'}</a></p>
+                <hr style="border: 0; border-top: 1px solid #000000; margin: 0;">
             </div>
             """
 
@@ -90,27 +85,20 @@ class EmailService:
         <head>
             <meta charset="utf-8">
             <style>
-                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; }}
-                .container {{ max-width: 600px; margin: 20px auto; border: 1px solid #dddddd; border-radius: 8px; overflow: hidden; }}
-                .header {{ background-color: #000000; color: #ffffff; padding: 20px; text-align: center; }}
-                .content {{ padding: 20px; background-color: #ffffff; }}
-                .footer {{ background-color: #f8f9fa; color: #888888; padding: 15px; text-align: center; font-size: 11px; }}
+                body {{ font-family: Arial, sans-serif; line-height: 1.5; color: #000000; margin: 0; padding: 20px; }}
             </style>
         </head>
         <body>
-            <div class="container">
-                <div class="header">
-                    <h1 style="margin: 0; font-size: 20px; letter-spacing: 1px;">TENDER REPORT</h1>
-                    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.8;">{date_str}</p>
-                </div>
-                <div class="content">
-                    {rows_html}
-                </div>
-                <div class="footer">
-                    &copy; {datetime.now().year} Leonex Tender Intelligence Platform. All rights reserved.<br>
-                    This is an automated report. Please do not reply to this email.
-                </div>
-            </div>
+            <p>Dear Team,</p>
+            <p>Please find below the tender report for {date_str}.</p>
+            <br>
+            <hr style="border: 0; border-top: 1px solid #000000; margin: 0 0 20px 0;">
+            
+            {rows_html}
+            
+            <p style="font-size: 11px; color: #888888; margin-top: 40px;">
+                &copy; {datetime.now().year} Leonex Tender Intelligence Platform. Automated Report.
+            </p>
         </body>
         </html>
         """

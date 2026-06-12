@@ -147,6 +147,15 @@ def run_all_scrapers(db: Session, source_filter: Optional[str] = None, headless:
             logger.error("[%s] failed: %s", scraper.SOURCE, exc)
             summary[scraper.SOURCE] = {"error": str(exc)}
 
+    # If this was a full multi-source run, trigger the daily email report automatically
+    if source_filter is None and total_saved > 0:
+        try:
+            from app.services.email_service import EmailService
+            EmailService.send_daily_report(db)
+            logger.info("Automatic post-scrape tender report sent to recipients.")
+        except Exception as e:
+            logger.error("Failed to send automatic report after scrape: %s", e)
+
     return {"total_saved": total_saved, "by_source": summary}
 
 
