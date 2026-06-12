@@ -93,8 +93,8 @@ class Settings(BaseSettings):
     # Email (SMTP / Nodemailer Equivalent)
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASS: str = ""
+    SMTP_USER: str = "leonexinternship@gmail.com"
+    SMTP_PASS: str = "iurwecaxcnrnwlst"
     SMTP_TLS: bool = True
     
     EMAIL_FROM: str = "Tender Reports <reports@leonex.net>"
