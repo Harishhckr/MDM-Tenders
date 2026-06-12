@@ -42,11 +42,15 @@ window.loadEmails = async function () {
                 padding: 10px 16px; border-radius: 10px; margin-bottom: 6px; 
                 background: var(--bg-surface); border: 1px solid var(--border-subtle);
             }
-            .adm-input { 
-                background: var(--bg-surface); border: 1px solid var(--border-subtle); 
-                color: var(--text-primary); border-radius: 8px; padding: 0 12px; font-size: 11px; font-weight: 700;
-            }
-            .adm-input:focus { border-color: var(--border-strong); outline: none; }
+                .adm-input { 
+                    background: var(--bg-surface); border: 1px solid var(--border-subtle); 
+                    color: var(--text-primary); border-radius: 10px; padding: 0 12px; font-size: 11px; font-weight: 700;
+                    transition: border-color 0.2s;
+                }
+                .adm-input:focus { border-color: var(--text-primary); outline: none; }
+                .bb-btn-primary:active, .bb-btn-secondary:active { transform: scale(0.98); }
+                .bb-btn-primary:hover { filter: brightness(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+                .bb-btn-secondary:hover { background: var(--bg-surface); border-color: var(--border-strong); }
         </style>
 
         <div class="anim-in" style="max-width: 1200px; margin: 0 auto; padding: 20px 0;">

@@ -503,9 +503,10 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(255, 255, 255, 0.1);
-    transition: .2s;
+    background-color: var(--border-glass);
+    transition: .25s var(--ease);
     border-radius: 20px;
+    border: 1px solid var(--border-subtle);
 }
 
 .adm-toggle .slider:before {
@@ -521,12 +522,14 @@ body {
 }
 
 .adm-toggle input:checked+.slider {
-    background-color: var(--text-primary);
+    background-color: #22c55e;
+    border-color: #22c55e;
 }
 
 .adm-toggle input:checked+.slider:before {
     transform: translateX(16px);
-    background-color: #000;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 
