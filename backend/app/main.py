@@ -110,6 +110,19 @@ try:
 except Exception as exc:
     logger.warning("Admin router failed to load: %s", exc)
 
+# Email Management router
+try:
+    from app.api.email_api import router as email_router
+    app.include_router(email_router)              # /api/admin/emails/*
+    logger.info("Email router loaded")
+    
+    # Start scheduler
+    from app.services.email_service import EmailScheduler
+    EmailScheduler.start()
+    logger.info("Email scheduler background thread started")
+except Exception as exc:
+    logger.warning("Email router/scheduler failed to load: %s", exc)
+
 
 @app.get("/")
 def root():

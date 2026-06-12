@@ -139,3 +139,66 @@ class Bookmark(Base):
     __table_args__ = (
         UniqueConstraint("user_id", "identifier", name="uq_user_bookmark"),
     )
+
+class EmailRecipient(Base):
+    """List of recipients for the automated tender reports."""
+    __tablename__ = "email_recipients"
+
+    id          = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name        = Column(String(200), nullable=False)
+    email       = Column(String(255), unique=True, index=True, nullable=False)
+    department  = Column(String(100), nullable=True)
+    is_active   = Column(Boolean, default=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+    def to_dict(self) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "email": self.email,
+            "department": self.department,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+class EmailLog(Base):
+    """History of sent emails and their delivery status."""
+    __tablename__ = "email_logs"
+
+    id              = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    recipient       = Column(String(255), index=True, nullable=False)
+    subject         = Column(String(400), nullable=False)
+    status          = Column(String(50), default="sent")  # sent | failed
+    sent_at         = Column(DateTime(timezone=True), server_default=func.now())
+    error_message   = Column(Text, nullable=True)
+
+    def to_dict(self) -> dict:
+        return {
+            "id": str(self.id),
+            "recipient": self.recipient,
+            "subject": self.subject,
+            "status": self.status,
+            "sent_at": self.sent_at.isoformat() if self.sent_at else None,
+            "error_message": self.error_message,
+        }
+
+class EmailSetting(Base):
+    """Global configuration for the email reporting system."""
+    __tablename__ = "email_settings"
+
+    id                    = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    sender_name           = Column(String(100), default="Tender Intelligence")
+    sender_email          = Column(String(255), default="reports@leonex.net")
+    daily_report_enabled  = Column(Boolean, default=True)
+    report_time           = Column(String(10), default="09:00")  # HH:MM format
+    last_report_sent_at   = Column(DateTime(timezone=True), nullable=True)
+
+    def to_dict(self) -> dict:
+        return {
+            "id": str(self.id),
+            "sender_name": self.sender_name,
+            "sender_email": self.sender_email,
+            "daily_report_enabled": self.daily_report_enabled,
+            "report_time": self.report_time,
+            "last_report_sent_at": self.last_report_sent_at.isoformat() if self.last_report_sent_at else None,
+        }

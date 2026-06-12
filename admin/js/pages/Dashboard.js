@@ -7,7 +7,7 @@ let refreshTimer = null;
 
 export async function renderDashboard(container) {
     container.innerHTML = `
-        <div class="section-title anim-in"><i data-lucide="activity"></i> System Overview</div>
+        <div class="section-title anim-in">System Overview</div>
         <div class="stat-grid anim-in anim-d1" id="adm-stats">
             ${statBox('dash-total-tenders', 'Total Tenders', '...', 'cyan')}
             ${statBox('dash-google-results', 'Google Results', '...', 'cyan')}
@@ -15,13 +15,29 @@ export async function renderDashboard(container) {
             ${statBox('dash-tenders-today', 'Tenders Today', '...', 'green')}
             ${statBox('dash-google-today', 'Google Today', '...', 'green')}
             ${statBox('dash-total-users', 'Total Users', '...', '')}
+            ${statBox('dash-email-recipients', 'Email Recipients', '...', 'cyan')}
+            ${statBox('dash-emails-today', 'Emails Sent', '...', 'green')}
+            ${statBox('dash-last-report', 'Last Report', '...', '')}
         </div>
 
-        <div class="section-title anim-in anim-d2"><i data-lucide="bar-chart-3"></i> Tenders by Source</div>
-        <div id="adm-source-grid" class="stat-grid anim-in anim-d2"></div>
+        <div class="section-title anim-in anim-d2">Tenders by Source</div>
+        <div id="adm-source-grid" class="stat-grid anim-in anim-d2">
+            ${statBox('dash-src-gem', 'GEM', '...', 'cyan')}
+            ${statBox('dash-src-tender247', 'TENDER247', '...', 'cyan')}
+            ${statBox('dash-src-tenderdetail', 'TENDERDETAIL', '...', 'cyan')}
+            ${statBox('dash-src-tenderontime', 'TENDERONTIME', '...', 'cyan')}
+            ${statBox('dash-src-biddetail', 'BIDDETAIL', '...', 'cyan')}
+        </div>
 
-        <div class="section-title anim-in anim-d3"><i data-lucide="scroll-text"></i> Recent Activity</div>
-        <div class="adm-card anim-in anim-d3" id="adm-recent-logs"></div>
+        <div class="section-title anim-in anim-d3">Recent Activity</div>
+        <div class="adm-card anim-in anim-d3" id="adm-recent-logs" style="background:var(--bg-card); border:1px solid var(--border-glass); border-radius:12px; overflow:hidden;">
+            <table class="adm-table" style="margin-top:0;">
+                <thead><tr><th>Source</th><th>Status</th><th>Found</th><th>Saved</th><th>Started</th></tr></thead>
+                <tbody>
+                    <tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px;">Loading activity...</td></tr>
+                </tbody>
+            </table>
+        </div>
     `;
     if (window.lucide) window.lucide.createIcons();
 
@@ -51,6 +67,15 @@ async function loadDashboard() {
         updateStatVal('dash-tenders-today', d.today?.tenders ?? 0);
         updateStatVal('dash-google-today', d.today?.google ?? 0);
         updateStatVal('dash-total-users', d.counts?.users ?? 0);
+        updateStatVal('dash-email-recipients', d.counts?.email_recipients ?? 0);
+        updateStatVal('dash-emails-today', d.today?.emails_sent ?? 0);
+
+        let lastTime = 'Never';
+        if (d.last_report_time) {
+            const dt = new Date(d.last_report_time);
+            lastTime = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        updateStatVal('dash-last-report', lastTime);
 
         const srcEl = document.getElementById('adm-source-grid');
         if (srcEl) {
@@ -80,7 +105,7 @@ async function loadDashboard() {
                 let tbody = logsEl.querySelector('tbody');
                 if (!tbody) {
                     logsEl.innerHTML = `
-                        <table class="adm-table">
+                        <table class="adm-table" style="margin-top:0;">
                             <thead><tr><th>Source</th><th>Status</th><th>Found</th><th>Saved</th><th>Started</th></tr></thead>
                             <tbody></tbody>
                         </table>
@@ -129,4 +154,5 @@ function statBox(id, label, value, colorClass = '') {
         </div>
     `;
 }
+
 

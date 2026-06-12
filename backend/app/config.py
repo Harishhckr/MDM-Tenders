@@ -90,5 +90,10 @@ class Settings(BaseSettings):
         "material verification"
     ]
 
+    # Email (Resend API)
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "Tender Reports <reports@leonex.net>"
+    EMAIL_REPLY_TO: str = "support@leonex.net"
+
 
 settings = Settings()

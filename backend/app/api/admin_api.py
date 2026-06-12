@@ -61,6 +61,13 @@ def admin_dashboard(db: Session = Depends(get_db), _admin=Depends(require_admin)
             "completed_at": log.completed_at.isoformat() if log.completed_at else None,
         })
 
+    # Email stats
+    from app.models import EmailRecipient, EmailLog, EmailSetting
+    total_recipients = db.query(func.count(EmailRecipient.id)).scalar() or 0
+    emails_today     = db.query(func.count(EmailLog.id)).filter(EmailLog.sent_at >= today_start).scalar() or 0
+    email_settings   = db.query(EmailSetting).first()
+    last_report      = email_settings.last_report_sent_at.isoformat() if email_settings and email_settings.last_report_sent_at else None
+
     return {
         "server_time": now.isoformat(),
         "counts": {
@@ -68,11 +75,14 @@ def admin_dashboard(db: Session = Depends(get_db), _admin=Depends(require_admin)
             "tenders": total_tenders,
             "crawl_logs": total_crawls,
             "google_results": total_google,
+            "email_recipients": total_recipients,
         },
         "today": {
             "tenders": tenders_today,
             "google": google_today,
+            "emails_sent": emails_today,
         },
+        "last_report_time": last_report,
         "active_scrapers": active_scrapers,
         "tenders_by_source": by_source,
         "recent_logs": logs_list,

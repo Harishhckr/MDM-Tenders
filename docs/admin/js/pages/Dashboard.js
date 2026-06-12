@@ -15,6 +15,9 @@ export async function renderDashboard(container) {
             ${statBox('dash-tenders-today', 'Tenders Today', '...', 'green')}
             ${statBox('dash-google-today', 'Google Today', '...', 'green')}
             ${statBox('dash-total-users', 'Total Users', '...', '')}
+            ${statBox('dash-email-recipients', 'Email Recipients', '...', 'cyan')}
+            ${statBox('dash-emails-today', 'Emails Sent', '...', 'green')}
+            ${statBox('dash-last-report', 'Last Report', '...', '')}
         </div>
 
         <div class="section-title anim-in anim-d2">Tenders by Source</div>
@@ -64,6 +67,15 @@ async function loadDashboard() {
         updateStatVal('dash-tenders-today', d.today?.tenders ?? 0);
         updateStatVal('dash-google-today', d.today?.google ?? 0);
         updateStatVal('dash-total-users', d.counts?.users ?? 0);
+        updateStatVal('dash-email-recipients', d.counts?.email_recipients ?? 0);
+        updateStatVal('dash-emails-today', d.today?.emails_sent ?? 0);
+
+        let lastTime = 'Never';
+        if (d.last_report_time) {
+            const dt = new Date(d.last_report_time);
+            lastTime = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        updateStatVal('dash-last-report', lastTime);
 
         const srcEl = document.getElementById('adm-source-grid');
         if (srcEl) {
