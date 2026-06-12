@@ -90,15 +90,19 @@ class Settings(BaseSettings):
         "material verification"
     ]
 
-    # Email (SMTP / Nodemailer Equivalent)
+    # Email — Resend HTTP API (works on Render / all cloud platforms)
+    # Get your key at https://resend.com — free tier: 3000 emails/month
+    RESEND_API_KEY: str = "re_Ks2BAFfA_g4SHnLqQhnGxriRzWSPfkPs6"
+
+    # Legacy SMTP fields (kept for reference — NOT used on Render)
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 465
     SMTP_USER: str = "leonexinternship@gmail.com"
     SMTP_PASS: str = "iurwecaxcnrnwlst"
     SMTP_TLS: bool = True
-    
-    EMAIL_FROM: str = "Tender Reports <reports@leonex.net>"
-    EMAIL_REPLY_TO: str = "support@leonex.net"
+
+    EMAIL_FROM: str = "Tender Intelligence <onboarding@resend.dev>"
+    EMAIL_REPLY_TO: str = "leonexinternship@gmail.com"
 
 
 settings = Settings()

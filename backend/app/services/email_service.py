@@ -1,11 +1,8 @@
 import logging
-import smtplib
 import threading
 import time
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 from sqlalchemy.orm import Session
 from app.config import settings
@@ -14,69 +11,37 @@ from app.models import Tender, EmailRecipient, EmailLog, EmailSetting
 
 logger = logging.getLogger("email_service")
 
+
 class EmailService:
     @staticmethod
-    def send_email(to: str, subject: str, html_content: str, from_email: Optional[str] = None, from_name: Optional[str] = None) -> Tuple[bool, Optional[str]]:
-        """Sends an email using standard SMTP (Nodemailer equivalent). Returns (success, error_message)."""
-        
-        # 1. Validation (Using Settings with Hardcoded Fallbacks for Render)
-        smtp_user = settings.SMTP_USER or "leonexinternship@gmail.com"
-        smtp_pass = settings.SMTP_PASS or "iurwecaxcnrnwlst"
+    def send_email(to: str, subject: str, html_content: str, from_name: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+        """Sends an email using Resend HTTP API (works on Render / all cloud platforms)."""
+        import resend
 
-        if not smtp_user or not smtp_pass:
-            msg = "SMTP_USER or SMTP_PASS is missing from environment."
-            logger.warning(msg)
-            return False, msg
+        api_key = settings.RESEND_API_KEY or "re_Ks2BAFfA_g4SHnLqQhnGxriRzWSPfkPs6"
+        if not api_key:
+            return False, "RESEND_API_KEY is missing."
 
-        # 2. Construct Message
-        # GMAIL REQUIREMENT: The 'From' address must match the authenticated account exactly.
-        actual_sender_email = smtp_user
+        resend.api_key = api_key
         display_name = from_name or "Tender Intelligence"
-        sender_formatted = f"{display_name} <{actual_sender_email}>"
+        # Resend requires your verified domain in the From address.
+        # We use onboarding@resend.dev for testing or your verified domain.
+        from_address = f"{display_name} <onboarding@resend.dev>"
 
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = sender_formatted
-        msg["To"] = to
-        
-        if settings.EMAIL_REPLY_TO:
-            msg["Reply-To"] = settings.EMAIL_REPLY_TO
-
-        # Attach HTML part
-        msg.attach(MIMEText(html_content, "html"))
-
-        # 3. Transmission
         try:
-            if settings.SMTP_PORT == 465:
-                # SSL standard for Port 465
-                server = smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30)
-            else:
-                # TLS standard for Port 587
-                server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=30)
-                if settings.SMTP_TLS:
-                    server.starttls()
-                
-            server.login(smtp_user, smtp_pass)
-            server.send_message(msg)
-            server.quit()
-            
-            logger.info("Email sent successfully to %s via SMTP", to)
+            params = resend.Emails.SendParams(
+                from_=from_address,
+                to=[to],
+                subject=subject,
+                html=html_content,
+            )
+            result = resend.Emails.send(params)
+            logger.info("Email sent via Resend to %s — id: %s", to, result.get("id"))
             return True, None
-
-        except smtplib.SMTPAuthenticationError:
-            err = "Authentication Failed: Check SMTP_USER and SMTP_PASS (or App Password)."
-            logger.error(err)
-            return False, err
-        except smtplib.SMTPConnectError:
-            err = f"Connection Failed: Could not reach {settings.SMTP_HOST} on port {settings.SMTP_PORT}."
-            logger.error(err)
-            return False, err
         except Exception as e:
-            import traceback
-            err = f"SMTP {type(e).__name__}: {str(e)}"
+            err = f"Resend {type(e).__name__}: {str(e)}"
             logger.exception(err)
-            # Return detailed error for UI analysis
-            return False, f"{err} | TRACE: {traceback.format_exc()[-100:].strip()}"
+            return False, err
 
     @staticmethod
     def log_email(db: Session, recipient: str, subject: str, status: str, error_message: Optional[str] = None):
@@ -92,7 +57,7 @@ class EmailService:
 
     @staticmethod
     def generate_tender_report_html(tenders: List[Tender]) -> str:
-        """Generates a compact HTML template matching the user's design."""
+        """Generates the HTML email report body."""
         date_str = datetime.now().strftime("%d %b %Y")
         rows_html = ""
         for t in tenders:
@@ -101,44 +66,42 @@ class EmailService:
                 <p style="margin: 0 0 5px 0;"><strong>Tender ID:</strong> {t.tender_id or 'N/A'}</p>
                 <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Description:</strong> {t.description or t.title or 'No description'}</p>
                 <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Keyword:</strong> {t.keyword or 'N/A'} | <strong>Source:</strong> {t.source.upper()}</p>
-                <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Start Date:</strong> {t.start_date or 'N/A'} | <strong>End Date:</strong> {t.end_date or 'N/A'}</p>
-                <p style="margin: 0 0 15px 0; font-size: 12px;"><strong>Link:</strong> <a href="{t.link or '#'}" style="color: #000; text-decoration: underline;">{t.link or '#'}</a></p>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 0;">
+                <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;"><strong>Start:</strong> {t.start_date or 'N/A'} | <strong>End:</strong> {t.end_date or 'N/A'}</p>
+                <p style="margin: 0 0 15px 0; font-size: 12px;"><strong>Link:</strong> <a href="{t.link or '#'}" style="color:#000;text-decoration:underline;">{t.link or '#'}</a></p>
+                <hr style="border:0;border-top:1px solid #eee;margin:0;">
             </div>
             """
         if not rows_html:
-            rows_html = "<p style='text-align: center; color: #888; padding: 40px;'>No new tenders found for this period.</p>"
+            rows_html = "<p style='text-align:center;color:#888;padding:40px;'>No new tenders found for this period.</p>"
 
-        return f"""
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="utf-8"></head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #000; margin: 0; padding: 40px; background: #fff;">
-            <div style="max-width: 600px; margin: 0 auto;">
-                <div style="border-left: 4px solid #000; padding-left: 20px; margin-bottom: 40px;">
-                    <p style="font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #888; margin: 0;">Automated Distribution</p>
-                    <h2 style="font-size: 28px; font-weight: 900; margin: 5px 0 0 0; letter-spacing: -0.5px;">Tender Intelligence Report</h2>
-                </div>
-                <p>Hello Team,</p>
-                <p>Please find the consolidated tender collection for <strong>{date_str}</strong> below.</p>
-                <div style="margin-top: 40px;">{rows_html}</div>
-                <p style="font-size: 11px; color: #aaa; margin-top: 60px; text-align: center;">Authorized by Leonex Tender Intelligence Platform.</p>
-            </div>
-        </body>
-        </html>
-        """
+        return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#000;margin:0;padding:40px;background:#fff;">
+    <div style="max-width:600px;margin:0 auto;">
+        <div style="border-left:4px solid #000;padding-left:20px;margin-bottom:40px;">
+            <p style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#888;margin:0;">Automated Distribution</p>
+            <h2 style="font-size:28px;font-weight:900;margin:5px 0 0 0;letter-spacing:-0.5px;">Tender Intelligence Report</h2>
+        </div>
+        <p>Hello Team,</p>
+        <p>Please find the consolidated tender collection for <strong>{date_str}</strong> below.</p>
+        <div style="margin-top:40px;">{rows_html}</div>
+        <p style="font-size:11px;color:#aaa;margin-top:60px;text-align:center;">Authorized by Leonex Tender Intelligence Platform.</p>
+    </div>
+</body></html>"""
 
     @classmethod
     def send_daily_report(cls, db: Session, manual_recipient: Optional[str] = None, target_date: Optional[str] = None):
-        """Fetches tenders and sends report to recipients. If target_date provided, filters by that date."""
+        """Fetches tenders and sends report to all active recipients."""
         settings_row = db.query(EmailSetting).first()
         if not settings_row:
             settings_row = EmailSetting()
             db.add(settings_row); db.commit(); db.refresh(settings_row)
 
+        # Skip if automation is disabled and no manual trigger
         if not manual_recipient and not target_date and not settings_row.daily_report_enabled:
             return
 
+        # Determine date range
         if target_date:
             try:
                 dt = datetime.strptime(target_date, "%Y-%m-%d")
@@ -152,8 +115,11 @@ class EmailService:
             start_time = datetime.now() - timedelta(hours=lookback_hours)
             end_time = datetime.now()
 
-        tenders = db.query(Tender).filter(Tender.created_at >= start_time, Tender.created_at <= end_time).order_by(Tender.created_at.desc()).all()
-        
+        tenders = db.query(Tender).filter(
+            Tender.created_at >= start_time,
+            Tender.created_at <= end_time
+        ).order_by(Tender.created_at.desc()).all()
+
         html_content = cls.generate_tender_report_html(tenders)
         subject = f"Tender Intelligence Report \u2013 {datetime.now().strftime('%d %b %Y')}"
 
@@ -170,6 +136,7 @@ class EmailService:
             settings_row.last_report_sent_at = datetime.now()
             db.commit()
 
+
 class EmailScheduler:
     @staticmethod
     def start():
@@ -180,19 +147,20 @@ class EmailScheduler:
                     try:
                         settings_row = db.query(EmailSetting).first()
                         if settings_row and settings_row.daily_report_enabled:
-                            target_time_str = settings_row.report_time
                             try:
-                                hour, minute = map(int, target_time_str.split(':'))
+                                hour, minute = map(int, settings_row.report_time.split(':'))
                                 now = datetime.now()
                                 target_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
                                 last_sent = settings_row.last_report_sent_at
                                 sent_today = last_sent and last_sent.date() == now.date()
                                 if not sent_today and now >= target_time:
                                     EmailService.send_daily_report(db)
-                            except: pass
+                            except Exception:
+                                pass
                     finally:
                         db.close()
-                except: pass
+                except Exception:
+                    pass
                 time.sleep(60)
 
         t = threading.Thread(target=run, daemon=True, name="email-scheduler")
