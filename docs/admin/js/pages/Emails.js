@@ -5,174 +5,196 @@ export async function renderEmails() {
     if (!container) return;
 
     container.innerHTML = `
-        <style>
-            .log-scroll::-webkit-scrollbar { width: 6px; }
-            .log-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-            .log-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        </style>
-        <div class="anim-in" style="max-width: 1400px; margin: 0 auto; padding-bottom: 60px;">
-            <!-- HEADER AREA -->
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px; padding: 0 4px;">
-                <div>
-                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
-                        <div style="width:32px; height:4px; background:var(--text-tertiary); border-radius:2px;"></div>
-                        <span style="font-size:11px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:2px;">Reporting Engine</span>
-                    </div>
-                    <h1 style="font-size:36px; font-weight:900; color:var(--text-primary); margin:0; letter-spacing:-1px; line-height:1;">Email Management</h1>
-                </div>
-                <div style="display:flex; gap:16px;">
-                    <button id="adm-send-now-btn" class="bb-btn-secondary" style="height:48px; padding:0 24px; border-radius:14px; font-size:12px; font-weight:800; display:flex; align-items:center; gap:12px; letter-spacing:0.5px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.02); color: var(--text-primary);">
-                        <i data-lucide="zap" style="width:18px;height:18px; color:var(--text-tertiary);"></i>
-                        TRIGGER SYNC
-                    </button>
-                    <button id="adm-add-recipient-btn" class="bb-btn-primary" style="height:48px; padding:0 24px; border-radius:14px; font-size:12px; font-weight:900; display:flex; align-items:center; gap:12px; letter-spacing:0.5px; box-shadow: 0 8px 20px rgba(255,255,255,0.05); background: var(--text-primary); color: var(--bg-page); border: none;">
-                        <i data-lucide="user-plus" style="width:18px;height:18px;"></i>
-                        NEW RECIPIENT
-                    </button>
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: repeat(12, 1fr); gap:32px;">
+            <style>
+                .log-scroll::-webkit-scrollbar { width: 4px; }
+                .log-scroll::-webkit-scrollbar-track { background: transparent; }
+                .log-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+                .glass-card { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(25px); transition: 0.4s var(--ease); }
+                .glass-card:hover { border-color: rgba(255,255,255,0.12); box-shadow: 0 20px 60px rgba(0,0,0,0.5); transform: translateY(-2px); }
+                .terminal-line { position: absolute; height: 1px; width: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); pointer-events: none; }
+                .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fff; animation: pulse 2s infinite; }
+                @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(1.5); } 100% { opacity: 1; transform: scale(1); } }
+            </style>
+            
+            <div class="anim-in" style="max-width: 1400px; margin: 0 auto; padding-bottom: 80px;">
                 
-                <!-- LEFT COLUMN: CONFIG (4 COL) -->
-                <div style="grid-column: span 4; display:flex; flex-direction:column; gap:32px;">
+                <!-- TOP UTILITY BAR -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:48px;">
+                    <div style="display:flex; align-items:center; gap:24px;">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="pulse-dot"></div>
+                                <span style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:3px;">System Operational</span>
+                            </div>
+                            <h1 style="font-size:42px; font-weight:900; color:var(--text-primary); margin:0; letter-spacing:-1.5px; line-height:1;">Email Meta-Control</h1>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:16px;">
+                        <button id="adm-send-now-btn" class="bb-btn-secondary" style="height:54px; padding:0 28px; border-radius:18px; font-size:11px; font-weight:900; display:flex; align-items:center; gap:14px; letter-spacing:1px; background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--text-primary); transition:0.3s;">
+                            <i data-lucide="zap" style="width:16px;height:16px;"></i>
+                            INITIATE GLOBAL SYNC
+                        </button>
+                        <button id="adm-add-recipient-btn" class="bb-btn-primary" style="height:54px; padding:0 28px; border-radius:18px; font-size:11px; font-weight:900; display:flex; align-items:center; gap:14px; letter-spacing:1px; background:var(--text-primary); border:none; color:var(--bg-page); transition:0.3s;">
+                            <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                            ADD NODE
+                        </button>
+                    </div>
+                </div>
+
+                <!-- METRICS STRIP -->
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:24px; margin-bottom:48px;">
+                    ${['Total Sent', 'Active Nodes', 'Delivery Rate', 'System Health'].map((m, i) => `
+                        <div class="glass-card" style="padding:24px; border-radius:20px; display:flex; flex-direction:column; gap:8px;">
+                            <span style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1.5px;">${m}</span>
+                            <div style="font-size:28px; font-weight:900; color:var(--text-primary); letter-spacing:-0.5px;">
+                                ${i === 0 ? '1.2k' : i === 1 ? '<span id="node-count-val">...</span>' : i === 2 ? '99.8%' : 'STABLE'}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(12, 1fr); gap:32px;">
                     
-                    <div class="bb-card" style="border:1px solid var(--border-glass); padding:32px; backdrop-filter: blur(20px); position:relative;">
-                        <div style="position:absolute; top:32px; right:32px;"><i data-lucide="cpu" style="width:24px; height:24px; color:rgba(255,255,255,0.01);"></i></div>
-                        <h3 style="margin:0 0 32px 0; font-size:14px; font-weight:900; color:var(--text-primary); text-transform:uppercase; letter-spacing:2px; display:flex; align-items:center; gap:12px;">
-                            Core Configuration
-                        </h3>
+                    <!-- CONFIG (4 COL) -->
+                    <div style="grid-column: span 4; display:flex; flex-direction:column; gap:32px;">
                         
-                        <div style="display:flex; flex-direction:column; gap:28px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:20px; border-radius:18px; border:1px solid var(--border-glass);">
+                        <div class="glass-card" style="padding:32px; border-radius:24px; position:relative; overflow:hidden;">
+                            <div class="terminal-line" style="top:0;"></div>
+                            <h3 style="margin:0 0 40px 0; font-size:12px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:2.5px; display:flex; align-items:center; gap:12px;">
+                                <i data-lucide="settings-2" style="width:14px;height:14px;"></i>
+                                Parameters
+                            </h3>
+                            
+                            <div style="display:flex; flex-direction:column; gap:32px;">
                                 <div>
-                                    <div style="font-weight:800; font-size:13px; color:var(--text-primary); letter-spacing:0.5px;">Auto-Broadcast</div>
-                                    <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px;">Post-scrape distribution</div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:24px; border-radius:20px; border:1px solid rgba(255,255,255,0.05);">
+                                        <div>
+                                            <div style="font-weight:900; font-size:13px; color:var(--text-primary); letter-spacing:0.5px;">Auto-Broadcast</div>
+                                            <div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; font-weight:600;">Automated post-scrape flow</div>
+                                        </div>
+                                        <label class="adm-toggle">
+                                            <input type="checkbox" id="setting-report-enabled">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
                                 </div>
-                                <label class="adm-toggle">
-                                    <input type="checkbox" id="setting-report-enabled">
-                                    <span class="slider" style="background-color: var(--text-tertiary);"></span>
-                                </label>
-                            </div>
 
-                            <div class="bb-input-group">
-                                <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px; display:block; letter-spacing:1px;">Execution Window</label>
-                                <div style="position:relative;">
-                                    <input type="time" id="setting-report-time" class="adm-input" style="height:52px; border-radius:14px; padding:0 20px; font-weight:700; font-size:15px; width:100%; background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); color: var(--text-primary);">
-                                    <i data-lucide="clock" style="position:absolute; right:20px; top:17px; width:18px; height:18px; color:var(--text-tertiary); pointer-events:none;"></i>
+                                <div class="bb-input-group">
+                                    <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:12px; display:block; letter-spacing:1.5px;">Execution Protocol</label>
+                                    <div style="position:relative;">
+                                        <input type="time" id="setting-report-time" class="adm-input" style="height:56px; border-radius:18px; padding:0 24px; font-weight:800; font-size:16px; width:100%; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:var(--text-primary);">
+                                        <i data-lucide="clock" style="position:absolute; right:24px; top:19px; width:18px; height:18px; color:var(--text-tertiary); pointer-events:none;"></i>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="bb-input-group">
-                                <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px; display:block; letter-spacing:1px;">System Identity</label>
-                                <div style="display:flex; flex-direction:column; gap:12px;">
-                                    <input type="text" id="setting-sender-name" class="adm-input" style="height:52px; border-radius:14px; padding:0 20px; font-weight:600; background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); color: var(--text-primary);" placeholder="Display Name">
-                                    <input type="email" id="setting-sender-email" class="adm-input" style="height:52px; border-radius:14px; padding:0 20px; font-weight:600; background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); color: var(--text-primary);" placeholder="sender@system.net">
+                                <div class="bb-input-group">
+                                    <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:12px; display:block; letter-spacing:1.5px;">Identity Profile</label>
+                                    <div style="display:flex; flex-direction:column; gap:16px;">
+                                        <input type="text" id="setting-sender-name" class="adm-input" style="height:56px; border-radius:18px; padding:0 24px; font-weight:700; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:var(--text-primary);" placeholder="Display Identification">
+                                        <input type="email" id="setting-sender-email" class="adm-input" style="height:56px; border-radius:18px; padding:0 24px; font-weight:700; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); color:var(--text-primary);" placeholder="root@system.net">
+                                    </div>
+                                    <p style="font-size:10px; color:var(--text-tertiary); margin-top:16px; line-height:1.6; font-weight:600; font-family:var(--font-mono); opacity:0.8;">AUTH PRIORITY: HIGH. Ensure SMTP handshake integrity.</p>
                                 </div>
-                                <p style="font-size:10px; color:var(--text-tertiary); margin-top:12px; line-height:1.4;">NOTE: Use verified domains (e.g. leonex.net) to avoid transmission failures.</p>
-                            </div>
 
-                            <button id="adm-save-settings-btn" class="bb-btn-primary" style="width:100%; height:52px; border-radius:16px; font-weight:900; font-size:12px; letter-spacing:2px; margin-top:8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); background: var(--text-primary); color: var(--bg-page); border: none;">
-                                UPDATE CORE SETTINGS
-                            </button>
+                                <button id="adm-save-settings-btn" class="bb-btn-primary" style="width:100%; height:56px; border-radius:20px; font-weight:900; font-size:11px; letter-spacing:3px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); background:var(--text-primary); border:none; color:var(--bg-page);">
+                                    SYNC PARAMETERS
+                                </button>
+                            </div>
                         </div>
+
+                        <!-- SIGNAL TEST -->
+                        <div class="glass-card" style="padding:32px; border-radius:24px;">
+                            <h3 style="margin:0 0 24px 0; font-size:11px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:2px; display:flex; align-items:center; gap:10px;">
+                                <i data-lucide="radio" style="width:14px;height:14px;"></i>
+                                Signal Diagnostics
+                            </h3>
+                            <p style="font-size:12px; color:var(--text-tertiary); line-height:1.8; margin-bottom:24px; font-weight:500;">Inject a diagnostic burst into the transmission pipeline to verify node connectivity.</p>
+                            
+                            <div style="display:flex; gap:12px;">
+                                <input type="email" id="test-email-addr" class="adm-input" style="flex:1; height:52px; border-radius:16px; border:1px solid rgba(255,255,255,0.05); font-size:13px; font-weight:700; padding:0 20px; color:var(--text-primary);" placeholder="target-node@proxy.com">
+                                <button id="adm-test-email-btn" class="bb-btn-secondary" style="width:52px; height:52px; padding:0; border-radius:16px; color:var(--text-primary); border:1px solid rgba(255,255,255,0.1); background:transparent; display:flex; justify-content:center; align-items:center; transition:0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                                    <i data-lucide="send" style="width:20px;height:20px;"></i>
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- TEST BOX -->
-                    <div class="bb-card" style="border:1px solid var(--border-glass); padding:32px; background: rgba(255,255,255,0.01);">
-                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                            <div style="width:8px; height:8px; border-radius:50%; background:var(--text-tertiary); box-shadow: 0 0 10px rgba(255,255,255,0.1);"></div>
-                            <h3 style="margin:0; font-size:12px; font-weight:900; color:var(--text-primary); text-transform:uppercase; letter-spacing:2px;">Signal Test</h3>
-                        </div>
-                        <p style="font-size:12px; color:var(--text-tertiary); line-height:1.6; margin-bottom:24px;">Trigger an immediate diagnostic transmission to verify the Resend pipeline integrity.</p>
+                    <!-- RECIPIENTS & HISTORY (8 COL) -->
+                    <div style="grid-column: span 8; display:flex; flex-direction:column; gap:32px;">
                         
-                        <div style="display:flex; gap:12px;">
-                            <input type="email" id="test-email-addr" class="adm-input" style="flex:1; height:48px; border-radius:12px; border:1px solid var(--border-glass) !important; font-size:13px; font-weight:600; padding:0 16px; color: var(--text-primary);" placeholder="test-target@domain.com">
-                            <button id="adm-test-email-btn" class="bb-btn-secondary" style="width:48px; height:48px; padding:0; border-radius:12px; color:var(--text-primary); border:1px solid var(--border-glass); background:rgba(255,255,255,0.02); display:flex; justify-content:center; align-items:center;">
-                                <i data-lucide="play-circle" style="width:22px;height:22px;"></i>
-                            </button>
+                        <!-- DIRECTORY -->
+                        <div class="glass-card" style="padding:0; overflow:hidden; border-radius:24px;">
+                            <div style="padding:28px 36px; border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:14px;">
+                                    <i data-lucide="fingerprint" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
+                                    <span style="font-weight:900; font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-primary);">Distribution Registry</span>
+                                </div>
+                            </div>
+                            <div style="overflow-x:auto;">
+                                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                    <thead>
+                                        <tr style="background:rgba(255,255,255,0.01);">
+                                            <th style="text-align:left; padding:20px 36px; color:var(--text-tertiary); font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:2px; border-bottom:1px solid rgba(255,255,255,0.03);">Entity Information</th>
+                                            <th style="text-align:left; padding:20px 36px; color:var(--text-tertiary); font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:2px; border-bottom:1px solid rgba(255,255,255,0.03);">Sector</th>
+                                            <th style="text-align:center; padding:20px 36px; color:var(--text-tertiary); font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:2px; border-bottom:1px solid rgba(255,255,255,0.03);">State</th>
+                                            <th style="text-align:right; padding:20px 36px; color:var(--text-tertiary); font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:2px; border-bottom:1px solid rgba(255,255,255,0.03);">Control</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recipient-list-body">
+                                        <!-- Nodes -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+
+                        <!-- TRANSMISSIONS -->
+                        <div class="glass-card" style="padding:0; border-radius:24px; position:relative;">
+                            <div style="padding:28px 36px; border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:14px;">
+                                    <i data-lucide="database" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
+                                    <span style="font-weight:900; font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--text-primary);">Transmission Meta-Log</span>
+                                </div>
+                                <button id="adm-clear-logs-btn" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--text-tertiary); font-size:10px; font-weight:900; cursor:pointer; text-transform:uppercase; letter-spacing:1.5px; padding:6px 14px; border-radius:10px; transition:0.3s;" onmouseover="this.style.color='#fff'; this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.color='var(--text-tertiary)'; this.style.borderColor='rgba(255,255,255,0.1)'">Purge Audit Log</button>
+                            </div>
+                            <div style="max-height:540px; overflow-y:auto; padding:32px 36px;" id="email-log-list" class="log-scroll">
+                                <!-- Streams -->
+                            </div>
+                        </div>
+
                     </div>
-
                 </div>
+            </div>
 
-                <!-- RIGHT COLUMN: RECIPIENTS (8 COL) -->
-                <div style="grid-column: span 8; display:flex; flex-direction:column; gap:32px;">
+            <!-- MODAL RE-DESIGN -->
+            <div id="adm-email-modal" class="bb-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); backdrop-filter:blur(30px); z-index:3000; justify-content:center; align-items:center; padding:20px;">
+                <div class="glass-card anim-in" style="width:100%; max-width:520px; border-radius:32px; padding:48px; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 40px 150px rgba(0,0,0,1);">
+                    <div style="margin-bottom:40px;">
+                        <span style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:3px; margin-bottom:8px; display:block;">Protocol 0x82</span>
+                        <h2 style="margin:0; font-size:32px; font-weight:900; color:var(--text-primary); letter-spacing:-1px;">Node Registration</h2>
+                    </div>
                     
-                    <div class="bb-card" style="padding:0; overflow:hidden; border:1px solid var(--border-glass); backdrop-filter: blur(20px);">
-                        <div style="padding:24px 32px; border-bottom:1px solid var(--border-glass); background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <i data-lucide="users" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
-                                <span style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-secondary);">Direct Distribution List</span>
-                            </div>
-                            <span id="recipient-count-badge" class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-primary); border:1px solid var(--border-glass); font-weight:800; padding:4px 10px; border-radius:8px;">0 Members</span>
+                    <div style="display:flex; flex-direction:column; gap:24px;">
+                        <div class="bb-input-group">
+                            <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px; display:block; letter-spacing:1.5px;">Nominal Identity</label>
+                            <input type="text" id="modal-r-name" class="adm-input" style="height:56px; border-radius:18px; font-weight:700; padding: 0 24px; color:var(--text-primary); background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);" placeholder="Systemic Designation">
                         </div>
-                        <div style="overflow-x:auto;">
-                            <table style="width:100%; border-collapse:collapse; font-size:13px;">
-                                <thead style="background:rgba(255,255,255,0.01);">
-                                    <tr>
-                                        <th style="text-align:left; padding:18px 32px; color:var(--text-tertiary); font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Target Identity</th>
-                                        <th style="text-align:left; padding:18px 32px; color:var(--text-tertiary); font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Department</th>
-                                        <th style="text-align:center; padding:18px 32px; color:var(--text-tertiary); font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px;">State</th>
-                                        <th style="text-align:right; padding:18px 32px; color:var(--text-tertiary); font-weight:800; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Control</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recipient-list-body">
-                                    <tr><td colspan="4" style="padding:100px; text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px; letter-spacing:1px;">INITIALIZING SECURE DIRECTORY...</td></tr>
-                                </tbody>
-                            </table>
+                        <div class="bb-input-group">
+                            <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px; display:block; letter-spacing:1.5px;">Network Address</label>
+                            <input type="email" id="modal-r-email" class="adm-input" style="height:56px; border-radius:18px; font-weight:700; padding: 0 24px; color:var(--text-primary); background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);" placeholder="endpoint@node.sys">
                         </div>
-                    </div>
-
-                    <!-- HISTORY -->
-                    <div class="bb-card" style="padding:0; border:1px solid var(--border-glass); backdrop-filter: blur(20px);">
-                        <div style="padding:24px 32px; border-bottom:1px solid var(--border-glass); background:rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center;">
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <i data-lucide="activity" style="width:18px; height:18px; color:var(--text-tertiary);"></i>
-                                <span style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-secondary);">Transmission Network History</span>
-                            </div>
-                            <button id="adm-clear-logs-btn" style="background:transparent; border:none; color:var(--text-tertiary); font-size:10px; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:1px; padding:4px 8px; border:1px solid transparent; border-radius:6px; transition:0.3s;" onmouseover="this.style.borderColor='var(--border-glass)'; this.style.color='#ef4444'" onmouseout="this.style.borderColor='transparent'; this.style.color='var(--text-tertiary)'">Clear Archive</button>
+                        <div class="bb-input-group" style="margin-bottom:12px;">
+                            <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px; display:block; letter-spacing:1.5px;">Allocation Sector</label>
+                            <input type="text" id="modal-r-dept" class="adm-input" style="height:56px; border-radius:18px; font-weight:700; padding: 0 24px; color:var(--text-primary); background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);" placeholder="Organizational Segment">
                         </div>
-                        <div style="max-height:480px; overflow-y:auto; padding:20px 32px;" id="email-log-list" class="log-scroll">
-                            <!-- Logs here -->
+
+                        <div style="display:flex; gap:20px; margin-top:16px;">
+                            <button onclick="document.getElementById('adm-email-modal').style.display='none'" style="flex:1; height:56px; border-radius:18px; font-weight:900; font-size:11px; letter-spacing:2px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:var(--text-primary); cursor:pointer;">DISCARD</button>
+                            <button id="modal-r-save-btn" class="bb-btn-primary" style="flex:1; height:56px; border-radius:18px; font-weight:900; font-size:11px; letter-spacing:2px; background:var(--text-primary); color:var(--bg-page); border:none; cursor:pointer;">ENCODE NODE</button>
                         </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW RECIPIENT MODAL -->
-        <div id="adm-email-modal" class="bb-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); backdrop-filter:blur(12px); z-index:2000; justify-content:center; align-items:center; padding:20px;">
-            <div class="bb-card anim-in" style="width:100%; max-width:480px; border:1px solid var(--border-glass); padding:40px; box-shadow: 0 30px 100px rgba(0,0,0,0.8);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
-                    <div>
-                        <h2 style="margin:0; font-size:24px; font-weight:900; color:var(--text-primary); letter-spacing:-0.5px;">Register Recipient</h2>
-                        <p style="font-size:13px; color:var(--text-tertiary); margin-top:4px;">Add a new node to the distribution network.</p>
-                    </div>
-                </div>
-                
-                <div style="display:flex; flex-direction:column; gap:20px;">
-                    <div class="bb-input-group">
-                        <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px; display:block; letter-spacing:1px;">Identity / Name</label>
-                        <input type="text" id="modal-r-name" class="adm-input" style="height:52px; border-radius:14px; font-weight:600; padding: 0 20px; color: var(--text-primary);" placeholder="e.g. John Doe">
-                    </div>
-                    <div class="bb-input-group">
-                        <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px; display:block; letter-spacing:1px;">Email Address</label>
-                        <input type="email" id="modal-r-email" class="adm-input" style="height:52px; border-radius:14px; font-weight:600; padding: 0 20px; color: var(--text-primary);" placeholder="john@company.com">
-                    </div>
-                    <div class="bb-input-group">
-                        <label style="font-size:10px; font-weight:900; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px; display:block; letter-spacing:1px;">Organizational Unit</label>
-                        <input type="text" id="modal-r-dept" class="adm-input" style="height:52px; border-radius:14px; font-weight:600; padding: 0 20px; color: var(--text-primary);" placeholder="e.g. Procurement">
-                    </div>
-
-                    <div style="display:flex; gap:16px; margin-top:16px;">
-                        <button onclick="document.getElementById('adm-email-modal').style.display='none'" class="bb-btn-secondary" style="flex:1; height:52px; border-radius:14px; font-weight:800; border:1px solid var(--border-glass); color: var(--text-primary);">DISCARD</button>
-                        <button id="modal-r-save-btn" class="bb-btn-primary" style="flex:1; height:52px; border-radius:14px; font-weight:900; box-shadow: 0 10px 20px rgba(0,0,0,0.2); background: var(--text-primary); color: var(--bg-page); border: none;">CONFIRM ENTRY</button>
                     </div>
                 </div>
             </div>
-        </div>
     `;
 
     if (window.lucide) window.lucide.createIcons();
@@ -197,38 +219,38 @@ export async function renderEmails() {
 
 async function loadRecipients() {
     const list = document.getElementById('recipient-list-body');
-    const badge = document.getElementById('recipient-count-badge');
+    const nodeVal = document.getElementById('node-count-val');
     const baseUrl = getApiBase();
     try {
         const res = await adminFetch(`${baseUrl}/admin/emails/recipients`);
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-            list.innerHTML = '<tr><td colspan="4" style="padding:100px; text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:12px; letter-spacing:1px;">DIRECTORY EMPTY.</td></tr>';
-            badge.innerText = '0 Members';
+            list.innerHTML = '<tr><td colspan="4" style="padding:120px; text-align:center; color:var(--text-tertiary); font-family:var(--font-mono); font-size:11px; letter-spacing:2px; opacity:0.4;">DIRECTORY UNREGISTERED / EMPTY.</td></tr>';
+            if (nodeVal) nodeVal.innerText = '0';
             return;
         }
 
-        badge.innerText = `${data.length} ${data.length === 1 ? 'Member' : 'Members'}`;
+        if (nodeVal) nodeVal.innerText = data.length;
         list.innerHTML = data.map(r => `
-            <tr style="border-bottom: 1px solid var(--border-glass); transition: background 0.3s var(--ease);" onmouseover="this.style.background='rgba(255,255,255,0.015)'" onmouseout="this.style.background='transparent'">
-                <td style="padding:24px 32px;">
-                    <div style="font-weight:800; color:var(--text-primary); font-size:15px; letter-spacing:-0.2px;">${r.name}</div>
-                    <div style="font-size:12px; color:var(--text-tertiary); margin-top:2px;">${r.email}</div>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.4s var(--ease);" onmouseover="this.style.background='rgba(255,255,255,0.01)'" onmouseout="this.style.background='transparent'">
+                <td style="padding:28px 36px;">
+                    <div style="font-weight:900; color:var(--text-primary); font-size:16px; letter-spacing:-0.3px;">${r.name}</div>
+                    <div style="font-size:11px; color:var(--text-tertiary); margin-top:4px; font-family:var(--font-mono); opacity:0.7;">${r.email}</div>
                 </td>
-                <td style="padding:24px 32px;">
-                    <span style="font-family:var(--font-mono); font-size:10px; font-weight:800; letter-spacing:1px; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:4px 10px; border-radius:6px; border:1px solid var(--border-glass);">${(r.department || 'GLOBAL').toUpperCase()}</span>
+                <td style="padding:28px 36px;">
+                    <span style="font-family:var(--font-mono); font-size:10px; font-weight:900; letter-spacing:2px; color:var(--text-secondary); background:rgba(255,255,255,0.03); padding:6px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">${(r.department || 'ROOT').toUpperCase()}</span>
                 </td>
-                <td style="padding:24px 32px; text-align:center;">
+                <td style="padding:28px 36px; text-align:center;">
                     <label class="adm-toggle">
                         <input type="checkbox" ${r.is_active ? 'checked' : ''} onchange="window._toggleRecipient('${r.id}', this.checked)">
-                        <span class="slider" style="background-color: var(--text-tertiary);"></span>
+                        <span class="slider"></span>
                     </label>
                 </td>
-                <td style="padding:24px 32px; text-align:right;">
-                    <div style="display:flex; justify-content:flex-end; gap:12px;">
-                        <button class="bb-btn-icon" onclick="window._sendQuickTest('${r.email}')" title="Quick Transmission" style="color:var(--text-tertiary); border:1px solid transparent;" onmouseover="this.style.borderColor='var(--border-glass)'; this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='transparent'; this.style.color='var(--text-tertiary)'"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
-                        <button class="bb-btn-icon" onclick="window._deleteRecipient('${r.id}')" title="Terminate" style="color:#ef4444; opacity:0.5; border:1px solid transparent;" onmouseover="this.style.opacity='1'; this.style.borderColor='rgba(239,68,68,0.2)'" onmouseout="this.style.opacity='0.5'; this.style.borderColor='transparent'"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+                <td style="padding:28px 36px; text-align:right;">
+                    <div style="display:flex; justify-content:flex-end; gap:16px;">
+                        <button class="bb-btn-icon" onclick="window._sendQuickTest('${r.email}')" title="Diagnostic Signal" style="color:var(--text-tertiary); border:1px solid transparent; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; transition:0.3s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-primary)'" onmouseout="this.style.borderColor='transparent'; this.style.background='transparent'; this.style.color='var(--text-tertiary)'"><i data-lucide="send" style="width:16px;height:16px;"></i></button>
+                        <button class="bb-btn-icon" onclick="window._deleteRecipient('${r.id}')" title="Purge Node" style="color:#ef4444; opacity:0.3; border:1px solid transparent; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; transition:0.3s;" onmouseover="this.style.opacity='1'; this.style.borderColor='rgba(239,68,68,0.2)'; this.style.background='rgba(239,68,68,0.05)'" onmouseout="this.style.opacity='0.3'; this.style.borderColor='transparent'; this.style.background='transparent'"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
                     </div>
                 </td>
             </tr>
@@ -245,22 +267,25 @@ async function loadLogs() {
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length === 0) {
-            logList.innerHTML = '<div style="padding:100px; text-align:center; color:var(--text-tertiary); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; opacity:0.5;">No records.</div>';
+            logList.innerHTML = '<div style="padding:120px; text-align:center; color:var(--text-tertiary); font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:3px; opacity:0.3; font-family:var(--font-mono);">STREAM NULL / NO DATA.</div>';
             return;
         }
 
         logList.innerHTML = data.map(log => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-radius:16px; margin-bottom:12px; background:rgba(255,255,255,0.015); border:1px solid var(--border-glass); transition: transform 0.2s;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='none'">
-                <div style="display:flex; align-items:center; gap:20px;">
-                    <div style="width:40px; height:40px; border-radius:10px; background:rgba(255,255,255,0.02); display:flex; justify-content:center; align-items:center; border:1px solid var(--border-glass);">
-                        <i data-lucide="${log.status === 'sent' ? 'check' : 'alert-circle'}" style="width:16px; height:16px; color:${log.status === 'sent' ? 'var(--text-secondary)' : '#ef4444'};"></i>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 28px; border-radius:20px; margin-bottom:16px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); transition: 0.3s var(--ease);" onmouseover="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='translateX(6px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.03)'; this.style.transform='none'">
+                <div style="display:flex; align-items:center; gap:24px;">
+                    <div style="width:44px; height:44px; border-radius:14px; background:rgba(255,255,255,0.015); display:flex; justify-content:center; align-items:center; border:1px solid rgba(255,255,255,0.05);">
+                        <i data-lucide="${log.status === 'sent' ? 'shield-check' : 'shield-alert'}" style="width:18px; height:18px; color:${log.status === 'sent' ? 'var(--text-secondary)' : '#ef4444'}; opacity:${log.status === 'sent' ? '1' : '0.8'};"></i>
                     </div>
                     <div>
-                        <div style="font-size:13px; font-weight:800; color:var(--text-primary);">${log.recipient}</div>
-                        <div style="font-size:10px; color:var(--text-tertiary); margin-top:2px;">${new Date(log.sent_at).toLocaleString()}</div>
+                        <div style="font-size:14px; font-weight:900; color:var(--text-primary); letter-spacing:-0.2px;">${log.recipient}</div>
+                        <div style="font-size:10px; color:var(--text-tertiary); margin-top:4px; font-family:var(--font-mono); font-weight:600; opacity:0.6;">${new Date(log.sent_at).toLocaleString()}</div>
                     </div>
                 </div>
-                <div style="font-size:10px; font-weight:900; color:${log.status === 'sent' ? 'var(--text-tertiary)' : '#ef4444'}; text-transform:uppercase; letter-spacing:1px; background:rgba(255,255,255,0.03); padding:4px 10px; border-radius:6px; border:1px solid var(--border-glass);">${log.status}</div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                    <div style="font-size:10px; font-weight:900; color:${log.status === 'sent' ? 'var(--text-secondary)' : '#ef4444'}; text-transform:uppercase; letter-spacing:2px; background:rgba(255,255,255,0.02); padding:5px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.05);">${log.status}</div>
+                    ${log.error_message ? `<div style="font-size:9px; color:#ef4444; opacity:0.7; font-family:var(--font-mono); font-weight:800;">ERROR: ${log.error_message}</div>` : ''}
+                </div>
             </div>
         `).join('');
         if (window.lucide) window.lucide.createIcons();
