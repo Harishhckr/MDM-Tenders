@@ -19,8 +19,11 @@ class EmailService:
     def send_email(to: str, subject: str, html_content: str, from_email: Optional[str] = None, from_name: Optional[str] = None) -> Tuple[bool, Optional[str]]:
         """Sends an email using standard SMTP (Nodemailer equivalent). Returns (success, error_message)."""
         
-        # 1. Validation
-        if not settings.SMTP_USER or not settings.SMTP_PASS:
+        # 1. Validation (Using Settings with Hardcoded Fallbacks for Render)
+        smtp_user = settings.SMTP_USER or "leonexinternship@gmail.com"
+        smtp_pass = settings.SMTP_PASS or "iurwecaxcnrnwlst"
+
+        if not smtp_user or not smtp_pass:
             msg = "SMTP_USER or SMTP_PASS is missing from environment."
             logger.warning(msg)
             return False, msg
@@ -54,7 +57,7 @@ class EmailService:
             if settings.SMTP_TLS:
                 server.starttls()  # Upgrade to secure connection
                 
-            server.login(settings.SMTP_USER, settings.SMTP_PASS)
+            server.login(smtp_user, smtp_pass)
             server.send_message(msg)
             server.quit()
             
