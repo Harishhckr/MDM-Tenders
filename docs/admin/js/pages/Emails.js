@@ -232,7 +232,6 @@ export async function renderEmails() {
     document.getElementById('modal-r-save-btn').addEventListener('click', saveNewRecipient);
     document.getElementById('adm-save-settings-btn').addEventListener('click', saveSettings);
     document.getElementById('adm-send-now-btn').addEventListener('click', initiateGlobalSync);
-    document.getElementById('adm-test-email-btn').addEventListener('click', sendDiagnosticEmail);
     document.getElementById('adm-clear-logs-btn').addEventListener('click', clearEmailLogs);
 
     // Dynamic Logic
