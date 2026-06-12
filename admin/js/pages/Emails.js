@@ -1,3 +1,5 @@
+import { getApiBase, adminFetch } from '../utils/api.js?v=2.3';
+
 /**
  * Email Management - Automation Pulse Overhaul
  * Focused on high-density, automated distribution tracking and theme-neutral visibility.
