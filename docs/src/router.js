@@ -1,7 +1,7 @@
 // ============================================
 // LEONEX TENDER — Hash-based SPA Router
 // ============================================
-import { isLoggedIn } from './utils/api.js';
+import { isLoggedIn, getUserRole } from './utils/api.js';
 
 const routes = {};
 let currentCleanup = null;
@@ -23,7 +23,7 @@ export function getCurrentRoute() {
 export function initRouter(container) {
     async function handleRoute() {
         let { path, query } = getCurrentRoute();
-        
+
         const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
         const isAuth = isLoggedIn();
 
@@ -33,9 +33,18 @@ export function initRouter(container) {
             return;
         }
 
-        // 2. If already logged in and trying to access login/register -> Go to portal
+        // 2. If already logged in and trying to access login/register -> Go to portal/tenders depending on role
         if (isAuth && (path === '/login' || path === '/register')) {
-            navigate('/portal');
+            const role = getUserRole();
+            navigate(role === 'admin' ? '/portal' : '/tenders');
+            return;
+        }
+
+        // 3. Admin-only guard
+        const adminRoutes = ['/portal', '/ai-overview', '/settings'];
+        if (isAuth && adminRoutes.includes(path) && getUserRole() !== 'admin') {
+            console.warn("Unauthorized access attempt to admin route:", path);
+            navigate('/tenders');
             return;
         }
 

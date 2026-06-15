@@ -44,12 +44,8 @@ function withAppLayout(renderFn) {
             return;
         }
 
-        // Sync bookmarks from backend
-        await syncBookmarks();
-
-
         let pageContent = document.getElementById('page-content');
-        
+
         if (!pageContent || !container.querySelector('.app-shell')) {
             container.innerHTML = `
                 <div class="page-wrapper">
@@ -69,8 +65,7 @@ function withAppLayout(renderFn) {
             `;
             initSidebarEvents();
             initTopbarEvents();
-            
-            // Handle overlay click to close sidebar
+
             const overlay = document.getElementById('sidebar-overlay');
             if (overlay) {
                 overlay.addEventListener('click', () => {
@@ -78,7 +73,7 @@ function withAppLayout(renderFn) {
                     overlay.classList.remove('active');
                 });
             }
-            
+
             pageContent = document.getElementById('page-content');
         }
 
@@ -90,6 +85,9 @@ function withAppLayout(renderFn) {
             initIcons();
             setTimeout(initIcons, 200);
         });
+
+        // Fire bookmark sync in background — never block rendering
+        syncBookmarks();
     };
 }
 

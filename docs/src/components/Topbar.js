@@ -1,5 +1,5 @@
 import { navigate } from '../router.js';
-import { getApiBackendMode, setApiBackend } from '../utils/api.js';
+import { getApiBackendMode, setApiBackend, getUserInfo, getUserRole, getSessionExpiry, clearTokens } from '../utils/api.js';
 
 export function renderTopbar() {
     return `
@@ -80,21 +80,102 @@ export function renderTopbar() {
                     </div>
                 </div>
             </div>
-            <div class="avatar" id="profile-btn" role="button" tabindex="0">
-                <img src="src/assets/image.png" alt="Profile" onerror="this.onerror=null; this.parentNode.innerText='H';">
+            <div id="user-info-panel" style="position:relative;">
+                <button id="user-menu-btn" style="display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border-color);border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer;transition:all 0.2s;">
+                    <div id="user-avatar" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;"></div>
+                    <div style="text-align:left;">
+                        <div id="user-name-label" style="font-size:11px;font-weight:700;color:var(--text-primary);line-height:1.2;"></div>
+                        <div id="user-role-label" style="font-size:10px;font-weight:600;line-height:1.2;"></div>
+                    </div>
+                    <i data-lucide="chevron-down" style="width:12px;height:12px;opacity:0.5;"></i>
+                </button>
+                <!-- User dropdown -->
+                <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:240px;background:var(--bg-surface,#111);border:1px solid var(--border-color);border-radius:12px;padding:8px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+                    <div style="padding:10px 12px;border-bottom:1px solid var(--border-color);margin-bottom:6px;">
+                        <div id="dropdown-email" style="font-size:12px;color:var(--text-secondary);word-break:break-all;"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                            <span id="dropdown-role-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;"></span>
+                            <span id="dropdown-session" style="font-size:10px;color:var(--text-tertiary);"></span>
+                        </div>
+                    </div>
+                    <button onclick="window._leonexLogout()" style="width:100%;text-align:left;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#ff6b6b;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,59,59,0.1)'" onmouseout="this.style.background='transparent'">
+                        <i data-lucide="log-out" style="width:14px;height:14px;"></i> Sign out
+                    </button>
+                </div>
             </div>
         </div>
     `;
 }
 
 export function initTopbarEvents() {
+    // ── Populate User Info Panel (instant — reads from localStorage cache) ──
+    const user = getUserInfo();
+    const role = getUserRole();
+    const expiry = getSessionExpiry();
+
+    if (user) {
+        const nameLabel = document.getElementById('user-name-label');
+        const roleLabel = document.getElementById('user-role-label');
+        const avatarEl = document.getElementById('user-avatar');
+        const emailEl = document.getElementById('dropdown-email');
+        const roleBadge = document.getElementById('dropdown-role-badge');
+        const sessionEl = document.getElementById('dropdown-session');
+
+        const initials = (user.email || 'U').charAt(0).toUpperCase();
+        const isAdminRole = role === 'admin';
+        const roleColor = isAdminRole ? '#7c5cfc' : '#22c55e';
+        const roleBg = isAdminRole ? 'rgba(124,92,252,0.15)' : 'rgba(34,197,94,0.15)';
+        const roleText = isAdminRole ? '⬡ ADMIN' : '◎ USER';
+
+        if (avatarEl) {
+            avatarEl.textContent = initials;
+            avatarEl.style.background = roleBg;
+            avatarEl.style.color = roleColor;
+            avatarEl.style.border = `1px solid ${roleColor}44`;
+        }
+        if (nameLabel) nameLabel.textContent = user.email?.split('@')[0] || 'User';
+        if (roleLabel) {
+            roleLabel.textContent = roleText;
+            roleLabel.style.color = roleColor;
+        }
+        if (emailEl) emailEl.textContent = user.email || '';
+        if (roleBadge) {
+            roleBadge.textContent = roleText;
+            roleBadge.style.background = roleBg;
+            roleBadge.style.color = roleColor;
+        }
+        if (sessionEl && expiry) {
+            sessionEl.textContent = `Session: ${expiry.remainingLabel}`;
+        }
+    }
+
+    // ── User Menu Dropdown ──────────────────────────────────────────────────
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const userDropdown = document.getElementById('user-dropdown');
+    if (userMenuBtn && userDropdown) {
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = userDropdown.style.display !== 'none';
+            userDropdown.style.display = isOpen ? 'none' : 'block';
+        });
+        document.addEventListener('click', (e) => {
+            if (!userDropdown.contains(e.target) && e.target !== userMenuBtn) {
+                userDropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // ── Logout Handler ──────────────────────────────────────────────────────
+    window._leonexLogout = () => {
+        clearTokens();
+        navigate('/login');
+    };
+
     const themeBtn = document.getElementById('theme-btn');
     if (themeBtn) {
         themeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // Use the proper toggleTheme() which applies the no-transition guard
-            // to prevent glitches on ALL elements during theme swap
             import('../theme.js').then(({ toggleTheme }) => toggleTheme());
         });
     }
@@ -113,9 +194,7 @@ export function initTopbarEvents() {
     // New Project → Notes page
     const newProjectBtn = document.getElementById('new-project-btn');
     if (newProjectBtn) {
-        newProjectBtn.addEventListener('click', () => {
-            navigate('/notes');
-        });
+        newProjectBtn.addEventListener('click', () => navigate('/notes'));
     }
 
     // Notification popup toggle
@@ -126,25 +205,20 @@ export function initTopbarEvents() {
             e.stopPropagation();
             const isVisible = notifPopup.style.display !== 'none';
             notifPopup.style.display = isVisible ? 'none' : 'flex';
-            // Remove dot on open
             const dot = notifBtn.querySelector('.notif-dot');
             if (dot) dot.style.display = 'none';
         });
-
-        // Close on outside click
         document.addEventListener('click', (e) => {
             if (!notifPopup.contains(e.target) && e.target !== notifBtn) {
                 notifPopup.style.display = 'none';
             }
         });
-
-        // Clear all
         const clearBtn = document.getElementById('notif-clear');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => {
                 const list = document.getElementById('notif-list');
                 if (list) list.innerHTML = `
-                    <div style="padding:40px 20px; text-align:center; color:var(--text-tertiary); font-size:13px;">
+                    <div style="padding:40px 20px;text-align:center;color:var(--text-tertiary);font-size:13px;">
                         <i data-lucide="bell-off" style="width:28px;height:28px;opacity:0.3;display:block;margin:0 auto 10px;"></i>
                         No new notifications
                     </div>
@@ -158,6 +232,46 @@ export function initTopbarEvents() {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             document.getElementById('search-input')?.focus();
+        }
+    });
+}
+
+// Mobile Menu Toggle
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', () => {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar) sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('active');
+    });
+}
+
+// New Project → Notes page
+const newProjectBtn = document.getElementById('new-project-btn');
+if (newProjectBtn) {
+    newProjectBtn.addEventListener('click', () => {
+        navigate('/notes');
+    });
+}
+
+// Notification popup toggle
+const notifBtn = document.getElementById('notif-btn');
+const notifPopup = document.getElementById('notif-popup');
+if (notifBtn && notifPopup) {
+    notifBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = notifPopup.style.display !== 'none';
+        notifPopup.style.display = isVisible ? 'none' : 'flex';
+        // Remove dot on open
+        const dot = notifBtn.querySelector('.notif-dot');
+        if (dot) dot.style.display = 'none';
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!notifPopup.contains(e.target) && e.target !== notifBtn) {
+            notifPopup.style.display = 'none';
         }
     });
 }
