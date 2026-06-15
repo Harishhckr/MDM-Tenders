@@ -262,7 +262,7 @@ class EmailService:
 
         results = (
             db.query(GoogleResult)
-            .filter(GoogleResult.result_type == "filtered", GoogleResult.scraped_at >= start_time, GoogleResult.scraped_at <= end_time)
+            .filter(GoogleResult.result_type == "all", GoogleResult.scraped_at >= start_time, GoogleResult.scraped_at <= end_time)
             .order_by(GoogleResult.scraped_at.desc())
             .all()
         )
