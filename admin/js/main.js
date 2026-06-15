@@ -6,9 +6,7 @@ import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js?v
 import { renderLogin } from './pages/Login.js?v=2.2';
 import { renderDashboard } from './pages/Dashboard.js?v=2.2';
 import { renderScrapers } from './pages/Scrapers.js?v=2.2';
-import { renderLogs } from './pages/Logs.js?v=2.2';
 import { renderUsers } from './pages/Users.js?v=2.2';
-import { renderSettings } from './pages/Settings.js?v=2.2';
 import { renderTerminal } from './pages/Terminal.js?v=2.2';
 import { renderEmails } from './pages/Emails.js?v=2.2';
 
@@ -18,9 +16,7 @@ console.log('[Main] Booting System...');
 registerRoute('/login', renderLogin);
 registerRoute('/dashboard', renderDashboard);
 registerRoute('/scrapers', renderScrapers);
-registerRoute('/logs', renderLogs);
 registerRoute('/users', renderUsers);
-registerRoute('/settings', renderSettings);
 registerRoute('/terminal', renderTerminal);
 registerRoute('/emails', renderEmails);
 
@@ -115,8 +111,7 @@ function renderTopbar() {
                         <button class="bb-nav-item ${isActive('/scrapers')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/scrapers'">Scrapers</button>
                         <button class="bb-nav-item ${isActive('/users')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/users'">Users</button>
                         <button class="bb-nav-item ${isActive('/emails')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/emails'">Email</button>
-                        <button class="bb-nav-item ${isActive('/settings')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/settings'">Settings</button>
-                        <button class="bb-nav-item ${isActive('/terminal')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/terminal'">Logs</button>
+                        <button class="bb-nav-item ${isActive('/terminal')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/terminal'">System Logs</button>
                     </div>
 
                     <button class="bb-profile-bubble" id="adm-profile-btn" title="Logout" style="margin-left:8px;">AD</button>
