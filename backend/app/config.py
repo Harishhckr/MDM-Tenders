@@ -107,7 +107,7 @@ class Settings(BaseSettings):
     SMTP_PASS: str = "yqmirmdjsfbizmtd"
     SMTP_TLS: bool = True
 
-    EMAIL_FROM: str = "Tender Intelligence <onboarding@resend.dev>"
+    EMAIL_FROM: str = "leonexinternship@gmail.com"
     EMAIL_REPLY_TO: str = "leonexinternship@gmail.com"
 
 
