@@ -15,7 +15,7 @@ from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import SessionLocal
-from app.models import Tender, EmailRecipient, EmailLog, EmailSetting
+from app.models import Tender, EmailRecipient, EmailLog, EmailSetting, GoogleResult
 
 logger = logging.getLogger("email_service")
 
@@ -131,6 +131,50 @@ class EmailService:
     </div>
 </body></html>"""
 
+    @staticmethod
+    def generate_google_report_html(results: List[GoogleResult]) -> str:
+        """Generates the HTML Google Search email report body."""
+        date_str = datetime.now().strftime("%d %b %Y")
+        rows_html = ""
+        for r in results:
+            rows_html += f"""
+            <div style="margin-bottom:25px;">
+                <p style="margin:0 0 5px 0;"><strong>Title:</strong> {r.title}</p>
+                <p style="margin:0 0 5px 0;font-size:14px;"><strong>Description:</strong> {r.description}</p>
+                <p style="margin:0 0 5px 0;font-size:12px;color:#555;">
+                    <strong>Keyword:</strong> {r.search_query or 'N/A'}
+                </p>
+                <p style="margin:0 0 15px 0;font-size:12px;">
+                    <strong>Link:</strong>
+                    <a href="{r.link or '#'}" style="color:#000;text-decoration:underline;">{r.link or '#'}</a>
+                </p>
+                <hr style="border:0;border-top:1px solid #eee;margin:0;">
+            </div>
+            """
+        if not rows_html:
+            rows_html = "<p style='text-align:center;color:#888;padding:40px;'>No new google links found for this period.</p>"
+
+        return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#000;margin:0;padding:40px;background:#fff;">
+    <div style="max-width:600px;margin:0 auto;">
+        <div style="border-left:4px solid #000;padding-left:20px;margin-bottom:40px;">
+            <p style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#888;margin:0;">Automated Distribution</p>
+            <h2 style="font-size:28px;font-weight:900;margin:5px 0 0 0;letter-spacing:-0.5px;">Google Tender Report</h2>
+        </div>
+        <p>Hello Team,</p>
+        <p>Please find the consolidated Google tender collection for <strong>{date_str}</strong> below.</p>
+        <div style="margin-top:20px;padding:10px 15px;background:#f8f9fa;border-left:3px solid #1a73e8;display:inline-block;border-radius:0 6px 6px 0;">
+            <strong style="color:#555;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Total New Link Added in Google:</strong> 
+            <span style="font-size:18px;font-weight:900;color:#000;margin-left:8px;">{len(results)}</span>
+        </div>
+        <div style="margin-top:40px;">{rows_html}</div>
+        <p style="font-size:11px;color:#aaa;margin-top:60px;text-align:center;">
+            Authorized by Leonex Tender Platform.
+        </p>
+    </div>
+</body></html>"""
+
     @classmethod
     def send_daily_report(
         cls,
@@ -187,8 +231,58 @@ class EmailService:
         if not manual_recipient:
             settings_row.last_report_sent_at = datetime.now()
             db.commit()
+            
+        # Fire the second email report for Google Scraper Results
+        cls.send_google_report(db, manual_recipient, target_date)
 
+    @classmethod
+    def send_google_report(
+        cls,
+        db: Session,
+        manual_recipient: Optional[str] = None,
+        target_date: Optional[str] = None,
+    ):
+        """Fetches newly added google links and sends a separate report."""
+        settings_row = db.query(EmailSetting).first()
+        if not settings_row:
+            return
 
+        if target_date:
+            try:
+                dt = datetime.strptime(target_date, "%Y-%m-%d")
+                start_time = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+                end_time = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+            except ValueError:
+                start_time = datetime.now() - timedelta(hours=48)
+                end_time = datetime.now()
+        else:
+            lookback_hours = 48 if (manual_recipient or not settings_row.last_report_sent_at) else 24
+            start_time = datetime.now() - timedelta(hours=lookback_hours)
+            end_time = datetime.now()
+
+        results = (
+            db.query(GoogleResult)
+            .filter(GoogleResult.result_type == "filtered", GoogleResult.scraped_at >= start_time, GoogleResult.scraped_at <= end_time)
+            .order_by(GoogleResult.scraped_at.desc())
+            .all()
+        )
+        
+        if not results:
+            return  # Do not send empty google reports
+
+        html_content = cls.generate_google_report_html(results)
+        subject = f"Google Tender Report \u2013 {datetime.now().strftime('%d %b %Y')}"
+
+        if manual_recipient:
+            recipients = [EmailRecipient(email=manual_recipient, name="Subscriber", is_active=True)]
+        else:
+            recipients = db.query(EmailRecipient).filter(EmailRecipient.is_active == True).all()
+
+        for r in recipients:
+            success, err = cls.send_email(
+                r.email, subject, html_content, from_name=settings_row.sender_name
+            )
+            cls.log_email(db, r.email, subject, "sent" if success else "failed", err)
 class EmailScheduler:
     @staticmethod
     def start():
