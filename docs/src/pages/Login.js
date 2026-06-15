@@ -7,10 +7,6 @@ export function renderLogin(container) {
             <div class="auth-card" style="width:100%;max-width:420px;padding:40px;border:1px solid var(--border-color);border-radius:16px;text-align:left;box-sizing:border-box;">
 
                 <div style="margin-bottom:8px;">
-                    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(124,92,252,0.12);border:1px solid rgba(124,92,252,0.25);border-radius:20px;padding:4px 12px;margin-bottom:16px;">
-                        <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;"></span>
-                        <span style="font-size:11px;font-weight:600;color:#7c5cfc;letter-spacing:0.5px;">LEONEX INTELLIGENCE</span>
-                    </div>
                     <h1 style="font-size:28px;font-weight:800;color:var(--text-primary);margin:0 0 6px;letter-spacing:-0.03em;">Welcome back</h1>
                     <p style="color:var(--text-secondary);font-size:13px;margin:0;">Sign in to access your dashboard</p>
                 </div>
@@ -44,21 +40,6 @@ export function renderLogin(container) {
                         Sign In
                     </button>
                 </form>
-
-                <!-- Credential hints -->
-                <div style="margin-top:20px;padding:12px;border:1px solid var(--border-color);border-radius:10px;background:rgba(255,255,255,0.02);">
-                    <p style="font-size:11px;font-weight:600;color:var(--text-tertiary);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.5px;">Access Levels</p>
-                    <div style="display:flex;gap:8px;">
-                        <div style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(124,92,252,0.3);background:rgba(124,92,252,0.08);">
-                            <div style="font-size:11px;font-weight:700;color:#7c5cfc;margin-bottom:2px;">⬡ ADMIN</div>
-                            <div style="font-size:10px;color:var(--text-tertiary);">Full platform access</div>
-                        </div>
-                        <div style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);">
-                            <div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:2px;">◎ USER</div>
-                            <div style="font-size:10px;color:var(--text-tertiary);">Tenders & reports</div>
-                        </div>
-                    </div>
-                </div>
 
                 <div style="margin-top:20px;font-size:13px;color:var(--text-secondary);text-align:center;">
                     Don't have an account? <a href="#/register" style="color:var(--text-primary);font-weight:600;text-decoration:none;" class="auth-link">Sign up</a>

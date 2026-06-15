@@ -81,24 +81,20 @@ export function renderTopbar() {
                 </div>
             </div>
             <div id="user-info-panel" style="position:relative;">
-                <button id="user-menu-btn" style="display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border-color);border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer;transition:all 0.2s;">
-                    <div id="user-avatar" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;"></div>
-                    <div style="text-align:left;">
-                        <div id="user-name-label" style="font-size:11px;font-weight:700;color:var(--text-primary);line-height:1.2;"></div>
-                        <div id="user-role-label" style="font-size:10px;font-weight:600;line-height:1.2;"></div>
-                    </div>
-                    <i data-lucide="chevron-down" style="width:12px;height:12px;opacity:0.5;"></i>
+                <button id="user-menu-btn" class="avatar" style="padding:0; border:none; background:transparent; cursor:pointer; width:32px; height:32px; border-radius:50%; overflow:hidden;">
+                    <img src="src/assets/image.png" alt="Profile" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.innerHTML='<i data-lucide=\'user\'></i>';">
                 </button>
                 <!-- User dropdown -->
-                <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:240px;background:var(--bg-surface,#111);border:1px solid var(--border-color);border-radius:12px;padding:8px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-                    <div style="padding:10px 12px;border-bottom:1px solid var(--border-color);margin-bottom:6px;">
-                        <div id="dropdown-email" style="font-size:12px;color:var(--text-secondary);word-break:break-all;"></div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 12px);width:240px;background:var(--bg-surface,#111);border:1px solid var(--border-color);border-radius:12px;padding:8px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+                    <div style="padding:12px;border-bottom:1px solid var(--border-color);margin-bottom:6px;">
+                        <div id="dropdown-name" style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:2px;"></div>
+                        <div id="dropdown-email" style="font-size:12px;color:var(--text-secondary);word-break:break-all;margin-bottom:8px;"></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
                             <span id="dropdown-role-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;"></span>
                             <span id="dropdown-session" style="font-size:10px;color:var(--text-tertiary);"></span>
                         </div>
                     </div>
-                    <button onclick="window._leonexLogout()" style="width:100%;text-align:left;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#ff6b6b;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,59,59,0.1)'" onmouseout="this.style.background='transparent'">
+                    <button onclick="window._leonexLogout()" style="width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:none;background:transparent;color:#ff6b6b;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,59,59,0.1)'" onmouseout="this.style.background='transparent'">
                         <i data-lucide="log-out" style="width:14px;height:14px;"></i> Sign out
                     </button>
                 </div>
@@ -114,30 +110,17 @@ export function initTopbarEvents() {
     const expiry = getSessionExpiry();
 
     if (user) {
-        const nameLabel = document.getElementById('user-name-label');
-        const roleLabel = document.getElementById('user-role-label');
-        const avatarEl = document.getElementById('user-avatar');
+        const nameEl = document.getElementById('dropdown-name');
         const emailEl = document.getElementById('dropdown-email');
         const roleBadge = document.getElementById('dropdown-role-badge');
         const sessionEl = document.getElementById('dropdown-session');
 
-        const initials = (user.email || 'U').charAt(0).toUpperCase();
         const isAdminRole = role === 'admin';
         const roleColor = isAdminRole ? '#7c5cfc' : '#22c55e';
         const roleBg = isAdminRole ? 'rgba(124,92,252,0.15)' : 'rgba(34,197,94,0.15)';
         const roleText = isAdminRole ? '⬡ ADMIN' : '◎ USER';
 
-        if (avatarEl) {
-            avatarEl.textContent = initials;
-            avatarEl.style.background = roleBg;
-            avatarEl.style.color = roleColor;
-            avatarEl.style.border = `1px solid ${roleColor}44`;
-        }
-        if (nameLabel) nameLabel.textContent = user.email?.split('@')[0] || 'User';
-        if (roleLabel) {
-            roleLabel.textContent = roleText;
-            roleLabel.style.color = roleColor;
-        }
+        if (nameEl) nameEl.textContent = user.email?.split('@')[0] || 'User';
         if (emailEl) emailEl.textContent = user.email || '';
         if (roleBadge) {
             roleBadge.textContent = roleText;
