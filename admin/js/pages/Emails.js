@@ -193,7 +193,10 @@ export async function renderEmails() {
     document.getElementById('adm-clear-logs-btn').onclick = clearEmailLogs;
 
     // Init Logic
-    await Promise.all([loadRecipients(), loadLogs(), loadSettings()]);
+    loadRecipients();
+    loadLogs();
+    loadSettings();
+
     startCountdown();
     if (window.lucide) window.lucide.createIcons();
 
@@ -201,10 +204,21 @@ export async function renderEmails() {
         if (syncTimer) clearInterval(syncTimer);
         syncTimer = setInterval(updatePulse, 1000);
         updatePulse();
+
+        // Anti-leak: stop timer when page changes
+        const obs = new MutationObserver(() => {
+            if (!document.getElementById('countdown-display')) {
+                clearInterval(syncTimer);
+                obs.disconnect();
+            }
+        });
+        obs.observe(document.body, { childList: true, subtree: true });
     }
 
     function updatePulse() {
-        const timeInput = document.getElementById('setting-report-time').value;
+        const timeEl = document.getElementById('setting-report-time');
+        if (!timeEl) return;
+        const timeInput = timeEl.value;
         if (!timeInput) return;
 
         const now = new Date();
@@ -219,12 +233,18 @@ export async function renderEmails() {
         const mm = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
         const ss = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
 
-        document.getElementById('countdown-display').innerText = `${hh}:${mm}:${ss}`;
-        document.getElementById('next-sync-val').innerText = `TARGET: ${target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        const cd = document.getElementById('countdown-display');
+        const nx = document.getElementById('next-sync-val');
+        const tf = document.getElementById('timeline-fill');
+
+        if (cd) cd.innerText = `${hh}:${mm}:${ss}`;
+        if (nx) nx.innerText = `TARGET: ${target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
         // Progress bar (24h period)
-        const progress = 100 - (diff / (24 * 3600 * 1000) * 100);
-        document.getElementById('timeline-fill').style.width = `${progress}%`;
+        if (tf) {
+            const progress = 100 - (diff / (24 * 3600 * 1000) * 100);
+            tf.style.width = `${progress}%`;
+        }
     }
 };
 
