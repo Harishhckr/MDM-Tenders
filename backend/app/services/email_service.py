@@ -42,12 +42,21 @@ class EmailService:
             msg.set_content("Please enable HTML to view this email.")
             msg.add_alternative(html_content, subtype="html")
 
-            logger.info("Sending simple email to %s via SMTP", to)
+            logger.info("Sending simple email to %s via SMTP (Port: %s)", to, settings.SMTP_PORT)
             
-            # Use SMTP_SSL for port 465
-            with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-                server.login(settings.SMTP_USER, settings.SMTP_PASS)
-                server.send_message(msg)
+            if int(settings.SMTP_PORT) == 465:
+                # Implicit SSL
+                with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                    server.login(settings.SMTP_USER, settings.SMTP_PASS)
+                    server.send_message(msg)
+            else:
+                # Explicit TLS (STARTTLS) - standard for port 587
+                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
+                    server.login(settings.SMTP_USER, settings.SMTP_PASS)
+                    server.send_message(msg)
                 
             logger.info("Email sent successfully to %s", to)
             return True, None
