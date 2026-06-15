@@ -1,15 +1,14 @@
 """
-EmailService — Native HTTP API Transport
+EmailService — Native smtplib Transport
 =========================================
-Since Render's free tier blocks all outbound SMTP ports (25, 465, 587),
-we use our own Node.js Nodemailer service over HTTP (port 443/80, never blocked).
-
-  Python FastAPI ──HTTPS/POST──► Node.js Mailer Service ──SMTP──► Gmail
+Simple, native email sending using Python's built-in smtplib.
+No third-party SDKs, no external microservices.
 """
 import logging
 import threading
 import time
-import requests
+import smtplib
+from email.message import EmailMessage
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
@@ -30,32 +29,31 @@ class EmailService:
         from_name: Optional[str] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
-        Sends an email via the project's native Node.js Nodemailer microservice.
+        Sends an email via Python's built-in smtplib using Gmail.
         """
         display_name = from_name or "Tender Intelligence"
+        from_formatted = f"{display_name} <{settings.SMTP_USER}>"
         
         try:
-            url = f"{settings.MAILER_URL.rstrip('/')}/send"
-            payload = {
-                "to": to,
-                "subject": subject,
-                "html": html_content,
-                "fromName": display_name
-            }
+            msg = EmailMessage()
+            msg["Subject"] = subject
+            msg["From"] = from_formatted
+            msg["To"] = to
+            msg.set_content("Please enable HTML to view this email.")
+            msg.add_alternative(html_content, subtype="html")
+
+            logger.info("Sending simple email to %s via SMTP", to)
             
-            logger.info("Sending email request to local microservice: %s", url)
-            response = requests.post(url, json=payload, timeout=15)
-            response.raise_for_status()
-            
-            result = response.json()
-            msg_id = result.get("messageId", "unknown")
-            logger.info("Email sent to %s via Nodemailer (id: %s)", to, msg_id)
+            # Use SMTP_SSL for port 465
+            with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                server.login(settings.SMTP_USER, settings.SMTP_PASS)
+                server.send_message(msg)
+                
+            logger.info("Email sent successfully to %s", to)
             return True, None
             
-        except requests.exceptions.RequestException as e:
-            err = f"MailerService Connection Error: {str(e)}"
-            if hasattr(e, 'response') and e.response is not None:
-                err = f"MailerService API Error ({e.response.status_code}): {e.response.text}"
+        except Exception as e:
+            err = f"SMTP Send Error: {str(e)}"
             logger.exception(err)
             return False, err[:500]
 
