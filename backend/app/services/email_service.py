@@ -120,6 +120,10 @@ class EmailService:
         </div>
         <p>Hello Team,</p>
         <p>Please find the consolidated tender collection for <strong>{date_str}</strong> below.</p>
+        <div style="margin-top:20px;padding:10px 15px;background:#f8f9fa;border-left:3px solid #1a73e8;display:inline-block;border-radius:0 6px 6px 0;">
+            <strong style="color:#555;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Total Tenders:</strong> 
+            <span style="font-size:18px;font-weight:900;color:#000;margin-left:8px;">{len(tenders)}</span>
+        </div>
         <div style="margin-top:40px;">{rows_html}</div>
         <p style="font-size:11px;color:#aaa;margin-top:60px;text-align:center;">
             Authorized by Leonex Tender Platform.
