@@ -104,7 +104,7 @@ class Settings(BaseSettings):
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 465
     SMTP_USER: str = "leonexinternship@gmail.com"
-    SMTP_PASS: str = "iurwecaxcnrnwlst"
+    SMTP_PASS: str = "juwwbtgbeojxnfml"
     SMTP_TLS: bool = True
 
     EMAIL_FROM: str = "Tender Intelligence <onboarding@resend.dev>"
