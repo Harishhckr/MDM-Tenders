@@ -116,13 +116,13 @@ class EmailService:
     <div style="max-width:600px;margin:0 auto;">
         <div style="border-left:4px solid #000;padding-left:20px;margin-bottom:40px;">
             <p style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#888;margin:0;">Automated Distribution</p>
-            <h2 style="font-size:28px;font-weight:900;margin:5px 0 0 0;letter-spacing:-0.5px;">Tender Intelligence Report</h2>
+            <h2 style="font-size:28px;font-weight:900;margin:5px 0 0 0;letter-spacing:-0.5px;">Tender Report</h2>
         </div>
         <p>Hello Team,</p>
         <p>Please find the consolidated tender collection for <strong>{date_str}</strong> below.</p>
         <div style="margin-top:40px;">{rows_html}</div>
         <p style="font-size:11px;color:#aaa;margin-top:60px;text-align:center;">
-            Authorized by Leonex Tender Intelligence Platform.
+            Authorized by Leonex Tender Platform.
         </p>
     </div>
 </body></html>"""
@@ -167,7 +167,7 @@ class EmailService:
         )
 
         html_content = cls.generate_tender_report_html(tenders)
-        subject = f"Tender Intelligence Report \u2013 {datetime.now().strftime('%d %b %Y')}"
+        subject = f"Tender Report \u2013 {datetime.now().strftime('%d %b %Y')}"
 
         if manual_recipient:
             recipients = [EmailRecipient(email=manual_recipient, name="Subscriber", is_active=True)]
