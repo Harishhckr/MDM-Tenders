@@ -1,14 +1,13 @@
 // ============================================================
 // Admin Portal — Main Entry Point (Robust Version)
 // ============================================================
-import { registerRoute, handleRoute, getCurrentRoute } from './router.js?v=2.4';
-import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js?v=2.4';
-import { renderLogin } from './pages/Login.js?v=2.4';
-import { renderDashboard } from './pages/Dashboard.js?v=2.4';
-import { renderScrapers } from './pages/Scrapers.js?v=2.4';
-import { renderUsers } from './pages/Users.js?v=2.4';
-import { renderTerminal } from './pages/Terminal.js?v=2.4';
-import { renderEmails } from './pages/Emails.js?v=2.4';
+import { registerRoute, handleRoute, getCurrentRoute } from './router.js?v=3.0';
+import { isLoggedIn, getApiBase, getApiMode, clearToken } from './utils/api.js?v=3.0';
+import { renderLogin } from './pages/Login.js?v=3.0';
+import { renderDashboard } from './pages/Dashboard.js?v=3.0';
+import { renderScrapers } from './pages/Scrapers.js?v=3.0';
+import { renderUsers } from './pages/Users.js?v=3.0';
+import { renderTerminal } from './pages/Terminal.js?v=3.0';
 
 console.log('[Main] Booting System...');
 
@@ -18,7 +17,6 @@ registerRoute('/dashboard', renderDashboard);
 registerRoute('/scrapers', renderScrapers);
 registerRoute('/users', renderUsers);
 registerRoute('/terminal', renderTerminal);
-registerRoute('/emails', renderEmails);
 
 function initTheme() {
     try {
@@ -110,7 +108,6 @@ function renderTopbar() {
                         <button class="bb-nav-item ${isActive('/dashboard')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/dashboard'">Overview</button>
                         <button class="bb-nav-item ${isActive('/scrapers')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/scrapers'">Scrapers</button>
                         <button class="bb-nav-item ${isActive('/users')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/users'">Users</button>
-                        <button class="bb-nav-item ${isActive('/emails')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/emails'">Email</button>
                         <button class="bb-nav-item ${isActive('/terminal')}" style="padding:6px 16px; font-weight:600; font-size:13px; border-radius:8px;" onclick="window.location.hash='#/terminal'">System Logs</button>
                     </div>
 
