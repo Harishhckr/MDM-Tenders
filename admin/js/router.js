@@ -44,11 +44,18 @@ export async function handleRoute() {
             return;
         }
 
+        // Global Anti-Leak: Clear all intervals on every route change
+        const highestId = window.setInterval(() => { }, 0);
+        for (let i = 0; i <= highestId; i++) {
+            window.clearInterval(i);
+        }
+
         const handler = routes[path] || (loggedIn ? routes['/dashboard'] : routes['/login']);
         const content = document.getElementById('admin-content');
 
         if (content && handler) {
             try {
+                content.innerHTML = '<div style="text-align:center; padding:100px; color:#555; font-family:sans-serif;">Loading system components...</div>';
                 await handler(content);
             } catch (err) {
                 console.error('[Router] Handler Error:', err);
