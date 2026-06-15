@@ -1,27 +1,24 @@
 """
-EmailService — Resend HTTP API Transport
+EmailService — Native HTTP API Transport
 =========================================
 Since Render's free tier blocks all outbound SMTP ports (25, 465, 587),
-we use the Resend SDK which makes HTTPS calls (port 443, never blocked).
+we use our own Node.js Nodemailer service over HTTP (port 443/80, never blocked).
 
-  Python FastAPI ──HTTPS──► Resend API ──SMTP──► Gmail/any inbox
+  Python FastAPI ──HTTPS/POST──► Node.js Mailer Service ──SMTP──► Gmail
 """
 import logging
 import threading
 import time
+import requests
 from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
-import resend
 from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import SessionLocal
 from app.models import Tender, EmailRecipient, EmailLog, EmailSetting
 
 logger = logging.getLogger("email_service")
-
-# Set Resend API key once at module load
-resend.api_key = settings.RESEND_API_KEY
 
 
 class EmailService:
@@ -33,29 +30,33 @@ class EmailService:
         from_name: Optional[str] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
-        Sends an email via Resend HTTP API.
-        Works on Render, Railway, Heroku, Vercel — any cloud platform.
+        Sends an email via the project's native Node.js Nodemailer microservice.
         """
         display_name = from_name or "Tender Intelligence"
-        # 'onboarding@resend.dev' works in test mode (sends to any inbox).
-        # To use your own domain: verify leonexinternship@gmail.com at resend.com/domains
-        from_address = f"{display_name} <onboarding@resend.dev>"
-
+        
         try:
-            params: resend.Emails.SendParams = {
-                "from": from_address,
-                "to": [to],
+            url = f"{settings.MAILER_URL.rstrip('/')}/send"
+            payload = {
+                "to": to,
                 "subject": subject,
                 "html": html_content,
+                "fromName": display_name
             }
-            result = resend.Emails.send(params)
-            msg_id = result.get("id") if isinstance(result, dict) else getattr(result, "id", "")
-            logger.info("Email sent to %s via Resend (id: %s)", to, msg_id)
+            
+            logger.info("Sending email request to local microservice: %s", url)
+            response = requests.post(url, json=payload, timeout=15)
+            response.raise_for_status()
+            
+            result = response.json()
+            msg_id = result.get("messageId", "unknown")
+            logger.info("Email sent to %s via Nodemailer (id: %s)", to, msg_id)
             return True, None
-        except Exception as e:
-            err = f"Resend {type(e).__name__}: {str(e)}"
+            
+        except requests.exceptions.RequestException as e:
+            err = f"MailerService Connection Error: {str(e)}"
+            if hasattr(e, 'response') and e.response is not None:
+                err = f"MailerService API Error ({e.response.status_code}): {e.response.text}"
             logger.exception(err)
-            # Truncate slightly for UI but keep enough to read the restriction
             return False, err[:500]
 
     @staticmethod

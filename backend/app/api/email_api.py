@@ -96,7 +96,7 @@ def get_email_logs(limit: int = 100, db: Session = Depends(get_db), _admin=Depen
     return [l.to_dict() for l in logs]
 
 @router.post("/trigger")
-def trigger_sync(background_tasks: BackgroundTasks, date: Optional[str] = None):
+def trigger_sync(background_tasks: BackgroundTasks, date: Optional[str] = None, _admin=Depends(require_admin) if not settings.DEBUG else None):
     """Manually triggers a daily report sync using a fresh background session."""
     from app.database import SessionLocal
     
@@ -127,10 +127,13 @@ def send_test_email(data: Dict[str, Any], db: Session = Depends(get_db), _admin=
     subject = "Test Email from Tender Platform"
     html = f"<div style='font-family:sans-serif; padding:20px;'><h1 style='color:#1a73e8;'>System Test</h1><p>This is a test email triggered from the Admin Portal Email Management system.</p><p>Sent at: {uuid.uuid4()}</p></div>"
     
-    success = EmailService.send_email(email, subject, html)
-    EmailService.log_email(db, email, subject, "sent" if success else "failed", None if success else "Test send failure")
+    success, err_msg = EmailService.send_email(email, subject, html)
+    EmailService.log_email(db, email, subject, "sent" if success else "failed", None if success else err_msg)
     
-    return {"status": "success" if success else "failed", "message": "Email sent" if success else "Check backend logs"}
+    if not success:
+        return {"status": "failed", "message": err_msg or "Failed to send email"}
+    
+    return {"status": "success", "message": "Email sent successfully"}
 
 @router.post("/send-now")
 def trigger_manual_report(db: Session = Depends(get_db), _admin=Depends(require_admin) if not settings.DEBUG else None):
