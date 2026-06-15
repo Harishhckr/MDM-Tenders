@@ -48,7 +48,6 @@ export async function handleRoute() {
         const content = document.getElementById('admin-content');
 
         if (content && handler) {
-            content.innerHTML = `<div style="text-align:center;padding:100px;color:#666;font-family:monospace;font-size:13px;">SYNCHRONIZING ${path.toUpperCase()}...</div>`;
             try {
                 await handler(content);
             } catch (err) {

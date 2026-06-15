@@ -39,7 +39,7 @@ export async function renderLogs(container) {
 
     document.getElementById('adm-log-source')?.addEventListener('change', loadLogs);
 
-    await loadLogs();
+    loadLogs();
     if (logTimer) clearInterval(logTimer);
     logTimer = setInterval(loadLogs, 6000);
 

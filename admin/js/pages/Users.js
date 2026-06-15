@@ -11,7 +11,7 @@ export async function renderUsers(container) {
         </div>
     `;
     if (window.lucide) window.lucide.createIcons();
-    await loadUsers();
+    loadUsers();
 }
 
 async function loadUsers() {

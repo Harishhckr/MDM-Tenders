@@ -41,7 +41,7 @@ export function initRouter(container) {
         }
 
         // 3. Admin-only guard
-        const adminRoutes = ['/portal', '/ai-overview', '/settings'];
+        const adminRoutes = ['/portal', '/settings'];
         if (isAuth && adminRoutes.includes(path) && getUserRole() !== 'admin') {
             console.warn("Unauthorized access attempt to admin route:", path);
             navigate('/tenders');

@@ -41,7 +41,8 @@ export async function renderDashboard(container) {
     `;
     if (window.lucide) window.lucide.createIcons();
 
-    await loadDashboard();
+    // Fire load in background — never block shell rendering
+    loadDashboard();
     if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = setInterval(loadDashboard, 8000);
 

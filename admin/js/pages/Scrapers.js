@@ -39,7 +39,7 @@ export async function renderScrapers(container) {
 
     if (window.lucide) window.lucide.createIcons();
 
-    await loadScraperStatus();
+    loadScraperStatus();
     if (pollTimer) clearInterval(pollTimer);
     // Auto-refresh disabled to improve UI performance
 
