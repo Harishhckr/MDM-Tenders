@@ -637,7 +637,7 @@ def main():
     
     # Configure date range (set to None for no filter)
     date_from = None    # March 1, 2026
-    date_to = None      # March 31, 2026
+    date_to = None        # March 31, 2026
     
     # Set to None for no date filter
     # date_from = None

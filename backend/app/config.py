@@ -103,12 +103,12 @@ class Settings(BaseSettings):
     # Legacy SMTP fields (kept for reference — NOT used on Render)
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 465
-    SMTP_USER: str = "leonexinternship@gmail.com"
-    SMTP_PASS: str = "yqmirmdjsfbizmtd"
+    SMTP_USER: str = "mail.leonex@gmail.com"
+    SMTP_PASS: str = "tqavdjtflicobdgx"
     SMTP_TLS: bool = True
 
-    EMAIL_FROM: str = "leonexinternship@gmail.com"
-    EMAIL_REPLY_TO: str = "leonexinternship@gmail.com"
+    EMAIL_FROM: str = "mail.leonex@gmail.com"
+    EMAIL_REPLY_TO: str = "mail.leonex@gmail.com"
 
 
 settings = Settings()
