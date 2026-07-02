@@ -32,28 +32,33 @@ async def lifespan(app: FastAPI):
             # 2. Create default user if none exists
             db = SessionLocal()
             try:
-                user_count = db.query(User).count()
-                if user_count == 0:
-                    logger.info("No users found. Auto-creating default admin user...")
-                    default_user = User(
-                        email="admin@leonex.net",
-                        username="admin",
-                        hashed_password=hash_password("Admin@123"),
-                        full_name="System Admin",
-                        role="admin",
-                        is_active=True
-                    )
-                    db.add(default_user)
-                    db.commit()
-                    logger.info("Default Admin created: admin@leonex.net / Admin@123")
-                else:
-                    logger.info(f"Database has {user_count} users. Auto-creation of default admin bypassed.")
-                    # Safe one-time reset for admin@leonex.net if needed after migration
-                    admin_user = db.query(User).filter(User.email == "admin@leonex.net", User.role == "admin").first()
-                    if admin_user:
-                        admin_user.hashed_password = hash_password("Admin@123")
-                        db.commit()
-                        logger.info("Safe reset: Ensured admin@leonex.net password is 'Admin@123'")
+                # 2. Check and enforce Role-Based Default Users
+                def ensure_user(email, username, password, role_name):
+                    user = db.query(User).filter(User.email == email).first()
+                    if not user:
+                        logger.info(f"Creating default {role_name} user ({email})...")
+                        user = User(
+                            email=email,
+                            username=username,
+                            hashed_password=hash_password(password),
+                            full_name=f"System {role_name.capitalize()}",
+                            role=role_name,
+                            is_active=True
+                        )
+                        db.add(user)
+                    else:
+                        logger.info(f"Existing {role_name} found ({email}) - enforcing specific role attributes...")
+                        user.hashed_password = hash_password(password)
+                        user.role = role_name
+                        user.is_active = True
+                
+                # Enforce Admin Account
+                ensure_user("admin@leonex.net", "admin", "Admin@123", "admin")
+                # Enforce Standard User Account
+                ensure_user("Leonexdotcom@gmail.com", "leonex_user", "Leonex@123", "user")
+                
+                db.commit()
+                logger.info("Role-based accounts successfully checked and enforced.")
             finally:
                 db.close()
             break # Success, exit retry loop
