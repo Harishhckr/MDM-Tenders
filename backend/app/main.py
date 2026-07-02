@@ -34,18 +34,26 @@ async def lifespan(app: FastAPI):
             try:
                 user_count = db.query(User).count()
                 if user_count == 0:
-                    logger.info("No users found. Creating default admin user...")
+                    logger.info("No users found. Auto-creating default admin user...")
                     default_user = User(
                         email="admin@leonex.net",
                         username="admin",
-                        hashed_password=hash_password("password123"),
+                        hashed_password=hash_password("Admin@123"),
                         full_name="System Admin",
                         role="admin",
                         is_active=True
                     )
                     db.add(default_user)
                     db.commit()
-                    logger.info("Default user created: admin@leonex.net / password123")
+                    logger.info("Default Admin created: admin@leonex.net / Admin@123")
+                else:
+                    logger.info(f"Database has {user_count} users. Auto-creation of default admin bypassed.")
+                    # Safe one-time reset for admin@leonex.net if needed after migration
+                    admin_user = db.query(User).filter(User.email == "admin@leonex.net", User.role == "admin").first()
+                    if admin_user:
+                        admin_user.hashed_password = hash_password("Admin@123")
+                        db.commit()
+                        logger.info("Safe reset: Ensured admin@leonex.net password is 'Admin@123'")
             finally:
                 db.close()
             break # Success, exit retry loop
