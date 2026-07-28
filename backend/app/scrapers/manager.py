@@ -42,58 +42,64 @@ class ScraperManager:
 
         if self.playwright is None:
             is_windows = os.name == 'nt'
-            use_real_browser = is_windows and not self.headless  # Use real Edge on Windows visible mode
+            use_real_browser = is_windows and not self.headless
 
-            self.logger.info(
-                f"Initializing Playwright "
-                f"({'Microsoft Edge' if use_real_browser else 'Chromium'}, headless={self.headless})..."
-            )
             self.playwright = sync_playwright().start()
 
+            # Build arg lists
+            stealth_args = ["--disable-blink-features=AutomationControlled"]
+            headless_args = stealth_args + [
+                "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"
+            ]
+            fallback_ua = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                           "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+            # Try order: real browser channels first on Windows visible, else bundled Chromium
+            candidates = []
             if use_real_browser:
-                # On Windows visible mode: use the real Edge browser
-                # This passes Cloudflare since it has real fingerprints
-                browser_args = ["--disable-blink-features=AutomationControlled"]
-                channel = "msedge"
-                user_agent = None  # Let Edge use its own real UA (don't spoof)
-            else:
-                # On Linux (Render) or headless: use bundled Chromium with stealth args
-                browser_args = [
-                    "--disable-blink-features=AutomationControlled",
-                    "--no-sandbox",
-                    "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage",
+                candidates = [
+                    {"channel": "msedge", "args": stealth_args,  "user_agent": None},
+                    {"channel": "chrome", "args": stealth_args,  "user_agent": None},
+                    {"channel": None,     "args": headless_args, "user_agent": fallback_ua},
                 ]
-                channel = None
-                user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            else:
+                candidates = [
+                    {"channel": None, "args": headless_args, "user_agent": fallback_ua},
+                ]
 
-            launch_kwargs = dict(
-                user_data_dir=self.profile_dir,
-                headless=self.headless,
-                args=browser_args,
-                viewport={"width": 1280, "height": 900},
-            )
-            if channel:
-                launch_kwargs["channel"] = channel
-            if user_agent:
-                launch_kwargs["user_agent"] = user_agent
+            profile_dirs = [self.profile_dir]
 
-            try:
-                self.context = self.playwright.chromium.launch_persistent_context(**launch_kwargs)
-            except Exception as profile_err:
-                # Profile directory is likely locked by another process (Windows limitation)
-                # Fall back to a temp profile so the scraper can still run
-                import tempfile
-                tmp_dir = tempfile.mkdtemp(prefix="pw_profile_")
-                self.logger.warning(f"Persistent profile locked ({profile_err}). Using temp profile: {tmp_dir}")
-                launch_kwargs["user_data_dir"] = tmp_dir
-                self.context = self.playwright.chromium.launch_persistent_context(**launch_kwargs)
+            self.context = None
+            for cand in candidates:
+                for pdir in profile_dirs:
+                    try:
+                        label = cand["channel"] or "Chromium"
+                        self.logger.info(f"Trying {label} with profile: {pdir}")
+                        kw = dict(
+                            user_data_dir=pdir,
+                            headless=self.headless,
+                            args=cand["args"],
+                            viewport={"width": 1280, "height": 900},
+                        )
+                        if cand["channel"]:
+                            kw["channel"] = cand["channel"]
+                        if cand["user_agent"]:
+                            kw["user_agent"] = cand["user_agent"]
+                        self.context = self.playwright.chromium.launch_persistent_context(**kw)
+                        self.logger.info(f"Browser launched: {label}")
+                        break
+                    except Exception as e:
+                        self.logger.warning(f"  {label} @ {pdir} failed: {repr(e)}")
+                        import tempfile
+                        tmp = tempfile.mkdtemp(prefix="pw_profile_")
+                        profile_dirs = [tmp]  # next attempt uses temp dir
+                if self.context:
+                    break
+
+            if not self.context:
+                raise RuntimeError("All browser launch attempts failed. Check logs above.")
 
 
-
-            # Remove webdriver property to evade bot detection
-            self.context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            self._launched_headless = self.headless
 
         if not self.context.pages:
             self.page = self.context.new_page()

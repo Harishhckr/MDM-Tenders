@@ -141,11 +141,12 @@ def run_all_scrapers(db: Session, source_filter: Optional[str] = None, headless:
 
         except Exception as exc:
             log.status = "failed"
-            log.error_message = str(exc)
+            log.error_message = str(exc) or repr(exc)  # repr catches exceptions with empty str()
             log.completed_at  = datetime.now(timezone.utc)
             db.commit()
-            logger.error("[%s] failed: %s", scraper.SOURCE, exc)
-            summary[scraper.SOURCE] = {"error": str(exc)}
+            logger.error("[%s] failed: %s", scraper.SOURCE, repr(exc))
+            summary[scraper.SOURCE] = {"error": log.error_message}
+
 
     # If this was a full multi-source run, trigger the daily email report automatically
     if source_filter is None and total_saved > 0:
