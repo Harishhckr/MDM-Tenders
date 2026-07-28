@@ -4,7 +4,6 @@
 import { getApiBase, adminFetch } from '../utils/api.js';
 
 let termTimer = null;
-let lastLogId = null;
 
 export async function renderTerminal(container) {
     container.innerHTML = `
@@ -41,9 +40,13 @@ export async function renderTerminal(container) {
     `;
     if (window.lucide) window.lucide.createIcons();
 
+    // Load DB crawl logs first — always available on any server (local or remote)
+    await loadCrawlLogs();
+    // Then load live in-memory system logs
     await loadTerminalLogs();
+
     if (termTimer) clearInterval(termTimer);
-    termTimer = setInterval(loadTerminalLogs, 1000);
+    termTimer = setInterval(loadTerminalLogs, 2000);
 
     const obs = new MutationObserver(() => {
         if (!document.getElementById('hacker-output')) {
@@ -52,6 +55,39 @@ export async function renderTerminal(container) {
         }
     });
     obs.observe(document.body, { childList: true, subtree: true });
+}
+
+/** Load DB crawl logs — always available on ANY server. Shows history even on fresh local start. */
+async function loadCrawlLogs() {
+    try {
+        const res = await adminFetch(`${getApiBase()}/admin/logs?limit=50`);
+        if (!res || !res.ok) return;
+        const d = await res.json();
+        const logs = d.logs || [];
+        if (!logs.length) return;
+
+        const out = document.getElementById('hacker-output');
+        if (!out) return;
+
+        out.innerHTML += `<div class="hacker-line" style="color:#555;border-bottom:1px solid #1a3a2a;margin:4px 0;">── Recent Crawl History (DB) ──────────────────────────────────</div>`;
+
+        [...logs].reverse().forEach(log => {
+            const src = (log.source || '').toUpperCase().padEnd(12);
+            const kw = log.keyword || 'N/A';
+            const st = log.status || '?';
+            const saved = log.tenders_saved || '0';
+            const ts = log.started_at ? new Date(log.started_at).toLocaleString() : '?';
+            const err = log.error_message ? ` ERR: ${log.error_message}` : '';
+            let color = '#10b981';
+            if (st === 'failed') color = '#ef4444';
+            if (st === 'stopped') color = '#f59e0b';
+            const safeErr = err.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            out.innerHTML += `<div class="hacker-line" style="color:${color}">[${ts}] [${st.toUpperCase()}] ${src} kw="${kw}" saved=${saved}${safeErr}</div>`;
+        });
+
+        out.innerHTML += `<div class="hacker-line" style="color:#555;border-bottom:1px solid #1a3a2a;margin:4px 0;">── Live System Logs ────────────────────────────────────────────</div>`;
+        out.scrollTop = out.scrollHeight;
+    } catch (e) { /* silent */ }
 }
 
 async function loadTerminalLogs() {
@@ -65,37 +101,31 @@ async function loadTerminalLogs() {
         if (!out) return;
 
         let added = false;
-
-        const currentLines = out.querySelectorAll('.hacker-line').length;
+        const currentLines = out.querySelectorAll('.hacker-line[data-live]').length;
 
         if (logs.length > currentLines) {
             const newLogs = logs.slice(currentLines);
             newLogs.forEach(lineText => {
-                let color = '#10b981'; // Green
+                let color = '#10b981';
                 if (lineText.includes('ERROR')) color = '#ef4444';
                 if (lineText.includes('WARNING')) color = '#f59e0b';
-
                 const safeText = lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                out.innerHTML += `<div class="hacker-line" style="color:${color}">${safeText}</div>`;
+                out.innerHTML += `<div class="hacker-line" data-live="1" style="color:${color}">${safeText}</div>`;
                 added = true;
             });
         } else if (logs.length < currentLines) {
-            out.innerHTML = '';
+            // Server restarted — clear live lines but keep the DB history above
+            out.querySelectorAll('[data-live]').forEach(el => el.remove());
             logs.forEach(lineText => {
                 let color = '#10b981';
                 if (lineText.includes('ERROR')) color = '#ef4444';
                 if (lineText.includes('WARNING')) color = '#f59e0b';
                 const safeText = lineText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                out.innerHTML += `<div class="hacker-line" style="color:${color}">${safeText}</div>`;
+                out.innerHTML += `<div class="hacker-line" data-live="1" style="color:${color}">${safeText}</div>`;
                 added = true;
             });
         }
 
-        if (added) {
-            out.scrollTop = out.scrollHeight;
-        }
-
-    } catch (e) {
-        // silent
-    }
+        if (added) out.scrollTop = out.scrollHeight;
+    } catch (e) { /* silent */ }
 }

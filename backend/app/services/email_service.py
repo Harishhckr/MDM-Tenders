@@ -283,6 +283,30 @@ class EmailService:
                 r.email, subject, html_content, from_name=settings_row.sender_name
             )
             cls.log_email(db, r.email, subject, "sent" if success else "failed", err)
+
+    @classmethod
+    def send_scraper_failure_alert(cls, db: Session, source: str, error: str):
+        """Sends an alert to admins when a scraper fails completely (e.g. Cloudflare blockage)."""
+        settings_row = db.query(EmailSetting).first()
+        if not settings_row:
+            return
+            
+        subject = f"Tender Scraper Alert: {source.upper()} Failed"
+        html_content = f"""
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+            <h2 style="color:#d32f2f;">Scraper Failure Alert</h2>
+            <p>The scraper for <strong>{source}</strong> encountered a fatal error and was skipped.</p>
+            <p><strong>Error Details:</strong></p>
+            <pre style="background:#f4f4f4;padding:15px;border-radius:4px;overflow-x:auto;">{error}</pre>
+            <p style="font-size:12px;color:#888;">This is an automated system notification.</p>
+        </div>
+        """
+        
+        recipients = db.query(EmailRecipient).filter(EmailRecipient.is_active == True).all()
+        for r in recipients:
+            success, err = cls.send_email(r.email, subject, html_content, from_name=settings_row.sender_name)
+            cls.log_email(db, r.email, subject, "sent" if success else "failed", err)
+
 class EmailScheduler:
     @staticmethod
     def start():

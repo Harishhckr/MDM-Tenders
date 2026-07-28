@@ -328,8 +328,11 @@ window._startScraper = async (event, source) => {
     try {
         const isHeadless = localStorage.getItem('admin_headless') !== 'false';
         const baseUrl = !isHeadless ? 'http://localhost:8000/api' : getApiBase();
-        await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
-    } catch (e) { console.error(e); }
+        const res = await adminFetch(`${baseUrl}/admin/scrapers/start?source=${source}&headless=${isHeadless}`, { method: 'POST' });
+        if (!res.ok) {
+            alert(`Could not start ${source} locally. Make sure the local server is running and you are logged in locally. (HTTP ${res.status})`);
+        }
+    } catch (e) { alert("Network Error: " + e.message); console.error(e); }
 
     setTimeout(async () => {
         btn.innerHTML = originalHTML;

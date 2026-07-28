@@ -23,6 +23,13 @@ def setup_global_memory_logger():
     root = logging.getLogger()
     if _memory_handler not in root.handlers:
         root.addHandler(_memory_handler)
+    
+    # Also capture Uvicorn's access log (200 OK lines) and error log
+    for uvicorn_logger_name in ("uvicorn.access", "uvicorn.error", "uvicorn"):
+        uv_log = logging.getLogger(uvicorn_logger_name)
+        if _memory_handler not in uv_log.handlers:
+            uv_log.addHandler(_memory_handler)
+
 
 
 

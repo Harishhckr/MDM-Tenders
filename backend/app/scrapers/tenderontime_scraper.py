@@ -1,6 +1,7 @@
 """
-TenderOnTime Scraper — No Filter Version
+TenderOnTime Scraper — Playwright Version
 - Navigates to advanceSearch URL with keyword
+- Uses PlaywrightBaseScraper and ScraperManager
 - Scans up to 5 pages of tender listings
 - Visits each tender detail page
 - Checks Summary for keyword match
@@ -9,16 +10,11 @@ TenderOnTime Scraper — No Filter Version
 
 import time
 import re
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from app.scrapers.playwright_base import PlaywrightBaseScraper
 
-from app.scrapers.base import BaseScraper
-
-
-class TenderOnTimeScraper(BaseScraper):
+class TenderOnTimeScraper(PlaywrightBaseScraper):
     SOURCE = "tenderontime"
 
     def scrape(self, keyword: str) -> List[Dict]:
@@ -36,48 +32,57 @@ class TenderOnTimeScraper(BaseScraper):
             formatted = self._format_keyword(keyword)
             search_url = f"https://www.tendersontime.com/tenders/advanceSearch?q={formatted}"
             self.logger.info(f"[TenderOnTime] Loading: {search_url}")
-            self.safe_get(search_url, delay=5)
+            
+            success = self.manager.safe_goto(search_url, min_delay=2.0)
+            if not success:
+                self.logger.error(f"[TenderOnTime] Failed to load initial search URL for {keyword}")
+                return results
 
             # Step 2: Wait for page to load
-            time.sleep(3)
+            self.page.wait_for_timeout(3000)
 
             # Step 3: Get total result count
             result_count = self._get_result_count()
             self.logger.info(f"[TenderOnTime] Found {result_count} total results for '{keyword}'")
 
+            if result_count == 0:
+                self.logger.info("No results found, skipping.")
+                return results
+
             # Step 4: Process up to 5 pages
             # Phase 1: Collect metadata from all pages
-            page = 1
+            page_num = 1
             max_pages = 5
             seen_urls = set()
             listings = []
 
-            while page <= max_pages:
-                self.logger.info(f"[TenderOnTime] Phase 1: Collecting page {page}/{max_pages}")
-                time.sleep(2)
+            while page_num <= max_pages:
+                self.logger.info(f"[TenderOnTime] Phase 1: Collecting page {page_num}/{max_pages}")
+                self.page.wait_for_timeout(2000)
 
                 items = self._find_tender_items()
-                if not items and page == 1:
+                if not items and page_num == 1:
                     self.logger.warning(f"No tenders found for '{keyword}'")
                     break
                 if not items:
-                    self.logger.info(f"No more tenders on page {page}")
+                    self.logger.info(f"No more tenders on page {page_num}")
                     break
 
-                self.logger.info(f"Found {len(items)} tenders on page {page}")
+                self.logger.info(f"Found {len(items)} tenders on page {page_num}")
                 for item in items:
                     try:
                         data = self._extract_listing_metadata(item, seen_urls)
                         if data:
                             listings.append(data)
                     except Exception as e:
-                        pass
+                        self.logger.debug(f"Error extracting row: {e}")
 
                 if not self._next_page():
                     self.logger.info("No more pages available")
                     break
-                page += 1
-                time.sleep(2)
+                
+                page_num += 1
+                self.page.wait_for_timeout(2000)
 
             self.logger.info(f"[TenderOnTime] Phase 1 Complete. Found {len(listings)} links. Starting Phase 2.")
 
@@ -99,44 +104,39 @@ class TenderOnTimeScraper(BaseScraper):
         return results
 
     def _format_keyword(self, keyword: str) -> str:
-        """Format keyword for URL - replace spaces with %20"""
         return keyword.strip().replace(" ", "%20")
 
     def _get_result_count(self) -> int:
-        """Get total number of results from the page"""
         try:
-            result_elem = self.driver.find_element(By.ID, "resultcount")
-            text = result_elem.text
-            match = re.search(r'\[(\d+)\]', text)
-            if match:
-                return int(match.group(1))
+            result_elem = self.page.locator("#resultcount")
+            if result_elem.count() > 0:
+                text = result_elem.first.inner_text()
+                match = re.search(r'\[(\d+)\]', text)
+                if match:
+                    return int(match.group(1))
         except Exception:
             pass
         return 0
 
-    def _find_tender_items(self) -> List:
-        """Find tender items on the page"""
+    def _find_tender_items(self) -> List[Any]:
         selectors = [
             "div.listingbox.ng-scope",
             "div.listingbox",
             "div.tender-item"
         ]
         for sel in selectors:
-            items = self.driver.find_elements(By.CSS_SELECTOR, sel)
-            if items:
-                return items
+            loc = self.page.locator(sel)
+            if loc.count() > 0:
+                return loc.all()
         return []
 
-    def _extract_listing_metadata(self, item, seen_urls: set) -> Optional[Dict]:
-        """Extract basic data from the listing row without visiting details"""
+    def _extract_listing_metadata(self, item: Any, seen_urls: set) -> Optional[Dict]:
         try:
-            # Extract title and link
             title, href = self._extract_title_and_link(item)
             if not href or href in seen_urls:
                 return None
             seen_urls.add(href)
 
-            # Extract listing data
             deadline = self._extract_deadline(item)
             tot_ref = self._extract_tot_ref(item)
             country = self._extract_country(item)
@@ -152,18 +152,16 @@ class TenderOnTimeScraper(BaseScraper):
             return None
 
     def _visit_and_check_summary(self, data: Dict, keyword: str) -> Optional[Dict]:
-        """Visit detail page and extract if keyword is found"""
         try:
-            # Visit detail page
-            self.safe_get(data["href"], delay=2)
+            success = self.manager.safe_goto(data["href"], min_delay=1.0, max_delay=3.0)
+            if not success:
+                return None
 
-            # Check keyword in Summary section
             found, excerpt = self._check_summary(keyword)
 
             if not found:
                 return None
 
-            # Extract additional details from detail page
             posting_date = self._get_posting_date()
 
             tender_data = self.normalize(
@@ -181,48 +179,44 @@ class TenderOnTimeScraper(BaseScraper):
             return tender_data
 
         except Exception as e:
-            self.logger.debug(f"Process error: {e}")
+            self.logger.debug(f"Process error checking details: {e}")
             return None
 
-    def _extract_title_and_link(self, item) -> Tuple[str, Optional[str]]:
-        """Extract title and detail link from listing item"""
+    def _extract_title_and_link(self, item: Any) -> Tuple[str, Optional[str]]:
         try:
-            link_el = item.find_element(By.CSS_SELECTOR, "a.truncatetext.ng-binding")
-            title = link_el.text.strip()
-            href = link_el.get_attribute("href")
-            return title, href
+            link_el = item.locator("a.truncatetext.ng-binding")
+            if link_el.count() > 0:
+                return link_el.first.inner_text().strip(), link_el.first.get_attribute("href")
         except:
             pass
 
         try:
-            link_el = item.find_element(By.CSS_SELECTOR, "a.listing-prod-view.mobbtn")
-            href = link_el.get_attribute("href")
-            title = item.find_element(By.CSS_SELECTOR, "a.truncatetext").text.strip()
-            return title, href
+            link_el = item.locator("a.listing-prod-view.mobbtn")
+            if link_el.count() > 0:
+                href = link_el.first.get_attribute("href")
+                title_el = item.locator("a.truncatetext")
+                title = title_el.first.inner_text().strip() if title_el.count() > 0 else ""
+                return title, href
         except:
             pass
-
         return "", None
 
-    def _extract_deadline(self, item) -> str:
-        """Extract deadline from listing item"""
+    def _extract_deadline(self, item: Any) -> str:
         try:
-            deadline_el = item.find_element(By.CSS_SELECTOR, "div.deadline strong.ng-binding")
-            return deadline_el.text.strip()
-        except:
-            pass
-
-        try:
-            deadline_el = item.find_element(By.XPATH, ".//p[contains(text(), 'Deadline')]/strong")
-            return deadline_el.text.strip()
+            deadline_el = item.locator("div.deadline strong.ng-binding")
+            if deadline_el.count() > 0:
+                return deadline_el.first.inner_text().strip()
+                
+            deadline_el2 = item.locator("xpath=.//p[contains(text(), 'Deadline')]/strong")
+            if deadline_el2.count() > 0:
+                return deadline_el2.first.inner_text().strip()
         except:
             pass
         return ""
 
-    def _extract_tot_ref(self, item) -> str:
-        """Extract TOT Reference Number from listing item"""
+    def _extract_tot_ref(self, item: Any) -> str:
         try:
-            text = item.text
+            text = item.inner_text()
             match = re.search(r'TOT Ref\. No\.?:?\s*(\d+)', text)
             if match:
                 return match.group(1)
@@ -230,24 +224,26 @@ class TenderOnTimeScraper(BaseScraper):
             pass
 
         try:
-            ref_el = item.find_element(By.XPATH, ".//p[contains(text(), 'TOT Ref. No.')]/strong")
-            return ref_el.text.strip()
+            ref_el = item.locator("xpath=.//p[contains(text(), 'TOT Ref. No.')]/strong")
+            if ref_el.count() > 0:
+                return ref_el.first.inner_text().strip()
         except:
             pass
         return ""
 
-    def _extract_country(self, item) -> str:
-        """Extract country from listing item"""
+    def _extract_country(self, item: Any) -> str:
         try:
-            flag_span = item.find_element(By.CSS_SELECTOR, "span.flag-icon")
-            parent = flag_span.find_element(By.XPATH, "..")
-            strong = parent.find_element(By.TAG_NAME, "strong")
-            return strong.text.strip()
+            flag_span = item.locator("span.flag-icon")
+            if flag_span.count() > 0:
+                parent = flag_span.first.locator("xpath=..")
+                strong = parent.locator("strong")
+                if strong.count() > 0:
+                    return strong.first.inner_text().strip()
         except:
             pass
 
         try:
-            text = item.text
+            text = item.inner_text()
             countries = ['India', 'South Korea', 'USA', 'Spain', 'United Kingdom', 'Belgium', 'Czech Republic']
             for country in countries:
                 if country in text:
@@ -257,72 +253,65 @@ class TenderOnTimeScraper(BaseScraper):
         return ""
 
     def _check_summary(self, keyword: str) -> Tuple[bool, str]:
-        """Check if keyword appears in the Summary section on detail page"""
         phrase = keyword.lower()
-
         try:
-            # Find all strong.strval elements
-            summaries = self.driver.find_elements(By.CSS_SELECTOR, "strong.strval")
+            summaries = self.page.locator("strong.strval").all()
             for s in summaries:
-                parent_text = s.find_element(By.XPATH, "..").text
-                if "Summary:" in parent_text:
-                    txt = s.text.lower()
-                    if phrase in txt:
+                try:
+                    parent = s.locator("xpath=..")
+                    if parent.count() > 0 and "Summary:" in parent.first.inner_text():
+                        txt = s.inner_text().lower()
+                        if phrase in txt:
+                            idx = txt.find(phrase)
+                            start = max(0, idx - 60)
+                            end = min(len(txt), idx + len(phrase) + 60)
+                            return True, s.inner_text()[start:end]
+                except:
+                    pass
+
+            # Fallback
+            for s in summaries:
+                try:
+                    txt = s.inner_text().lower()
+                    if phrase in txt and len(txt) > 20:
                         idx = txt.find(phrase)
                         start = max(0, idx - 60)
                         end = min(len(txt), idx + len(phrase) + 60)
-                        excerpt = s.text[start:end]
-                        return True, excerpt
+                        return True, s.inner_text()[start:end]
+                except:
+                    pass
         except Exception:
             pass
-
-        # Fallback: check all strong.strval with length > 20
-        try:
-            summaries = self.driver.find_elements(By.CSS_SELECTOR, "strong.strval")
-            for s in summaries:
-                txt = s.text.lower()
-                if phrase in txt and len(txt) > 20:
-                    idx = txt.find(phrase)
-                    start = max(0, idx - 60)
-                    end = min(len(txt), idx + len(phrase) + 60)
-                    excerpt = s.text[start:end]
-                    return True, excerpt
-        except Exception:
-            pass
-
         return False, ""
 
     def _get_posting_date(self) -> str:
-        """Get posting date from detail page"""
         try:
-            dates = self.driver.find_elements(By.CSS_SELECTOR, "strong.strval")
+            dates = self.page.locator("strong.strval").all()
             for d in dates:
-                parent = d.find_element(By.XPATH, "..")
-                if "Posting Date:" in parent.text:
-                    return d.text.strip()
+                try:
+                    parent = d.locator("xpath=..")
+                    if parent.count() > 0 and "Posting Date:" in parent.first.inner_text():
+                        return d.inner_text().strip()
+                except:
+                    pass
         except:
             pass
         return ""
 
     def _next_page(self) -> bool:
-        """Go to next page"""
         try:
-            next_btn = self.driver.find_element(By.CSS_SELECTOR, "li.nextclass a")
-            if next_btn.is_displayed():
-                self.js_click(next_btn)
-                time.sleep(3)
+            next_btn = self.page.locator("li.nextclass a")
+            if next_btn.count() > 0 and next_btn.first.is_visible():
+                next_btn.first.evaluate("el => el.click()")
+                self.page.wait_for_timeout(3000)
                 return True
-        except:
-            pass
-
-        try:
-            next_btns = self.driver.find_elements(By.XPATH, "//a[contains(text(), 'Next')]")
+                
+            next_btns = self.page.locator("xpath=//a[contains(text(), 'Next')]").all()
             for btn in next_btns:
-                if btn.is_displayed():
-                    self.js_click(btn)
-                    time.sleep(3)
+                if btn.is_visible():
+                    btn.evaluate("el => el.click()")
+                    self.page.wait_for_timeout(3000)
                     return True
         except:
             pass
-
         return False

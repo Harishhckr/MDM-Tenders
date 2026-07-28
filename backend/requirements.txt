@@ -11,6 +11,7 @@ redis==5.2.1
 selenium==4.27.1
 webdriver-manager==4.0.2
 python-dotenv==1.0.1
+playwright==1.49.1
 # ── Auth ──────────────────────────────────────────────────────────────
 passlib[bcrypt]==1.7.4
 python-jose[cryptography]==3.3.0

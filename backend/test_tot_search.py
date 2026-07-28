@@ -10,5 +10,4 @@ try:
         for i, r in enumerate(results[:3]):
             print(f"[{i}] ID: {r.get('tender_id')} | Title: {r.get('title')[:100]}")
 finally:
-    if scraper.driver:
-        scraper.driver.quit()
+    scraper.close_driver()

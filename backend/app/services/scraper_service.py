@@ -146,6 +146,12 @@ def run_all_scrapers(db: Session, source_filter: Optional[str] = None, headless:
             db.commit()
             logger.error("[%s] failed: %s", scraper.SOURCE, exc)
             summary[scraper.SOURCE] = {"error": str(exc)}
+            
+            try:
+                from app.services.email_service import EmailService
+                EmailService.send_scraper_failure_alert(db, scraper.SOURCE, str(exc))
+            except Exception as e_alert:
+                logger.error("Failed to send scraper alert email: %s", e_alert)
 
     # If this was a full multi-source run, trigger the daily email report automatically
     if source_filter is None and total_saved > 0:
