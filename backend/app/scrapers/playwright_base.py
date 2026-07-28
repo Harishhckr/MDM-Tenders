@@ -2,7 +2,7 @@ import logging
 import random
 import time
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional
 
 from app.scrapers.manager import ScraperManager
 from app.utils.logger import get_logger
@@ -70,32 +70,46 @@ class PlaywrightBaseScraper(ABC):
 
     def run_all_keywords(self, keywords: List[str]) -> List[Dict]:
         results: List[Dict] = []
+        keyword_errors: List[str] = []
         sync_manager.clear_stop_flag(self.SOURCE)
-        
+
         self.setup_driver()
         try:
             for idx, kw in enumerate(keywords):
                 self.check_stop()
                 self.logger.info(f"[{self.SOURCE}] Scraping keyword {idx + 1}/{len(keywords)}: {kw}")
-                
+
                 try:
                     batch = self.scrape(kw)
                     self.logger.info(f"[{self.SOURCE}] Got {len(batch)} results for '{kw}'")
                     results.extend(batch)
-                    
+                    keyword_errors = []  # reset on any success
+
                     if idx < len(keywords) - 1:
                         self.logger.info(f"[{self.SOURCE}] Waiting between keywords...")
                         random_between_keyword_delay()
-                        
+
                 except ScrapeStoppedException as exc:
                     self.logger.warning(f"[{self.SOURCE}] Scraping fully halted ({exc})")
                     break
                 except Exception as exc:
-                    self.logger.error(f"[{self.SOURCE}] Error scraping '{kw}': {exc}")
-                    
+                    err_msg = str(exc) or repr(exc)
+                    self.logger.error(f"[{self.SOURCE}] Error scraping '{kw}': {err_msg}")
+                    keyword_errors.append(err_msg)
+
+                    # Cloudflare / CAPTCHA blocks every page — no point trying rest of keywords
+                    lower = err_msg.lower()
+                    if any(kw in lower for kw in ("cloudflare", "captcha", "challenge", "could not bypass")):
+                        self.logger.error(f"[{self.SOURCE}] Critical block detected — aborting all keywords.")
+                        raise Exception(err_msg)
+
         except ScrapeStoppedException as exc:
             self.logger.warning(f"[{self.SOURCE}] Outermost scrape loop halted ({exc})")
         finally:
             self.close_driver()
-            
+
+        # Surface the error if every keyword failed and nothing was saved
+        if not results and keyword_errors:
+            raise Exception(keyword_errors[-1])
+
         return results

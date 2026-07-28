@@ -6,6 +6,7 @@ import os
 import time
 import random
 import logging
+import threading
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional, Any
 
@@ -26,6 +27,12 @@ from app.utils.human_behavior import (
     slow_scroll, human_delay, random_between_keyword_delay,
     random_mouse_move, get_random_proxy
 )
+
+# Module-level lock: only ONE thread installs/reads chromedriver at a time.
+# This prevents the 'Text file busy' race condition on Render when Sync All
+# launches all scrapers simultaneously.
+_DRIVER_INSTALL_LOCK = threading.Lock()
+_DRIVER_PATH_CACHE: Optional[str] = None
 
 
 class BaseScraper(ABC):
@@ -73,12 +80,9 @@ class BaseScraper(ABC):
         if os.path.exists(binary_path):
             opts.binary_location = binary_path
 
-        try:
-            service = Service(ChromeDriverManager().install())
-            self.driver = webdriver.Chrome(service=service, options=opts)
-        except Exception as e:
-            self.logger.error(f"Failed to start driver with Service: {e}")
-            self.driver = webdriver.Chrome(options=opts)
+        driver_path = self._get_driver_path()
+        service = Service(driver_path)
+        self.driver = webdriver.Chrome(service=service, options=opts)
 
         self.wait   = WebDriverWait(self.driver, settings.SCRAPE_TIMEOUT)
 
@@ -86,7 +90,23 @@ class BaseScraper(ABC):
         inject_stealth_scripts(self.driver)
 
         self.logger.info("Driver started (headless=%s, proxy=%s)",
-                         settings.HEADLESS_MODE, bool(proxy))
+                         use_headless, bool(proxy))
+
+    @staticmethod
+    def _get_driver_path() -> str:
+        """Install / return chromedriver path. Thread-safe: only one thread downloads at a time."""
+        global _DRIVER_PATH_CACHE
+        if _DRIVER_PATH_CACHE:
+            return _DRIVER_PATH_CACHE
+        with _DRIVER_INSTALL_LOCK:
+            # Double-check after acquiring lock (another thread may have set it)
+            if _DRIVER_PATH_CACHE:
+                return _DRIVER_PATH_CACHE
+            logger = logging.getLogger("scraper.base")
+            logger.info("Installing/locating chromedriver (thread-safe)...")
+            _DRIVER_PATH_CACHE = ChromeDriverManager().install()
+            logger.info("Chromedriver path cached: %s", _DRIVER_PATH_CACHE)
+            return _DRIVER_PATH_CACHE
 
     def close_driver(self) -> None:
         if self.driver:
