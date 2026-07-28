@@ -167,17 +167,34 @@ class ScraperManager:
 
     def _handle_challenge(self) -> bool:
         """
-        Wait up to 15s for Cloudflare to auto-resolve.
+        Wait for Cloudflare to resolve.
+        - Visible mode (headless=False): wait up to 5 minutes for manual user interaction
+        - Headless mode: wait 15 seconds for auto-resolve only
         Returns True if resolved, False if still blocked.
         """
-        self.logger.info("Waiting for challenge to automatically resolve...")
+        if not self.headless:
+            # User can see the browser — give them time to solve CAPTCHA manually
+            wait_seconds = 300  # 5 minutes
+            self.logger.info(
+                f"[VISIBLE MODE] Cloudflare challenge detected. "
+                f"Please solve it in the open browser window. Waiting up to {wait_seconds}s..."
+            )
+        else:
+            wait_seconds = 15
+            self.logger.info("Waiting for challenge to automatically resolve...")
+
         try:
-            for _ in range(15):
+            for _ in range(wait_seconds):
                 if not self._is_challenge_page():
                     self.logger.info("Challenge resolved successfully.")
                     return True
                 time.sleep(1)
         except Exception as e:
             self.logger.error(f"Error while waiting for challenge: {e}")
-        self.logger.warning("Challenge did not resolve automatically within time limit.")
+
+        if not self.headless:
+            self.logger.warning("Challenge was not solved within 5 minutes. Browser will close.")
+        else:
+            self.logger.warning("Challenge did not resolve automatically within time limit.")
         return False
+
