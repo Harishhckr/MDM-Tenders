@@ -25,6 +25,14 @@ class ScraperManager:
     def start(self) -> Any:
         """Initialize Playwright and return a new or existing Page."""
         import asyncio
+        import sys
+        
+        # On Windows, Playwright requires ProactorEventLoop to launch subprocesses.
+        # Background threads (like those spawned by our API) might default to SelectorEventLoop,
+        # which causes a `NotImplementedError` when trying to launch the browser.
+        if sys.platform == "win32":
+            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
         try:
             asyncio.get_running_loop()
         except RuntimeError:
