@@ -174,27 +174,33 @@ class ScraperManager:
 
 
     def _is_challenge_page(self) -> bool:
-        """Detect Cloudflare, CAPTCHA, or Access Denied pages."""
-        content = self.page.content().lower()
-        title = self.page.title().lower()
-        
-        challenge_indicators = [
-            "verifying you are human",
-            "checking if the site connection is secure",
-            "cloudflare",
-            "attention required!",
-            "access denied",
-            "captcha"
-        ]
-        
-        # Fast check via title or common phrases
-        if any(ind in title for ind in challenge_indicators):
-            return True
+        """Detect Cloudflare, CAPTCHA, or Access Denied pages without false positives from CDNs."""
+        try:
+            title = self.page.title().lower()
             
-        if any(ind in content for ind in challenge_indicators):
-            return True
+            # 1. Strict title match (Cloudflare specific)
+            strict_titles = ["just a moment...", "attention required! | cloudflare", "attention required!"]
+            if any(st == title for st in strict_titles):
+                return True
+                
+            # 2. Check visible body text (not raw HTML, to avoid CDN scripts)
+            body_text = self.page.inner_text("body").lower() if self.page.locator("body").count() > 0 else ""
             
-        return False
+            visible_indicators = [
+                "verifying you are human",
+                "checking if the site connection is secure",
+                "cloudflare-nginx",
+                "prove you are human",
+                "enable javascript and cookies to continue"
+            ]
+            
+            if any(ind in body_text for ind in visible_indicators):
+                return True
+                
+            return False
+        except Exception as e:
+            self.logger.warning(f"Error checking challenge page: {e}")
+            return False
 
     def _handle_challenge(self) -> bool:
         """
