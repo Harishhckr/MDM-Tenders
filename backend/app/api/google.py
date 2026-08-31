@@ -166,6 +166,21 @@ class GoogleSearchScraper:
         
         return list(set(keywords))[:10]
     
+    @staticmethod
+    def _canonical_url(link: str) -> str:
+        """
+        Return a normalized form of a URL for deduplication.
+        Strips query-string and trailing slashes so that:
+          https://example.com/page?tracking=abc123
+          https://example.com/page?tracking=xyz999
+        are treated as the same page.
+        """
+        try:
+            p = urlparse(link.strip())
+            return f"{p.netloc}{p.path}".rstrip('/')
+        except Exception:
+            return link
+
     def _extract_result_block(self, block, original_query: str, base_phrase: str) -> Optional[Dict]:
         """Extract a single result block"""
         try:
@@ -173,18 +188,42 @@ class GoogleSearchScraper:
             title = title_elem.text.strip()
             if not title or len(title) < 3:
                 return None
-            
+
             link_elem = block.find_element(By.CSS_SELECTOR, "a[href]")
-            raw_link = link_elem.get_attribute('href')
-            
-            # Parse Google redirect URL
+            raw_link = link_elem.get_attribute('href') or ''
+
+            # Strategy 1: Old-style Google redirect /url?q=<real_url>
             if "/url?" in raw_link:
                 parsed = urlparse(raw_link)
                 params = parse_qs(parsed.query)
-                link = params['q'][0] if 'q' in params else raw_link
+                link = params.get('q', [raw_link])[0]
+
+            # Strategy 2: New encrypted /goto?url=CAES... — Google started using
+            # session-unique encrypted tokens in mid-2025. The same underlying page
+            # gets a DIFFERENT token every single search run, breaking exact-string
+            # deduplication. We recover the real URL from the <cite> element instead.
+            elif 'google.com' in raw_link and ('/goto' in raw_link or '/search' in raw_link):
+                link = None
+                try:
+                    cite = block.find_element(By.CSS_SELECTOR, 'cite')
+                    cite_text = cite.text.strip()
+                    if cite_text:
+                        # cite shows: "www.example.com › page › subpage"
+                        # Take the first segment as the domain and reconstruct
+                        parts = cite_text.split(' › ')
+                        domain_part = parts[0].strip()
+                        if '.' in domain_part and 'google' not in domain_part:
+                            prefix = '' if domain_part.startswith('http') else 'https://'
+                            path_part = '/'.join(p.strip() for p in parts[1:]) if len(parts) > 1 else ''
+                            link = prefix + domain_part + ('/' + path_part if path_part else '')
+                except Exception:
+                    pass
+
+                if not link:
+                    return None  # Can't recover real URL — skip
             else:
                 link = raw_link
-            
+
             if not link or link.startswith('/search'):
                 return None
             
@@ -599,21 +638,23 @@ class GoogleSearchScraper:
             db.close()
 
     def _save_results_type(self, db, results: List[Dict], result_type: str) -> int:
-        """Helper to save a specific type of results to DB, avoiding duplicates by link"""
-        existing_links = {
-            r.link
-            for r in db.query(GoogleResult.link)
-                       .filter(GoogleResult.result_type == result_type)
-                       .all()
-        }
-        
+        """Save results to DB, deduplicating by canonical URL (netloc+path, no query string)."""
+        existing_rows = db.query(GoogleResult.link)\
+                          .filter(GoogleResult.result_type == result_type)\
+                          .all()
+        # Canonical set: strip query strings so google tracking params don't break dedup
+        existing_canonical = {self._canonical_url(r.link) for r in existing_rows}
+
         count = 0
         for r in results:
-            link = r.get("link", "")
-            if not link or link in existing_links:
+            link = (r.get("link") or "").strip()
+            if not link:
                 continue
-                
-            existing_links.add(link)
+            canon = self._canonical_url(link)
+            if canon in existing_canonical:
+                continue
+
+            existing_canonical.add(canon)
             kws = r.get("keywords", [])
             db.add(GoogleResult(
                 result_type  = result_type,
@@ -626,7 +667,7 @@ class GoogleSearchScraper:
                 is_pdf       = "true" if r.get("is_pdf") else "false",
             ))
             count += 1
-            
+
         return count
 
 

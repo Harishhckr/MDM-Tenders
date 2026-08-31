@@ -151,19 +151,32 @@ def _run_scraper(db_session_factory, headless: bool = True):
         _sync_thread = None
 
 
+def _canonical_url(link: str) -> str:
+    """Normalize URL for deduplication: strip query string and trailing slashes."""
+    try:
+        from urllib.parse import urlparse
+        p = urlparse(link.strip())
+        return f"{p.netloc}{p.path}".rstrip('/')
+    except Exception:
+        return link
+
+
 def _save_results(db: Session, results: list, result_type: str) -> int:
-    existing_links = {
-        r.link
-        for r in db.query(GoogleResult.link)
-                   .filter(GoogleResult.result_type == result_type)
-                   .all()
-    }
+    existing_rows = db.query(GoogleResult.link)\
+                      .filter(GoogleResult.result_type == result_type)\
+                      .all()
+    # Use canonical URLs (no query string) to catch Google tracker variations
+    existing_canonical = {_canonical_url(r.link) for r in existing_rows}
+
     count = 0
     for r in results:
-        link = r.get("link", "")
-        if not link or link in existing_links:
+        link = (r.get("link") or "").strip()
+        if not link:
             continue
-        existing_links.add(link)
+        canon = _canonical_url(link)
+        if canon in existing_canonical:
+            continue
+        existing_canonical.add(canon)
         kws = r.get("keywords", [])
         db.add(GoogleResult(
             result_type  = result_type,
