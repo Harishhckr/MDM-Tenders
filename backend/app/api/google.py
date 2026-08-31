@@ -522,7 +522,7 @@ class GoogleSearchScraper:
     def run_full_search(self, max_pages: int = 7) -> Tuple[List[Dict], List[Dict]]:
         """Run full search with all keywords and all suffixes"""
         all_results = []
-        seen_links = set()
+        seen_canonical = set()  # Track netloc+path to catch same page with different query strings
         
         print("="*70)
         print("🚀 GOOGLE SEARCH SCRAPER - ALL MDM KEYWORDS")
@@ -556,8 +556,9 @@ class GoogleSearchScraper:
                     new_count = 0
                     new_results = []
                     for result in results:
-                        if result['link'] not in seen_links:
-                            seen_links.add(result['link'])
+                        canon = self._canonical_url(result.get('link', ''))
+                        if canon and canon not in seen_canonical:
+                            seen_canonical.add(canon)
                             all_results.append(result)
                             new_results.append(result)
                             new_count += 1
