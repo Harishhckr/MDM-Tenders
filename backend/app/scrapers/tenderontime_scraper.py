@@ -38,7 +38,19 @@ class TenderOnTimeScraper(PlaywrightBaseScraper):
                 self.logger.error(f"[TenderOnTime] Failed to load initial search URL for {keyword}")
                 return results
 
-            # Step 2: Wait for page to load
+            # Step 1.5: Click the Filter button to load results
+            try:
+                # Target the exact button the user specified
+                filter_btn = self.page.locator("button.search-btn[onclick*='filterTendersJS']")
+                if filter_btn.count() > 0 and filter_btn.first.is_visible():
+                    self.logger.info("[TenderOnTime] Clicking Filter button...")
+                    filter_btn.first.click()
+                else:
+                    self.logger.warning("[TenderOnTime] Filter button not found or not visible.")
+            except Exception as e:
+                self.logger.warning(f"[TenderOnTime] Could not click Filter button: {e}")
+
+            # Step 2: Wait for page to load results
             self.page.wait_for_timeout(3000)
 
             # Step 3: Get total result count
