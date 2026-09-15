@@ -50,6 +50,7 @@ desktop.ini
 # ── Logs & Temp Files ────────────────────────────────────────
 *.log
 logs/
+temp_edge_profile/
 browser_logs.txt
 error.txt
 td_inputs.txt

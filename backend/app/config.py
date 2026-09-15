@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # Database
     # Render server → set DATABASE_URL env var to internal URL in Render dashboard
     # Local dev     → .env uses external URL (oregon-postgres.render.com)
-    DATABASE_URL: str = "postgresql://mdm_scrap_user:osR0pNkPT6kuiUp7peLcLFPqNnDcEf8W@dpg-d8f73599rddc73ccibb0-a.oregon-postgres.render.com/mdm_scrap?sslmode=require"
+    DATABASE_URL: str = ""
 
     # Redis
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
@@ -66,7 +66,7 @@ class Settings(BaseSettings):
         "Material master catalogue",
         "SOFTWARE TOOL FOR MASTER DATA MANAGEMENT",
         "Data Enrichment",
-        "codification of material",
+        "codification of material",         
         "Supply and implementation of Vendor data",
         "data catalogue",
         "Data Validation ",
@@ -98,13 +98,13 @@ class Settings(BaseSettings):
 
     # Email — Resend HTTP API (works on Render / all cloud platforms)
     # Get your key at https://resend.com — free tier: 3000 emails/month
-    RESEND_API_KEY: str = "re_Ks2BAFfA_g4SHnLqQhnGxriRzWSPfkPs6"
+    RESEND_API_KEY: str = ""
 
     # Legacy SMTP fields (kept for reference — NOT used on Render)
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 465
     SMTP_USER: str = "mail.leonex@gmail.com"
-    SMTP_PASS: str = "tqavdjtflicobdgx"
+    SMTP_PASS: str = ""
     SMTP_TLS: bool = True
 
     EMAIL_FROM: str = "mail.leonex@gmail.com"
