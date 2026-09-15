@@ -130,10 +130,9 @@ try:
     app.include_router(email_router)              # /api/admin/emails/*
     logger.info("Email router loaded")
     
-    # Start scheduler
-    from app.services.email_service import EmailScheduler
-    EmailScheduler.start()
-    logger.info("Email scheduler background thread started")
+    # Email scheduler disabled — emails are sent only via manual Sync Engine trigger
+    # from app.services.email_service import EmailScheduler
+    # EmailScheduler.start()
 except Exception as exc:
     logger.warning("Email router/scheduler failed to load: %s", exc)
 
